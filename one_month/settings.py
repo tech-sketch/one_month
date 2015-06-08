@@ -64,7 +64,7 @@ ROOT_URLCONF = 'one_month.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'question/templates')],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -136,8 +136,9 @@ SOCIALACCOUNT_PROVIDERS = \
         { 'SCOPE': ['profile', 'email'],
           'AUTH_PARAMS': { 'access_type': 'online' } }}
 
-#LOGIN_URL          = '/login/'
-LOGIN_REDIRECT_URL = '/'
+LOGIN_URL          = 'accounts/login/'
+LOGIN_REDIRECT_URL = '/question'
+ACCOUNT_LOGOUT_REDIRECT_URL  = '/question'
 #LOGIN_REDIRECT_URL = 'question:show'
 #LOGIN_ERROR_URL    = '/login-error/'
 
@@ -149,3 +150,4 @@ SITE_ID = 1
 
 #SOCIAL_AUTH_USER_MODEL = 'auth.User'
 AUTH_USER_MODEL = 'accounts.User'
+

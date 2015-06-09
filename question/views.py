@@ -67,14 +67,12 @@ def question_edit(request):
             q.save()
 
             r_list = ReplyList()
-            #rand_user = User.objects.exclude(request.user)
-            #r_list.answerer = random.choice(rand_user)
-            r_list.answerer = request.user
-            print(r_list.answerer)
+            rand_user = User.objects.filter(~Q(username=request.user))
+            r_list.answerer = random.choice(rand_user)
             r_list.question = q
-            print(r_list.question)
-            r_list.time_limit_date = datetime.datetime.now()
+            print("-------------------------------------------------")
             print(q.time_limit)
+            r_list.time_limit_date = datetime.datetime.now() + datetime.timedelta(hours=q.time_limit.hour, minutes=q.time_limit.minute, seconds=q.time_limit.second)
             r_list.save()
 
             return redirect('question:top')

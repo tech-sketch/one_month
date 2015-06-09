@@ -44,6 +44,9 @@ INSTALLED_APPS = (
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
 
+    'bootstrapform',
+    'bootstrap_toolkit',
+
     'accounts',
     'question',
 )
@@ -109,8 +112,11 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
-
 STATIC_URL = '/static/'
+
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static'),
+)
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.debug',
@@ -136,18 +142,12 @@ SOCIALACCOUNT_PROVIDERS = \
         { 'SCOPE': ['profile', 'email'],
           'AUTH_PARAMS': { 'access_type': 'online' } }}
 
+
 LOGIN_URL          = 'accounts/login/'
 LOGIN_REDIRECT_URL = '/question'
 ACCOUNT_LOGOUT_REDIRECT_URL  = '/question'
-#LOGIN_REDIRECT_URL = 'question:show'
-#LOGIN_ERROR_URL    = '/login-error/'
 
 SITE_ID = 1
 
-#ACCOUNT_EMAIL_REQUIRED = True
-#ACCOUNT_USERNAME_REQUIRED = True
-#ACCOUNT_AUTHENTICATION_METHOD = 'email'
-
-#SOCIAL_AUTH_USER_MODEL = 'auth.User'
 AUTH_USER_MODEL = 'accounts.User'
 

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """one_month URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
@@ -19,5 +20,11 @@ from django.contrib import admin
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^accounts/', include('allauth.urls')),
+
+    # ルート
+    #url(r'^', include('question.urls', namespace='question')),
+
+    # アプリ関係
+    url(r'^question/', include('question.urls', namespace='question')),#ここ、質問のnsとかぶる？
 ]
 

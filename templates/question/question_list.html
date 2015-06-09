@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% load bootstrap_toolkit %}
+
+{% block title %}質問一覧{% endblock title %}
+
+{% block content %}
+
+    {# 挨拶 #}
+    <p>こんにちは！{{uname}}さん</p>
+
+    {# 質問一覧 #}
+    <div class="service">
+        <div class="desc"><h2>{{uname}}さんの質問一覧</h2>
+            <a href="____search____">質問検索</a></div>
+              <div class=" clear"></div>
+              <p>&nbsp;</p>
+                {% for question in questions %}
+                    <h4> {{ question.questioner.last_name }}{{ question.questioner.first_name }}&nbsp;{{ question.date }}&nbsp;</h4>
+                    <h4>タイトル：&nbsp;<a href="xxxx">{{ question.title }}</a></h4>
+                    <p>&nbsp;</p>
+                {% endfor %}
+        </div>
+    </div>
+
+{% endblock content %}

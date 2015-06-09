@@ -47,7 +47,7 @@ def top_default(request):
                               context_instance=RequestContext(request))
 
 @login_required(login_url='/accounts/google/login')
-def q_edit(request):
+def question_edit(request):
     """
     質問ページ
     """
@@ -69,12 +69,12 @@ def q_edit(request):
     else:
         form = QuestionEditForm(instance=q)
 
-    return render_to_response('question/q_edit.html',
+    return render_to_response('question/question_edit.html',
                               {'form': form, 'id': id},
                               context_instance=RequestContext(request))
 
 @login_required(login_url='/accounts/google/login')
-def r_edit(request):
+def reply_edit(request):
     """
     返信ページ
     """
@@ -103,12 +103,12 @@ def r_edit(request):
     else:
         form = ReplyEditForm(instance=r)
 
-    return render_to_response('question/r_edit.html',
+    return render_to_response('question/reply_edit.html',
                               {'form': form, 'question':question ,'id': id},
                               context_instance=RequestContext(request))
 
 @login_required(login_url='/accounts/login')
-def q_list(request):
+def question_list(request):
 
     """
     自分が今までにした質問一覧を表示する
@@ -117,6 +117,6 @@ def q_list(request):
     #最新のものから順に表示（下書きも表示させる）
     questions = Question.objects.filter(questioner=request.user).order_by('-date')[:]
 
-    return render_to_response('question/q_list.html',
+    return render_to_response('question/question_list.html',
                               {'questions': questions, 'uname': request.user.last_name+request.user.first_name},
                               context_instance=RequestContext(request))

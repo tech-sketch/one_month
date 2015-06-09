@@ -112,8 +112,11 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
-
 STATIC_URL = '/static/'
+
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static'),  # プロジェクト直下のstaticディレクトリを指定
+)
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.debug',
@@ -152,5 +155,3 @@ SITE_ID = 1
 
 #SOCIAL_AUTH_USER_MODEL = 'auth.User'
 AUTH_USER_MODEL = 'accounts.User'
-
-STATIC_URL = '/question/static/'

@@ -18,3 +18,9 @@ class Reply(models.Model):
     text = models.TextField('返信内容')
     date = models.DateTimeField('返信日時', default=datetime.now)
     draft = models.BooleanField('下書き', default=False)
+
+class ReplyList(models.Model):
+    question = models.ForeignKey(Question)
+    answerer = models.ForeignKey(m.User)
+    time_limit_date = models.DateTimeField('返信日時', default=datetime.now)
+    has_replied = models.BooleanField('返信済み', default=False)

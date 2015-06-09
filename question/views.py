@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django import forms
 from django.db.models import Q
 import random
-from question.models import Question, Reply
+from question.models import Question, Reply, ReplyList
 
 
 # Create your views here.
@@ -63,6 +63,9 @@ def question_edit(request):
             q.questioner = request.user
             q.draft = form.cleaned_data['draft']
             q.save()
+
+            r_list = ReplyList()
+
             return redirect('question:top')
         pass
     # new

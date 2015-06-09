@@ -6,6 +6,8 @@ from django import forms
 from django.db.models import Q
 import random
 from question.models import Question, Reply, ReplyList
+from accounts.models import User
+import datetime
 
 
 # Create your views here.
@@ -65,6 +67,15 @@ def question_edit(request):
             q.save()
 
             r_list = ReplyList()
+            #rand_user = User.objects.exclude(request.user)
+            #r_list.answerer = random.choice(rand_user)
+            r_list.answerer = request.user
+            print(r_list.answerer)
+            r_list.question = q
+            print(r_list.question)
+            r_list.time_limit_date = datetime.datetime.now()
+            print(q.time_limit)
+            r_list.save()
 
             return redirect('question:top')
         pass

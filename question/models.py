@@ -22,5 +22,5 @@ class Reply(models.Model):
 class ReplyList(models.Model):
     question = models.ForeignKey(Question)
     answerer = models.ForeignKey(m.User)
-    time_limit_date = models.DateTimeField('返信日時', default=datetime.now)
+    time_limit_date = models.DateTimeField('返信日時')
     has_replied = models.BooleanField('返信済み', default=False)

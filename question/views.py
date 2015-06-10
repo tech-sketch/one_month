@@ -8,7 +8,7 @@ from django.db.models import Q
 import random
 from question.models import Question, Reply, ReplyList
 from accounts.models import User
-import datetime
+import datetime, pytz
 from question.tasks import add, countdown
 
 
@@ -70,7 +70,7 @@ def question_edit(request):
             r_list.save()
 
             # タイムリミットカウントダウン開始（非同期）
-            #result = countdown.delay(r_list)
+            result = countdown.delay(r_list)
 
             return redirect('question:top')
         pass
@@ -84,12 +84,41 @@ def question_edit(request):
 
 #全ユーザーの中からランダムに返信ユーザーを決定する。（u:User 対象としたくないユーザー, q:Question）
 def reply_list_update_random(u, q):
+
     r_list = ReplyList()
     rand_user = User.objects.filter(~Q(username=u)).filter(~Q(username=q.questioner))
-    r_list.answerer = random.choice(rand_user)
-    r_list.question = q
-    r_list.time_limit_date = datetime.datetime.now() + datetime.timedelta(hours=q.time_limit.hour, minutes=q.time_limit.minute, seconds=q.time_limit.second)
-    return r_list
+
+    try:
+        r_list.answerer = random.choice(rand_user)
+        r_list.question = q
+        r_list.time_limit_date = datetime.datetime.now() + datetime.timedelta(hours=q.time_limit.hour, minutes=q.time_limit.minute, seconds=q.time_limit.second)
+        return r_list
+    except IndexError:
+        return None
+
+def reply_list_update_random_except(users, question):
+    """
+    指定されたユーザリスト以外の中からランダムに次の回答ユーザを決定する。
+    """
+
+    r_list = ReplyList()
+
+    #rand_user = User.objects.filter(~Q(username=question.questioner))
+    rand_user = User.objects.all()
+
+    for u in users:
+        rand_user = rand_user.filter(~Q(username=u))
+
+    try:
+        r_list.answerer = random.choice(rand_user)
+        r_list.question = question
+        r_list.time_limit_date = datetime.datetime.now() + datetime.timedelta(
+                                    hours=question.time_limit.hour,
+                                    minutes=question.time_limit.minute,
+                                    seconds=question.time_limit.second)
+        return r_list
+    except IndexError:
+        return None
 
 
 @login_required(login_url='/accounts/login')
@@ -150,18 +179,33 @@ def question_list(request):
 @login_required(login_url='/accounts/login')
 def question_pass(request, id=None):
     """
-    来た質問をパスする
+    来た質問をパスする。
+    次に質問を回す人は、質問者と既にパスした人にはならないようにする。
+    また、質問者以外のユーザを質問が回り終わったら、質問者にお知らせする。
     """
+
     if 'replylist_id' in request.POST:
         replylist_id = request.POST['replylist_id']
         replylist = ReplyList.objects.get(id=replylist_id)
         replylist.has_replied = True
         replylist.save()
 
-        new_replylist = reply_list_update_random(replylist.answerer, replylist.question)
-        new_replylist.save()
+        #new_replylist = reply_list_update_random(replylist.answerer, replylist.question)
 
-    return HttpResponse("パスしました") # TODO　質問無しページ作る
+        # 質問者と今までパスした人（自分=request.userも含む）は次の回答ユーザ候補から除く
+        reply_lists_pass_users = ReplyList.objects.filter(question=replylist.question, has_replied=True)
+        pass_user_list = [r.answerer for r in reply_lists_pass_users]
+        pass_user_list.append(replylist.question.questioner)
+        new_replylist = reply_list_update_random_except(pass_user_list, replylist.question)
+
+        if new_replylist != None:
+            new_replylist.save()
+            return HttpResponse("パスしました") # TODO　パスしましたページ作る
+        else:
+            # TODO パスが回り終わったときに質問者に通知する仕組みを考える
+            return HttpResponse("パスしましたが、次の回答ユーザが見つかりませんでした。この質問は回答者無しとして質問者に報告されます")
+    else:
+        return HttpResponse("不明なエラーです！（question_pass() in views.py）")
 
 @login_required(login_url='/accounts/login')
 def question_detail(request, id=None):
@@ -175,7 +219,7 @@ def question_detail(request, id=None):
     # 質問に対する回答を取ってくる
     # まだ回答が来てない場合のためにget_object_or_404は使わずにこちらを使う
     try:
-        r = Reply.objects.get(question=q)
+        r = Reply.objects.get(question=q) # 一つの質問につき返信が複数ある場合はfilterを使うこと
     except Reply.DoesNotExist:
         r = None
 
@@ -205,9 +249,9 @@ def reply_list(request):
     """
 
     # 06/09 返信リストの中から自分あて、かつ返信済みでない質問を取ってくる
-    # 返信期限が早いものから順に表示
-    replylist = ReplyList.objects.filter(answerer=request.user, has_replied=False)
-    #.order_by('time_limit_date')[:]
+    # 返信期限がまだ来てないもの、かつ返信期限が早いものから順に表示
+    replylist = ReplyList.objects.filter(answerer=request.user, has_replied=False,
+                                        time_limit_date__gte=datetime.datetime.now(pytz.utc)).order_by('time_limit_date')[:]
     questions = [r.question for r in replylist]
 
     return render_to_response('question/reply_list.html',

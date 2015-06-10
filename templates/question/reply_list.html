@@ -14,12 +14,11 @@
                     <!-- Default panel contents -->
                     <div class="panel-heading">
                         <h4>{{ question.questioner }}さんからの質問</h4>
-                        <h4>タイトル：&nbsp;<a href="{% url 'question:r_new' id=question.id %}">{{ question.title }}</a></h4>
                         <h5>{{ question.date }}&nbsp;回答期限：{{ question.time_limit }}&nbsp;</h5>
                     </div>
                     <!-- List group -->
                     <ul class="list-group">
-                        <li class="list-group-item"><h4>タイトル：{{ question.title }}</h4></li>
+                        <li class="list-group-item"><h4>タイトル：&nbsp;<a href="{% url 'question:r_new' id=question.id %}">{{ question.title }}</a></h4></li>
                         <li class="list-group-item"><h4>本文：<p>&nbsp;</p>{{ question.text|linebreaksbr }}</h4></li>
                     </ul>
                 </div>

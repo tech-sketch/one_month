@@ -36,7 +36,7 @@
     <form action="{% url 'question:q_pass' id=question.id %}" method="post">
     	{% csrf_token %}
     	<input type="hidden" name="replylist_id" value="{{replylist.id}}">
-		<tr><input type="submit"  name="pass" value="pass"></tr>
+		<input type="submit"  name="pass" value="パスする" class="btn btn-primary">
 	</form>
 	<p>&nbsp;</p>
 

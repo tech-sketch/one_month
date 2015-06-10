@@ -20,7 +20,12 @@
     <p>&nbsp;</p>
 
     {# パスするボタン #}
-    <a class="btn btn-default" href="{% url 'question:q_pass' id=question.id %}" role="button">パスする</a>
+    <form action="{% url 'question:q_pass' id=question.id %}" method="post">
+    	{% csrf_token %}
+    	<input type="hidden" name="replylist_id" value="{{replylist.id}}">
+		<tr><input type="submit"  name="pass" value="pass"></tr>
+	</form>
+	<a class="btn btn-default" href="{% url 'question:q_pass' id=question.id %}" role="button">パスする</a>
     <p>&nbsp;</p>
 
     {# 一覧に戻るボタン #}

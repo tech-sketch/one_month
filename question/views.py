@@ -152,3 +152,28 @@ def question_pass(request, id=None):
     """
 
     return HttpResponse("パスしました") # TODO　質問無しページ作る
+
+@login_required(login_url='/accounts/login')
+def question_detail(request, id=None):
+
+    """
+    自分の質問の詳細を表示する
+    """
+    # 指定された質問を取ってくる
+    q = get_object_or_404(Question, pk=id)
+
+    # 質問に対する回答を取ってくる
+    # まだ回答が来てない場合のためにget_object_or_404は使わずにこちらを使う
+    try:
+        r = Reply.objects.get(question=q)
+    except Reply.DoesNotExist:
+        r = None
+
+    # user check
+    if q.questioner != request.user:
+        # 他人の質問は表示できないようにする
+        return HttpResponse("他の人の質問は表示できません！") # TODO　表示できないよページ作る
+
+    return render_to_response('question/question_detail.html',
+                              {'question': q, 'reply': r},
+                              context_instance=RequestContext(request))

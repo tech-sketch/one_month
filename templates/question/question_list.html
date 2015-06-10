@@ -17,7 +17,7 @@
               <p>&nbsp;</p>
                 {% for question in questions %}
                     <h4> {{ question.questioner.last_name }}{{ question.questioner.first_name }}&nbsp;{{ question.date }}&nbsp;</h4>
-                    <h4>タイトル：&nbsp;<a href="xxxx">{{ question.title }}</a></h4>
+                    <h4>タイトル：&nbsp;<a href="{% url 'question:q_detail' id=question.id %}">{{ question.title }}</a></h4>
                     <p>&nbsp;</p>
                 {% endfor %}
         </div>

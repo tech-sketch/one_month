@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% load bootstrap_toolkit %}
+
+{% block title %}質問詳細{% endblock title %}
+
+{% block content %}
+
+    {# 内容表示 #}
+    <h2>質問詳細</h2>
+    <div class="service">
+        <p>&nbsp;</p>
+        <div class="panel panel-default">
+            <!-- Default panel contents -->
+            <div class="panel-heading">
+                <h4>{{ question.questioner.last_name }}{{ question.questioner.first_name }}&nbsp;
+                    {{ question.date }}&nbsp;
+                    {% if question.draft %} <font color="#DD0000">下書き</font> {% else %}送信済み{% endif %}
+                   </h4>
+            </div>
+            <!-- List group -->
+            <ul class="list-group">
+                <li class="list-group-item"><h4>タイトル：{{ question.title }}</h4></li>
+                <li class="list-group-item"><h4>本文：<p>&nbsp;</p>{{ question.text|linebreaksbr }}</h4></li>
+            </ul>
+        </div>
+    </div>
+
+    <p>&nbsp;</p>
+
+    {% if reply %}
+        <h2>回答詳細</h2>
+        <div class="service">
+            <p>&nbsp;</p>
+            <div class="panel panel-default">
+                <!-- Default panel contents -->
+                <div class="panel-heading">
+                    <h4>{{ reply.answerer.last_name }}{{ reply.answerer.first_name }}&nbsp;
+                        {{ reply.date }}&nbsp;
+                    </h4>
+                </div>
+                <!-- List group -->
+                <ul class="list-group">
+                    <li class="list-group-item"><h4>本文：<p>&nbsp;</p>{{ reply.text|linebreaksbr }}</h4></li>
+                </ul>
+            </div>
+        </div>
+    {% else %}
+        <h2>回答なし</h2>
+    {% endif %}
+
+    <p>&nbsp;</p>
+
+    {# 一覧に戻るボタン #}
+    <a class="btn btn-default" href="{% url 'question:q_list' %}" role="button">戻る</a>
+
+{% endblock content %}

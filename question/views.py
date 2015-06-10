@@ -9,6 +9,7 @@ import random
 from question.models import Question, Reply, ReplyList
 from accounts.models import User
 import datetime
+from question.tasks import add, countdown
 
 
 # Create your views here.
@@ -36,7 +37,7 @@ class ReplyEditForm(ModelForm):
           'text': forms.Textarea(attrs={'rows':20, 'cols':100}),
         }
 
-@login_required(login_url='/accounts/google/login')
+@login_required(login_url='/accounts/login')
 def top_default(request):
     """
     トップページ（デフォルト）
@@ -47,7 +48,7 @@ def top_default(request):
                               {'histories': histories, 'uname': request.user.last_name+request.user.first_name},
                               context_instance=RequestContext(request))
 
-@login_required(login_url='/accounts/google/login')
+@login_required(login_url='/accounts/login')
 def question_edit(request):
     """
     質問ページ
@@ -68,6 +69,9 @@ def question_edit(request):
             r_list = reply_list_update_random(request.user, q)
             r_list.save()
 
+            # タイムリミットカウントダウン開始（非同期）
+            #result = countdown.delay(r_list)
+
             return redirect('question:top')
         pass
     # new
@@ -81,14 +85,14 @@ def question_edit(request):
 #全ユーザーの中からランダムに返信ユーザーを決定する。（u:User 対象としたくないユーザー, q:Question）
 def reply_list_update_random(u, q):
     r_list = ReplyList()
-    rand_user = User.objects.filter(~Q(username=u))
+    rand_user = User.objects.filter(~Q(username=u)).filter(~Q(username=q.questioner))
     r_list.answerer = random.choice(rand_user)
     r_list.question = q
     r_list.time_limit_date = datetime.datetime.now() + datetime.timedelta(hours=q.time_limit.hour, minutes=q.time_limit.minute, seconds=q.time_limit.second)
     return r_list
 
 
-@login_required(login_url='/accounts/google/login')
+@login_required(login_url='/accounts/login')
 def reply_edit(request, id=None):
     """
     返信ページ
@@ -97,14 +101,9 @@ def reply_edit(request, id=None):
     # 指定された質問を取ってくる
     q = get_object_or_404(Question, pk=id)
 
-    replylist = ReplyList.objects.filter(question=q)[0]
-    #replylist = get_object_or_404(ReplyList, question=q)
-
-    print("aaaa")
-    if replylist == None:
-        print("replylist is none!!!")
-    print(replylist)
-    print("aaaa")
+    #replylist = ReplyList.objects.filter(question=q)[0]
+    # 各質問について、has_replied=Falseの回答済みリストは一つのみのはず
+    replylist = get_object_or_404(ReplyList, question=q, has_replied=False)
 
     r =Reply()
 
@@ -120,13 +119,9 @@ def reply_edit(request, id=None):
             r.draft = form.cleaned_data['draft']
             r.save()
 
-            # この質問の自分あての回答リストをもってくる
-            r_list = get_object_or_404(ReplyList, question = r.question, answerer=request.user)
-            """
-            if len(r_list) > 1:
-                return HttpResponse("")
-          """
-            r_list.has_replied = True # 回答済みにしておく
+            # この質問の自分あての回答リストを取ってきて、回答済みにしておく
+            r_list = get_object_or_404(ReplyList, question = r.question, answerer=request.user, has_replied=False) #has_replied=Falseはいらないと思う
+            r_list.has_replied = True
             r_list.save()
 
             return redirect('question:top')
@@ -193,7 +188,7 @@ def question_detail(request, id=None):
                               {'question': q, 'reply': r},
                               context_instance=RequestContext(request))
 
-@login_required(login_url='/accounts/google/login')
+@login_required(login_url='/accounts/login')
 def reply_list(request):
     """
     回答一覧ページ
@@ -211,7 +206,8 @@ def reply_list(request):
 
     # 06/09 返信リストの中から自分あて、かつ返信済みでない質問を取ってくる
     # 返信期限が早いものから順に表示
-    replylist = ReplyList.objects.filter(answerer=request.user, has_replied=False).order_by('time_limit_date')[:]
+    replylist = ReplyList.objects.filter(answerer=request.user, has_replied=False)
+    #.order_by('time_limit_date')[:]
     questions = [r.question for r in replylist]
 
     return render_to_response('question/reply_list.html',

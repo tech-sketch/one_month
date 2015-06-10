@@ -44,6 +44,9 @@ INSTALLED_APPS = (
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
 
+    'djcelery',
+    'kombu.transport.django',
+
     'bootstrapform',
     'bootstrap_toolkit',
 
@@ -151,3 +154,9 @@ SITE_ID = 1
 
 AUTH_USER_MODEL = 'accounts.User'
 
+###### django-celery configuations ######
+from djcelery import setup_loader
+setup_loader()
+BROKER_URL = 'django://'
+# Tasks will be executed asynchronously.
+CELERY_ALWAYS_EAGER = False

@@ -1,5 +1,6 @@
 from django.shortcuts import render_to_response, redirect, get_object_or_404
 from django.template import RequestContext
+from django.http import HttpResponse
 from django.forms import ModelForm
 from django.contrib.auth.decorators import login_required
 from django import forms
@@ -67,9 +68,9 @@ def question_edit(request):
             q.save()
 
             r_list = ReplyList()
-            #rand_user = User.objects.exclude(request.user)
-            #r_list.answerer = random.choice(rand_user)
-            r_list.answerer = request.user
+            rand_user = User.objects.filter(~Q(username=request.user))
+            r_list.answerer = random.choice(rand_user)
+            #r_list.answerer = request.user
             print(r_list.answerer)
             r_list.question = q
             print(r_list.question)
@@ -94,32 +95,44 @@ def reply_edit(request):
     """
     r = Reply()
 
+    """
     # ランダムに質問取ってくる
     #下書きにチェックがはいっていないもののみ最新のものから順に表示
     question_tmp = Question.objects.filter(~Q(questioner=request.user))#.order_by('-date')[:]
     question = list(filter(lambda x: x.draft==False, question_tmp))
     question = random.choice(question) #ランダムに質問を取ってくる
+    """
 
-    # edit
-    if request.method == 'POST':
-        form = ReplyEditForm(request.POST, instance=r)
+    # 06/09 返信リストの中から自分あて、かつ返信済みでない質問を取ってくる
+    replylist = ReplyList.objects.filter(Q(answerer=request.user))#.order_by('-date')[:] # 自分宛
+    replylist = replylist.filter(Q(has_replied=False))                                  # 返信済みでないもの
+    questions = [r.question for r in replylist]
 
-        # 完了がおされたら
-        if form.is_valid():
-            r = form.save(commit=False)
-            r.question = question# ランダムに決める
-            r.answerer = request.user
-            r.draft = form.cleaned_data['draft']
-            r.save()
-            return redirect('question:top')
-        pass
-    # new
+    if len(questions) > 0:
+        question = random.choice(questions) #ランダムに質問を取ってくる
+
+        # edit
+        if request.method == 'POST':
+            form = ReplyEditForm(request.POST, instance=r)
+
+            # 完了がおされたら
+            if form.is_valid():
+                r = form.save(commit=False)
+                r.question = question# ランダムに決める
+                r.answerer = request.user
+                r.draft = form.cleaned_data['draft']
+                r.save()
+                return redirect('question:top')
+            pass
+        # new
+        else:
+            form = ReplyEditForm(instance=r)
+
+        return render_to_response('question/reply_edit.html',
+                                  {'form': form, 'question':question ,'id': id},
+                                  context_instance=RequestContext(request))
     else:
-        form = ReplyEditForm(instance=r)
-
-    return render_to_response('question/reply_edit.html',
-                              {'form': form, 'question':question ,'id': id},
-                              context_instance=RequestContext(request))
+        return HttpResponse("質問なし") # TODO　質問無しページ作る
 
 @login_required(login_url='/accounts/login')
 def question_list(request):
@@ -134,3 +147,12 @@ def question_list(request):
     return render_to_response('question/question_list.html',
                               {'questions': questions, 'uname': request.user.last_name+request.user.first_name},
                               context_instance=RequestContext(request))
+
+@login_required(login_url='/accounts/login')
+def question_pass(request, id=None):
+
+    """
+    来た質問をパスする
+    """
+
+    return HttpResponse("パスしました") # TODO　質問無しページ作る

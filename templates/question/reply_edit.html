@@ -19,6 +19,10 @@
 
     <p>&nbsp;</p>
 
+    {# パスするボタン #}
+    <a class="btn btn-default" href="{% url 'question:q_pass' id=question.id %}" role="button">パスする</a>
+    <p>&nbsp;</p>
+
     {# 一覧に戻るボタン #}
     <a class="btn btn-default" href="{% url 'question:top' %}" role="button">戻る</a>
 

@@ -1,7 +1,8 @@
 Åîí«â¡
 .idea/
 db.sqlite3
-
+*/migrations
+*/__pycache__
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

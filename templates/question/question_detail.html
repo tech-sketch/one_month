@@ -13,10 +13,11 @@
         <div class="panel panel-default">
             <!-- Default panel contents -->
             <div class="panel-heading">
-                <h4>{{ question.questioner.last_name }}{{ question.questioner.first_name }}&nbsp;
+                <h5>{{ question.questioner.last_name }}{{ question.questioner.first_name }}&nbsp;
                     {{ question.date }}&nbsp;
-                    {% if question.draft %} <font color="#DD0000">下書き</font> {% else %}送信済み{% endif %}
-                   </h4>
+                    {% if question.draft %} <font color="#DD0000">下書き</font> {% else %}送信済み{% endif %}<p>&nbsp;</p>
+                    回答期限：{{ question.time_limit }}&nbsp;
+                </h5>
             </div>
             <!-- List group -->
             <ul class="list-group">

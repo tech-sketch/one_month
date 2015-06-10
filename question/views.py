@@ -41,8 +41,6 @@ def top_default(request):
     """
     トップページ（デフォルト）
     """
-    print(request.user.last_name+request.user.first_name)
-    print("top_default called")
 
     histories = None
     return render_to_response('question/top_default.html',
@@ -85,54 +83,49 @@ def question_edit(request):
                               context_instance=RequestContext(request))
 
 @login_required(login_url='/accounts/google/login')
-def reply_edit(request):
+def reply_edit(request, id=None):
     """
     返信ページ
     """
-    r = Reply()
 
-    """
-    # ランダムに質問取ってくる
-    #下書きにチェックがはいっていないもののみ最新のものから順に表示
-    question_tmp = Question.objects.filter(~Q(questioner=request.user))#.order_by('-date')[:]
-    question = list(filter(lambda x: x.draft==False, question_tmp))
-    question = random.choice(question) #ランダムに質問を取ってくる
-    """
+    # 指定された質問を取ってくる
+    q = get_object_or_404(Question, pk=id)
 
-    # 06/09 返信リストの中から自分あて、かつ返信済みでない質問を取ってくる
-    replylist = ReplyList.objects.filter(Q(answerer=request.user))#.order_by('-date')[:] # 自分宛
-    replylist = replylist.filter(Q(has_replied=False))                                  # 返信済みでないもの
-    questions = [r.question for r in replylist]
+    r =Reply()
 
-    if len(questions) > 0:
-        question = random.choice(questions) #ランダムに質問を取ってくる
+    # edit
+    if request.method == 'POST':
+        form = ReplyEditForm(request.POST, instance=r)
 
-        # edit
-        if request.method == 'POST':
-            form = ReplyEditForm(request.POST, instance=r)
+        # 完了がおされたら
+        if form.is_valid():
+            r = form.save(commit=False)
+            r.question = q
+            r.answerer = request.user
+            r.draft = form.cleaned_data['draft']
+            r.save()
 
-            # 完了がおされたら
-            if form.is_valid():
-                r = form.save(commit=False)
-                r.question = question# ランダムに決める
-                r.answerer = request.user
-                r.draft = form.cleaned_data['draft']
-                r.save()
-                return redirect('question:top')
-            pass
-        # new
-        else:
-            form = ReplyEditForm(instance=r)
+            # この質問の自分あての回答リストをもってくる
+            r_list = get_object_or_404(ReplyList, question = r.question, answerer=request.user)
+            """
+            if len(r_list) > 1:
+                return HttpResponse("")
+          """
+            r_list.has_replied = True # 回答済みにしておく
+            r_list.save()
+
+            return redirect('question:top')
+        pass
+    # new
+    else:
+        form = ReplyEditForm(instance=r)
 
         return render_to_response('question/reply_edit.html',
-                                  {'form': form, 'question':question ,'id': id},
+                                  {'form': form, 'question': q, 'id': id},
                                   context_instance=RequestContext(request))
-    else:
-        return HttpResponse("質問なし") # TODO　質問無しページ作る
 
 @login_required(login_url='/accounts/login')
 def question_list(request):
-
     """
     自分が今までにした質問一覧を表示する
     """
@@ -146,7 +139,6 @@ def question_list(request):
 
 @login_required(login_url='/accounts/login')
 def question_pass(request, id=None):
-
     """
     来た質問をパスする
     """
@@ -155,10 +147,10 @@ def question_pass(request, id=None):
 
 @login_required(login_url='/accounts/login')
 def question_detail(request, id=None):
-
     """
     自分の質問の詳細を表示する
     """
+
     # 指定された質問を取ってくる
     q = get_object_or_404(Question, pk=id)
 
@@ -177,3 +169,29 @@ def question_detail(request, id=None):
     return render_to_response('question/question_detail.html',
                               {'question': q, 'reply': r},
                               context_instance=RequestContext(request))
+
+@login_required(login_url='/accounts/google/login')
+def reply_list(request):
+    """
+    回答一覧ページ
+    """
+
+    r = Reply()
+
+    """
+    # ランダムに質問取ってくる
+    #下書きにチェックがはいっていないもののみ最新のものから順に表示
+    question_tmp = Question.objects.filter(~Q(questioner=request.user))#.order_by('-date')[:]
+    question = list(filter(lambda x: x.draft==False, question_tmp))
+    question = random.choice(question) #ランダムに質問を取ってくる
+    """
+
+    # 06/09 返信リストの中から自分あて、かつ返信済みでない質問を取ってくる
+    # 返信期限が早いものから順に表示
+    replylist = ReplyList.objects.filter(answerer=request.user, has_replied=False).order_by('time_limit_date')[:]
+    questions = [r.question for r in replylist]
+
+    return render_to_response('question/reply_list.html',
+                                {'questions':questions},
+                                context_instance=RequestContext(request))
+

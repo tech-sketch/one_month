@@ -6,15 +6,29 @@
 
 {% block content %}
 
-    <h2>{{ question.questioner }}さんからの質問</h2>
-    <h4>タイトル：{{ question.title }}</h4></li>
-    <h4>本文：{{ question.text|linebreaksbr }}</h4></li>
+    {# 届いた質問 #}
+    <div class="service">
+        <p>&nbsp;</p>
+        <div class="panel panel-default">
+            <!-- Default panel contents -->
+            <div class="panel-heading">
+                <h2>{{ question.questioner }}さんからの質問</h2>
+                <h5>{{ question.date }}&nbsp;回答期限：{{ question.time_limit }}&nbsp;</h5>
+                   <p>&nbsp;</p>
+            </div>
+            <!-- List group -->
+            <ul class="list-group">
+                <li class="list-group-item"><h4>タイトル：{{ question.title }}</h4></li>
+                <li class="list-group-item"><h4>本文：<p>&nbsp;</p>{{ question.text|linebreaksbr }}</h4></li>
+            </ul>
+        </div>
+    </div>
 
-    {# 修正 #}
+    {# 回答作成フォーム #}
     <form action="" method="post" class="form">
       {% csrf_token %}
       {{ form|bootstrap }}
-      <input type="submit" name="done" value="確定" class="btn btn-primary">
+      <input type="submit" name="done" value="回答" class="btn btn-primary">
     </form>
 
     <p>&nbsp;</p>

@@ -65,11 +65,7 @@ def question_edit(request):
             q.draft = form.cleaned_data['draft']
             q.save()
 
-            r_list = ReplyList()
-            rand_user = User.objects.filter(~Q(username=request.user))
-            r_list.answerer = random.choice(rand_user)
-            r_list.question = q
-            r_list.time_limit_date = datetime.datetime.now() + datetime.timedelta(hours=q.time_limit.hour, minutes=q.time_limit.minute, seconds=q.time_limit.second)
+            r_list = reply_list_update_random(request.user, q)
             r_list.save()
 
             return redirect('question:top')
@@ -82,6 +78,16 @@ def question_edit(request):
                               {'form': form, 'id': id},
                               context_instance=RequestContext(request))
 
+#全ユーザーの中からランダムに返信ユーザーを決定する。（u:User 対象としたくないユーザー, q:Question）
+def reply_list_update_random(u, q):
+    r_list = ReplyList()
+    rand_user = User.objects.filter(~Q(username=u))
+    r_list.answerer = random.choice(rand_user)
+    r_list.question = q
+    r_list.time_limit_date = datetime.datetime.now() + datetime.timedelta(hours=q.time_limit.hour, minutes=q.time_limit.minute, seconds=q.time_limit.second)
+    return r_list
+
+
 @login_required(login_url='/accounts/google/login')
 def reply_edit(request, id=None):
     """
@@ -90,6 +96,15 @@ def reply_edit(request, id=None):
 
     # 指定された質問を取ってくる
     q = get_object_or_404(Question, pk=id)
+
+    replylist = ReplyList.objects.filter(question=q)[0]
+    #replylist = get_object_or_404(ReplyList, question=q)
+
+    print("aaaa")
+    if replylist == None:
+        print("replylist is none!!!")
+    print(replylist)
+    print("aaaa")
 
     r =Reply()
 
@@ -120,8 +135,8 @@ def reply_edit(request, id=None):
     else:
         form = ReplyEditForm(instance=r)
 
-        return render_to_response('question/reply_edit.html',
-                                  {'form': form, 'question': q, 'id': id},
+    return render_to_response('question/reply_edit.html',
+                                  {'form': form, 'question': q, 'id': id, 'replylist':replylist},
                                   context_instance=RequestContext(request))
 
 @login_required(login_url='/accounts/login')
@@ -142,6 +157,14 @@ def question_pass(request, id=None):
     """
     来た質問をパスする
     """
+    if 'replylist_id' in request.POST:
+        replylist_id = request.POST['replylist_id']
+        replylist = ReplyList.objects.get(id=replylist_id)
+        replylist.has_replied = True
+        replylist.save()
+
+        new_replylist = reply_list_update_random(replylist.answerer, replylist.question)
+        new_replylist.save()
 
     return HttpResponse("パスしました") # TODO　質問無しページ作る
 
@@ -194,4 +217,3 @@ def reply_list(request):
     return render_to_response('question/reply_list.html',
                                 {'questions':questions},
                                 context_instance=RequestContext(request))
-

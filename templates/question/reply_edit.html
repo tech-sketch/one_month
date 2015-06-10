@@ -34,8 +34,12 @@
     <p>&nbsp;</p>
 
     {# パスするボタン #}
-    <a class="btn btn-default" href="{% url 'question:q_pass' id=question.id %}" role="button">パスする</a>
-    <p>&nbsp;</p>
+    <form action="{% url 'question:q_pass' id=question.id %}" method="post">
+    	{% csrf_token %}
+    	<input type="hidden" name="replylist_id" value="{{replylist.id}}">
+		<tr><input type="submit"  name="pass" value="pass"></tr>
+	</form>
+	<p>&nbsp;</p>
 
     {# 一覧に戻るボタン #}
     <a class="btn btn-default" href="{% url 'question:top' %}" role="button">戻る</a>

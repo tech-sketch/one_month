@@ -16,9 +16,9 @@
               <div class=" clear"></div>
               <p>&nbsp;</p>
                 {% for question in questions %}
-                    <h4> {{ question.questioner.last_name }}{{ question.questioner.first_name }}&nbsp;{{ question.date }}&nbsp;</h4>
-                    <h4>タイトル：&nbsp;<a href="{% url 'question:q_detail' id=question.id %}">{{ question.title }}</a></h4>
-                    <p>&nbsp;</p>
+                    <h4> {{ question.questioner.last_name }}{{ question.questioner.first_name }}&nbsp;{{ question.date }}&nbsp;
+                    {% if question.draft %} <a href="{% url 'question:q_edit' id=question.id %}">下書きを編集</a> {% else %}送信済み{% endif %}<p>&nbsp;</p></h4>
+                    <h4>タイトル：&nbsp;{% if question.draft %} {{ question.title }} {% else %} <a href="{% url 'question:q_detail' id=question.id %}">{{ question.title }}</a> {% endif %}</h4>&nbsp;
                 {% endfor %}
         </div>
     </div>

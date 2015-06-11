@@ -49,11 +49,23 @@ def top_default(request):
                               context_instance=RequestContext(request))
 
 @login_required(login_url='/accounts/login')
-def question_edit(request):
+def question_edit(request, id=None):
     """
     質問ページ
     """
-    q = Question()
+
+    # edit
+    if id:
+        q = get_object_or_404(Question, pk=id)
+        # user check
+        if q.questioner != request.user:
+            print("不正なアクセスです！")
+            return redirect('question:top')
+    # new
+    else:
+        q = Question()
+
+    #q = Question()
 
     # edit
     if request.method == 'POST':

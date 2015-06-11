@@ -12,6 +12,10 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+import datetime
+
+import djcelery
+djcelery.setup_loader()
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -43,12 +47,15 @@ INSTALLED_APPS = (
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+    'djcelery',
+    'kombu.transport.django',
 
     'bootstrapform',
     'bootstrap_toolkit',
 
     'accounts',
     'question',
+
 )
 
 MIDDLEWARE_CLASSES = (
@@ -151,3 +158,19 @@ SITE_ID = 1
 
 AUTH_USER_MODEL = 'accounts.User'
 
+
+
+
+
+
+
+BROKER_URL = 'django://'
+CELERY_ALWAYS_EAGER = False
+
+CELERYBEAT_SCHEDULE = {
+    'add-every-30-seconds': {
+        'task': 'question.tasks.add',
+        'schedule':datetime.timedelta(seconds=5),
+        'args': ()
+    },
+}

@@ -158,12 +158,6 @@ SITE_ID = 1
 
 AUTH_USER_MODEL = 'accounts.User'
 
-
-
-
-
-
-
 BROKER_URL = 'django://'
 CELERY_ALWAYS_EAGER = False
 

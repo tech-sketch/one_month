@@ -33,11 +33,11 @@
               <li><a href="{% url 'question:q_new' %}">質問</a></li>
               <li><a href="{% url 'question:r_list' %}">回答</a></li>
               <li><a href="{% url 'question:q_list' %}">自分の質問一覧</a></li>
-              <li><a href="ccc">マイページ</a></li>
+              <li><a href="{% url 'question:mypage' %}">マイページ</a></li>
               </ul>
 
               <ul class="nav navbar-nav navbar-right">
-                <li><a href="ddd">ログアウト</a></li>
+                <li><a href="/accounts/logout">ログアウト</a></li>
               </ul>
             </div><!--/.nav-collapse -->
           </div>

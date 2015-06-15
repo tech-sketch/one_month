@@ -24,3 +24,4 @@ def auto_rand_pass():
 
         new_r_list = reply_list_update_random( r_list.answerer,  r_list.question)
         new_r_list.save()
+

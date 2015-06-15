@@ -2,6 +2,7 @@
 # Create your models here.
 from django.db import models
 from datetime import datetime
+#from django.contrib.auth.models import User
 from accounts import models as m
 
 class Question(models.Model):
@@ -24,3 +25,14 @@ class ReplyList(models.Model):
     answerer = models.ForeignKey(m.User)
     time_limit_date = models.DateTimeField('返信期限')
     has_replied = models.BooleanField('返信済み', default=False)
+
+class Tag(models.Model):
+    name = models.CharField('タグ名', max_length=512)
+
+class UserTag(models.Model):
+    user = models.ForeignKey(m.User)
+    tag = models.ForeignKey(Tag)
+
+class QuestionTag(models.Model):
+    question = models.ForeignKey(Question)
+    tag = models.ForeignKey(Tag)

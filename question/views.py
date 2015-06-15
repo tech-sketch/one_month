@@ -7,7 +7,7 @@ from django import forms
 from django.db.models import Q
 import random
 from question.models import Question, Reply, ReplyList
-from accounts.models import User
+from accounts.models import User, UserProfile
 import datetime, pytz
 from question.tasks import add, countdown
 
@@ -35,6 +35,19 @@ class ReplyEditForm(ModelForm):
         fields = ('date', 'text', 'draft')
         widgets = {
           'text': forms.Textarea(attrs={'rows':20, 'cols':100}),
+        }
+
+class UserProfileEditForm(ModelForm):
+    """
+    ユーザプロファイル編集フォーム
+    """
+    class Meta:
+        model = UserProfile
+        fields = ('user', 'work_place', 'work_status', 'division', 'accept_question')
+        widgets = {
+            'work_place': forms.TextInput(attrs={'size': '20'}),
+            'work_status': forms.TextInput(attrs={'size': '20'}),
+            'division': forms.TextInput(attrs={'size': '20'}),
         }
 
 @login_required(login_url='/accounts/login')
@@ -269,3 +282,30 @@ def reply_list(request):
     return render_to_response('question/reply_list.html',
                                 {'questions':questions},
                                 context_instance=RequestContext(request))
+
+@login_required(login_url='/accounts/login')
+def mypage(request):
+    """
+    マイページ
+    """
+    # ユーザのプロファイルを取ってくる
+    p = get_object_or_404(UserProfile, user=request.user)
+
+    # edit
+    if request.method == 'POST':
+        form = UserProfileEditForm(request.POST, instance=p)
+
+        # 完了がおされたら
+        if form.is_valid():
+            r = form.save(commit=False)
+            r.save()
+
+            return redirect('question:top')
+        pass
+    # new
+    else:
+        form = UserProfileEditForm(instance=p)
+
+    return render_to_response('question/mypage.html',
+                              {'uname': request.user.last_name+request.user.first_name},
+                              context_instance=RequestContext(request))

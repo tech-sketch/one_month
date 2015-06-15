@@ -168,9 +168,9 @@ BROKER_URL = 'django://'
 CELERY_ALWAYS_EAGER = False
 
 CELERYBEAT_SCHEDULE = {
-    'add-every-30-seconds': {
-        'task': 'question.tasks.add',
-        'schedule':datetime.timedelta(seconds=5),
+    'auto_rand_pass': {
+        'task': 'question.tasks.auto_rand_pass',
+        'schedule':datetime.timedelta(seconds=15),
         'args': ()
     },
 }

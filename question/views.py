@@ -106,7 +106,7 @@ def reply_edit(request, id=None):
     print(replylist)
     print("aaaa")
 
-    r =Reply()
+    r = Reply()
 
     # edit
     if request.method == 'POST':

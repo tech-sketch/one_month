@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django import forms
 from django.db.models import Q
 import random
-from question.models import Question, Reply, ReplyList
+from question.models import Question, Reply, ReplyList, Tag, UserTag, QuestionTag
 from accounts.models import User, UserProfile
 import datetime, pytz
 from question.tasks import add, countdown
@@ -49,6 +49,15 @@ class UserProfileEditForm(ModelForm):
             'work_status': forms.TextInput(attrs={'size': '20'}),
             'division': forms.TextInput(attrs={'size': '20'}),
         }
+
+class UserTagEditForm(ModelForm):
+    """
+    ユーザータグ編集フォーム
+    """
+    class Meta:
+        model = UserTag
+        fields = ('user', 'tag')
+        widgets = {}
 
 @login_required(login_url='/accounts/login')
 def top_default(request):
@@ -287,25 +296,64 @@ def reply_list(request):
 def mypage(request):
     """
     マイページ
+    このページでユーザが登録済みのタグを表示かつ追加したいが、まだできてない。
     """
+
     # ユーザのプロファイルを取ってくる
-    p = get_object_or_404(UserProfile, user=request.user)
+    try:
+        p = UserProfile.objects.get(user=request.user)
+    except UserProfile.DoesNotExist:
+        p = UserProfile()
+        p.user = request.user
+        p.save()
+
+    # ユーザが登録しているタグを取ってくる
+    #user_tags = UserTag.objects.filter(user=request.user)
+    #user_tags = [user_tag.tag for user_tag in user_tags]
+    try:
+        t = UserTag.objects.filter(user=request.user)
+    except UserTag.DoesNotExist:
+        tag = Tag()
+        tag.name = "temp tag"
+        tag.save()
+        t = UserTag()
+        t.tag = tag
+        t.user = request.user
+        t.save()
 
     # edit
     if request.method == 'POST':
-        form = UserProfileEditForm(request.POST, instance=p)
+        #if(form.name == "")
+        #   if()
+        print(request.POST)
+        if 'done' in request.POST:
+            form = UserProfileEditForm(request.POST, instance=p)
 
-        # 完了がおされたら
-        if form.is_valid():
-            r = form.save(commit=False)
-            r.save()
+            # 完了がおされたら
+            if form.is_valid():
+                r = form.save(commit=False)
+                r.save()
 
-            return redirect('question:top')
+                return redirect('question:top')
+            pass
+        """
+        elif 'add_tag' in request.POST:
+            tag_form = UserTagEditForm(request.POST, instance=t)
+
+            # 完了がおされたら
+            if tag_form.is_valid():
+                r = tag_form.save(commit=False)
+                r.save()
+
+                return redirect('question:top')
+        """
         pass
     # new
     else:
         form = UserProfileEditForm(instance=p)
+        #tag_form = UserTagEditForm(instance=t)
+        # TODO マイページにユーザが登録済みのタグを表示しつつ、追加・編集できるようにしたい
 
     return render_to_response('question/mypage.html',
-                              {'uname': request.user.last_name+request.user.first_name},
+                              {'form': form, 'uname': request.user.last_name+request.user.first_name},
                               context_instance=RequestContext(request))

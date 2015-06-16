@@ -22,7 +22,7 @@ def auto_rand_pass():
     for r_list in r_list_list:
         print("###pass###")
         print(r_list.question.title)
-        #print('{}:{}'.format(r_list.ganswerer, r_list.time_limit_date))
+        print('{0}:{1}'.format(r_list.answerer, r_list.time_limit_date))
 
         r_list.has_replied = True
         r_list.save()
@@ -31,7 +31,7 @@ def auto_rand_pass():
         pass_user_list = [r.answerer for r in reply_lists_pass_users]
         pass_user_list.append(r_list.question.questioner)
         new_r_list = reply_list_update_random_except(pass_user_list,  r_list.question)
-        if not new_r_list:
+        if new_r_list != None:
             new_r_list.save()
 
 

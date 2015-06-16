@@ -19,6 +19,17 @@
       <input type="submit" name="done" value="確定" class="btn btn-primary">
     </form>
 
+    {# ユーザータグ #}
+    <h4>{{uname}}さんの登録タグ(本当は上のフォームの中に持っていきたい)</h4>
+    {% for u_tag in user_tags%}
+        {{ u_tag.tag.name }}&nbsp;&nbsp;
+    {% empty %}
+        なし
+    {% endfor %}
+
+
+    <p>&nbsp;</p>
+
     {# 一覧に戻るボタン #}
     <a class="btn btn-default" href="{% url 'question:top' %}" role="button">戻る</a>
 

@@ -1,63 +1,14 @@
 from django.shortcuts import render_to_response, redirect, get_object_or_404
 from django.template import RequestContext
 from django.http import HttpResponse
-from django.forms import ModelForm
 from django.contrib.auth.decorators import login_required
-from django import forms
 from django.db.models import Q
-import random
+import random, datetime, pytz
 from question.models import Question, Reply, ReplyList, Tag, UserTag, QuestionTag
+from question.forms import QuestionEditForm, ReplyEditForm, UserProfileEditForm
 from accounts.models import User, UserProfile
-import datetime, pytz
-from question.tasks import add, countdown
-
 
 # Create your views here.
-
-class QuestionEditForm(ModelForm):
-    """
-    質問フォーム
-    """
-    class Meta:
-        model = Question
-        fields = ('title', 'date', 'time_limit', 'text', 'draft')
-        widgets = {
-          'title': forms.TextInput(attrs={'size': '100'}),
-          'text': forms.Textarea(attrs={'rows':20, 'cols':100}),
-        }
-
-class ReplyEditForm(ModelForm):
-    """
-    回答フォーム
-    """
-    class Meta:
-        model = Reply
-        fields = ('date', 'text', 'draft')
-        widgets = {
-          'text': forms.Textarea(attrs={'rows':20, 'cols':100}),
-        }
-
-class UserProfileEditForm(ModelForm):
-    """
-    ユーザプロファイル編集フォーム
-    """
-    class Meta:
-        model = UserProfile
-        fields = ('user', 'work_place', 'work_status', 'division', 'accept_question')
-        widgets = {
-            'work_place': forms.TextInput(attrs={'size': '20'}),
-            'work_status': forms.TextInput(attrs={'size': '20'}),
-            'division': forms.TextInput(attrs={'size': '20'}),
-        }
-
-class UserTagEditForm(ModelForm):
-    """
-    ユーザータグ編集フォーム
-    """
-    class Meta:
-        model = UserTag
-        fields = ('user', 'tag')
-        widgets = {}
 
 @login_required(login_url='/accounts/login')
 def top_default(request):
@@ -87,24 +38,46 @@ def question_edit(request, id=None):
     else:
         q = Question()
 
-    #q = Question()
-
     # edit
     if request.method == 'POST':
         form = QuestionEditForm(request.POST, instance=q)
 
         # 完了がおされたら
         if form.is_valid():
+
+            # 質問を保存
             q = form.save(commit=False)
             q.questioner = request.user
             q.draft = form.cleaned_data['draft']
             q.save()
 
+            # ランダムに質問者を選んでからReplyListを生成して保存
             r_list = reply_list_update_random(request.user, q)
+            if r_list == None:
+                q.delete()
+                return HttpResponse("宛先ユーザが見つかりませんでした。。入力された質問は消去されます")
             r_list.save()
 
-            # タイムリミットカウントダウン開始（非同期）
-            result = countdown.delay(r_list)
+            # 選択されたタグから、新規にQuestionTagを生成して保存
+            q_tags = form.cleaned_data['tag']
+            for q_tag in q_tags:
+                qt = QuestionTag()
+                qt.tag = q_tag
+                qt.question = q
+                qt.save()
+
+            # 追加されたタグ名から、新規にTagとQuestionTagを生成して保存
+            tag_added_name = form.cleaned_data['tag_added']
+            tags = Tag.objects.all()
+            tag_name = [t.name for t in tags]
+            if tag_added_name != "" and tag_added_name not in tag_name: # 新規に追加されたタグだったら保存
+                t = Tag()
+                t.name = tag_added_name
+                t.save()
+                qt = QuestionTag()
+                qt.tag = t
+                qt.question = q
+                qt.save()
 
             return redirect('question:top')
         pass
@@ -119,10 +92,10 @@ def question_edit(request, id=None):
 #全ユーザーの中からランダムに返信ユーザーを決定する。（u:User 対象としたくないユーザー, q:Question）
 def reply_list_update_random(u, q):
 
-    r_list = ReplyList()
     rand_user = User.objects.filter(~Q(username=u)).filter(~Q(username=q.questioner))
 
     try:
+        r_list = ReplyList()
         r_list.answerer = random.choice(rand_user)
         r_list.question = q
         r_list.time_limit_date = datetime.datetime.now() + datetime.timedelta(hours=q.time_limit.hour, minutes=q.time_limit.minute, seconds=q.time_limit.second)
@@ -135,8 +108,6 @@ def reply_list_update_random_except(users, question):
     指定されたユーザリスト以外の中からランダムに次の回答ユーザを決定する。
     """
 
-    r_list = ReplyList()
-
     #rand_user = User.objects.filter(~Q(username=question.questioner))
     rand_user = User.objects.all()
 
@@ -144,6 +115,7 @@ def reply_list_update_random_except(users, question):
         rand_user = rand_user.filter(~Q(username=u))
 
     try:
+        r_list = ReplyList()
         r_list.answerer = random.choice(rand_user)
         r_list.question = question
         r_list.time_limit_date = datetime.datetime.now() + datetime.timedelta(
@@ -250,6 +222,9 @@ def question_detail(request, id=None):
     # 指定された質問を取ってくる
     q = get_object_or_404(Question, pk=id)
 
+    # 質問のタグを取ってくる
+    q_tags = QuestionTag.objects.filter(question=q)
+
     # 質問に対する回答を取ってくる
     # まだ回答が来てない場合のためにget_object_or_404は使わずにこちらを使う
     try:
@@ -263,7 +238,7 @@ def question_detail(request, id=None):
         return HttpResponse("他の人の質問は表示できません！") # TODO　表示できないよページ作る
 
     return render_to_response('question/question_detail.html',
-                              {'question': q, 'reply': r},
+                              {'question': q, 'q_tags': q_tags, 'reply': r,},
                               context_instance=RequestContext(request))
 
 @login_required(login_url='/accounts/login')
@@ -289,14 +264,13 @@ def reply_list(request):
     questions = [r.question for r in replylist]
 
     return render_to_response('question/reply_list.html',
-                                {'questions':questions},
+                                {'questions':questions,},
                                 context_instance=RequestContext(request))
 
 @login_required(login_url='/accounts/login')
 def mypage(request):
     """
     マイページ
-    このページでユーザが登録済みのタグを表示かつ追加したいが、まだできてない。
     """
 
     # ユーザのプロファイルを取ってくる
@@ -308,45 +282,42 @@ def mypage(request):
         p.save()
 
     # ユーザが登録しているタグを取ってくる
-    #user_tags = UserTag.objects.filter(user=request.user)
+    user_tags = UserTag.objects.filter(user=request.user)
     #user_tags = [user_tag.tag for user_tag in user_tags]
-    try:
-        t = UserTag.objects.filter(user=request.user)
-    except UserTag.DoesNotExist:
-        tag = Tag()
-        tag.name = "temp tag"
-        tag.save()
-        t = UserTag()
-        t.tag = tag
-        t.user = request.user
-        t.save()
 
     # edit
     if request.method == 'POST':
-        #if(form.name == "")
-        #   if()
-        print(request.POST)
-        if 'done' in request.POST:
-            form = UserProfileEditForm(request.POST, instance=p)
+        form = UserProfileEditForm(request.POST, instance=p)
 
-            # 完了がおされたら
-            if form.is_valid():
-                r = form.save(commit=False)
-                r.save()
+        # 完了がおされたら
+        if form.is_valid():
+            r = form.save(commit=False)
+            r.save()
 
-                return redirect('question:top')
-            pass
-        """
-        elif 'add_tag' in request.POST:
-            tag_form = UserTagEditForm(request.POST, instance=t)
+            # 選択されたタグから、新規にQuestionTagを生成して保存
+            q_tags = form.cleaned_data['tag']
+            u_tag_name =[t.tag.name for t in user_tags]
+            for q_tag in q_tags:
+                if q_tag.name not in u_tag_name: # ユーザに新規に追加されたタグだったら保存
+                    qt = UserTag()
+                    qt.tag = q_tag
+                    qt.user = request.user
+                    qt.save()
 
-            # 完了がおされたら
-            if tag_form.is_valid():
-                r = tag_form.save(commit=False)
-                r.save()
+            # 追加されたタグ名から、新規にTagとQuestionTagを生成して保存
+            tag_added_name = form.cleaned_data['tag_added']
+            tags = Tag.objects.all()
+            tag_name =[t.name for t in tags]
+            if tag_added_name != "" and q_tag.name not in tag_name: # 新規に追加されたタグだったら保存
+                t = Tag()
+                t.name = tag_added_name
+                t.save()
+                qt = UserTag()
+                qt.tag = t
+                qt.user = request.user
+                qt.save()
 
-                return redirect('question:top')
-        """
+            return redirect('question:top')
         pass
     # new
     else:
@@ -355,5 +326,5 @@ def mypage(request):
         # TODO マイページにユーザが登録済みのタグを表示しつつ、追加・編集できるようにしたい
 
     return render_to_response('question/mypage.html',
-                              {'form': form, 'uname': request.user.last_name+request.user.first_name},
+                              {'form': form, 'user_tags':user_tags, 'uname': request.user.last_name+request.user.first_name},
                               context_instance=RequestContext(request))

@@ -14,8 +14,10 @@ class Question(models.Model):
     date = models.DateTimeField('質問日時', default=datetime.now)
     draft = models.BooleanField('下書き', default=False)
 
+    """
     def __str__(self):
         return u'%sから%sへ「%s」についての質問' % (self.questioner, self.destination_div, self.title)
+    """
 
 class Reply(models.Model):
     question = models.ForeignKey(Question, verbose_name='質問')
@@ -38,6 +40,7 @@ class ReplyList(models.Model):
 
 class Tag(models.Model):
     name = models.CharField('タグ名', max_length=512)
+
 
     def __str__(self):
         return u'%s' % (self.name)

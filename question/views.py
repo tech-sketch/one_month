@@ -51,12 +51,27 @@ def question_edit(request, id=None):
             q.draft = form.cleaned_data['draft']
             q.save()
 
+            # 06/16追加 : 所属外の人には送らない
+            diff_dev_users_prof = UserProfile.objects.exclude(division=form.cleaned_data['destination_div'])
+            diff_user_list = [prof.user for prof in diff_dev_users_prof]
+            # 06/16追加 : 受信拒否の人には送らない
+            deny_users_prof = UserProfile.objects.exclude(accept_question=1)
+            deny_users_list = [prof.user for prof in deny_users_prof]
+
+            # 回答ユーザ候補から除外するユーザ
+            ex_user_list = list()
+            ex_user_list.append(request.user)
+            ex_user_list.extend(diff_user_list)
+            ex_user_list.extend(deny_users_list)
+
             # ランダムに質問者を選んでからReplyListを生成して保存
-            r_list = reply_list_update_random(request.user, q)
+            r_list = reply_list_update_random_except(ex_user_list, q)
+
             if r_list == None:
                 q.delete()
                 return HttpResponse("宛先ユーザが見つかりませんでした。。入力された質問は消去されます")
-            r_list.save()
+            else:
+                r_list.save()
 
             # 選択されたタグから、新規にQuestionTagを生成して保存
             q_tags = form.cleaned_data['tag']
@@ -92,11 +107,11 @@ def question_edit(request, id=None):
 #全ユーザーの中からランダムに返信ユーザーを決定する。（u:User 対象としたくないユーザー, q:Question）
 def reply_list_update_random(u, q):
 
-    rand_user = User.objects.filter(~Q(username=u)).filter(~Q(username=q.questioner))
+    candidate_users = User.objects.filter(~Q(username=u)).filter(~Q(username=q.questioner))
 
     try:
         r_list = ReplyList()
-        r_list.answerer = random.choice(rand_user)
+        r_list.answerer = random.choice(candidate_users)
         r_list.question = q
         r_list.time_limit_date = datetime.datetime.now() + datetime.timedelta(hours=q.time_limit.hour, minutes=q.time_limit.minute, seconds=q.time_limit.second)
         return r_list
@@ -109,14 +124,14 @@ def reply_list_update_random_except(users, question):
     """
 
     #rand_user = User.objects.filter(~Q(username=question.questioner))
-    rand_user = User.objects.all()
+    candidate_users = User.objects.all()
 
     for u in users:
-        rand_user = rand_user.filter(~Q(username=u))
+        candidate_users = candidate_users.filter(~Q(username=u))
 
     try:
         r_list = ReplyList()
-        r_list.answerer = random.choice(rand_user)
+        r_list.answerer = random.choice(candidate_users)
         r_list.question = question
         r_list.time_limit_date = datetime.datetime.now() + datetime.timedelta(
                                     hours=question.time_limit.hour,
@@ -197,12 +212,26 @@ def question_pass(request, id=None):
         replylist.save()
 
         #new_replylist = reply_list_update_random(replylist.answerer, replylist.question)
+        q = replylist.question
 
-        # 質問者と今までパスした人（自分=request.userも含む）は次の回答ユーザ候補から除く
-        reply_lists_pass_users = ReplyList.objects.filter(question=replylist.question, has_replied=True)
+        # 06/16追加 : 所属外の人には送らない
+        diff_dev_users_prof = UserProfile.objects.filter(~Q(division=q.destination_div))
+        diff_user_list = [prof.user for prof in diff_dev_users_prof]
+        # 今までパスした人（自分=request.userも含む）には送らない
+        reply_lists_pass_users = ReplyList.objects.filter(question=q, has_replied=True)
         pass_user_list = [r.answerer for r in reply_lists_pass_users]
-        pass_user_list.append(replylist.question.questioner)
-        new_replylist = reply_list_update_random_except(pass_user_list, replylist.question)
+        # 06/16 受信拒否の人には送らない
+        deny_users_prof = UserProfile.objects.exclude(accept_question=1)
+        deny_users_list = [prof.user for prof in deny_users_prof]
+
+        # 回答ユーザ候補から除外するユーザ
+        ex_user_list = list()
+        ex_user_list.append(q.questioner)
+        ex_user_list.extend(diff_user_list)
+        ex_user_list.extend(pass_user_list)
+        ex_user_list.extend(deny_users_list)
+
+        new_replylist = reply_list_update_random_except(ex_user_list, replylist.question)
 
         if new_replylist != None:
             new_replylist.save()
@@ -296,9 +325,9 @@ def mypage(request):
 
             # 選択されたタグから、新規にQuestionTagを生成して保存
             q_tags = form.cleaned_data['tag']
-            u_tag_name =[t.tag.name for t in user_tags]
+            u_tag_names =[t.tag.name for t in user_tags]
             for q_tag in q_tags:
-                if q_tag.name not in u_tag_name: # ユーザに新規に追加されたタグだったら保存
+                if q_tag.name not in u_tag_names: # ユーザに新規に追加されたタグだったら保存
                     qt = UserTag()
                     qt.tag = q_tag
                     qt.user = request.user
@@ -308,7 +337,7 @@ def mypage(request):
             tag_added_name = form.cleaned_data['tag_added']
             tags = Tag.objects.all()
             tag_name =[t.name for t in tags]
-            if tag_added_name != "" and q_tag.name not in tag_name: # 新規に追加されたタグだったら保存
+            if tag_added_name != "" and tag_added_name not in tag_name: # 新規に追加されたタグだったら保存
                 t = Tag()
                 t.name = tag_added_name
                 t.save()
@@ -316,6 +345,8 @@ def mypage(request):
                 qt.tag = t
                 qt.user = request.user
                 qt.save()
+            else:
+                print(tag_added_name)
 
             return redirect('question:top')
         pass

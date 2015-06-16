@@ -7,7 +7,8 @@ from django import forms
 from django.db.models import Q
 import random
 from question.models import Question, Reply, ReplyList
-from accounts.models import User, UserProfile
+from django.contrib.auth.models import User
+from accounts.models import UserProfile
 import datetime, pytz
 
 

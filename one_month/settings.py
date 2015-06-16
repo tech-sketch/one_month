@@ -13,9 +13,9 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 import datetime
-
 import djcelery
 djcelery.setup_loader()
+
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -98,8 +98,14 @@ WSGI_APPLICATION = 'one_month.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        #'ENGINE': 'django.db.backends.sqlite3',
+        #'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'one_month',
+        'USER': 'postgres',
+        'PASSWORD': 'admin',
+        'HOST': '127.0.0.1',
+        'PORT': '5432',
     }
 }
 
@@ -145,18 +151,18 @@ AUTHENTICATION_BACKENDS = (
 )
 
 SOCIALACCOUNT_PROVIDERS = \
-    { 'google':
-        { 'SCOPE': ['profile', 'email'],
-          'AUTH_PARAMS': { 'access_type': 'online' } }}
+    {'google':
+        {'SCOPE': ['profile', 'email'],
+          'AUTH_PARAMS': {'access_type': 'online'}}}
 
 
-LOGIN_URL          = 'accounts/login/'
+LOGIN_URL = 'accounts/login/'
 LOGIN_REDIRECT_URL = '/question'
-ACCOUNT_LOGOUT_REDIRECT_URL  = '/question'
+ACCOUNT_LOGOUT_REDIRECT_URL = '/question'
 
 SITE_ID = 1
 
-AUTH_USER_MODEL = 'accounts.User'
+AUTH_PROFILE_MODULE = 'accounts.UserProfile'
 
 BROKER_URL = 'django://'
 CELERY_ALWAYS_EAGER = False

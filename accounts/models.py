@@ -1,13 +1,6 @@
+from django.contrib.auth.models import User
 from django.db import models
 
-from django.contrib.auth.models import AbstractUser
-#from django.contrib.auth.models import User
-from django.db import models
-
-# Create your models here.
-class User(AbstractUser):
-    profile = models.CharField('プロフィール（仮）', max_length=512) #削除予定
-    # ユーザ名、名・性、メールアドレスなどはOAuthから取ってこれる
 
 class UserProfile(models.Model):
     user = models.ForeignKey(User)

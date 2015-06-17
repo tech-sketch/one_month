@@ -1,19 +1,5 @@
+from django.contrib.auth.models import User
 from django.db import models
-
-from django.contrib.auth.models import AbstractUser
-#from django.contrib.auth.models import User
-from django.db import models
-
-# Create your models here.
-class User(AbstractUser):
-    profile = models.CharField('プロフィール（仮）', max_length=512) #削除予定
-    # ユーザ名、名・性、メールアドレスなどはOAuthから取ってこれる
-
-    """
-    これをやると、objects.filterがうまくはたらかないみたい
-    def __str__(self):
-        return u'%s(%s %s)' % (self.username, self.first_name, self.last_name)
-    """
 
 # 勤務先マスタ
 class WorkPlace(models.Model):

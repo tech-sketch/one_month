@@ -3,10 +3,11 @@ from django.template import RequestContext
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-import random, datetime, pytz
+from django.contrib.auth.models import User
+from accounts.models import UserProfile
 from question.models import Question, Reply, ReplyList, Tag, UserTag, QuestionTag
 from question.forms import QuestionEditForm, ReplyEditForm, UserProfileEditForm
-from accounts.models import User, UserProfile
+import random, datetime, pytz
 
 # Create your views here.
 
@@ -155,7 +156,7 @@ def reply_edit(request, id=None):
     # 各質問について、has_replied=Falseの回答済みリストは一つのみのはず
     replylist = get_object_or_404(ReplyList, question=q, has_replied=False)
 
-    r =Reply()
+    r = Reply()
 
     # edit
     if request.method == 'POST':

@@ -2,11 +2,10 @@
 # Create your models here.
 from django.db import models
 from datetime import datetime
-#from django.contrib.auth.models import User
-from accounts import models as m
+from django.contrib.auth.models import User
 
 class Question(models.Model):
-    questioner = models.ForeignKey(m.User, verbose_name='質問者')
+    questioner = models.ForeignKey(User, verbose_name='質問者')
     destination_div = models.ForeignKey(m.Division, verbose_name='宛先所属コード')
     title = models.CharField('タイトル', max_length=512)
     text = models.TextField('質問内容')

@@ -12,6 +12,10 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+import datetime
+import djcelery
+djcelery.setup_loader()
+
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -43,7 +47,6 @@ INSTALLED_APPS = (
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
-
     'djcelery',
     'kombu.transport.django',
 
@@ -52,6 +55,7 @@ INSTALLED_APPS = (
 
     'accounts',
     'question',
+
 )
 
 MIDDLEWARE_CLASSES = (
@@ -141,22 +145,26 @@ AUTHENTICATION_BACKENDS = (
 )
 
 SOCIALACCOUNT_PROVIDERS = \
-    { 'google':
-        { 'SCOPE': ['profile', 'email'],
-          'AUTH_PARAMS': { 'access_type': 'online' } }}
+    {'google':
+        {'SCOPE': ['profile', 'email'],
+          'AUTH_PARAMS': {'access_type': 'online'}}}
 
 
-LOGIN_URL          = 'accounts/login/'
+LOGIN_URL = 'accounts/login/'
 LOGIN_REDIRECT_URL = '/question'
-ACCOUNT_LOGOUT_REDIRECT_URL  = '/question'
+ACCOUNT_LOGOUT_REDIRECT_URL = '/question'
 
 SITE_ID = 1
 
-AUTH_USER_MODEL = 'accounts.User'
+AUTH_PROFILE_MODULE = 'accounts.UserProfile'
 
-###### django-celery configuations ######
-from djcelery import setup_loader
-setup_loader()
 BROKER_URL = 'django://'
-# Tasks will be executed asynchronously.
 CELERY_ALWAYS_EAGER = False
+
+CELERYBEAT_SCHEDULE = {
+    'auto_rand_pass': {
+        'task': 'question.tasks.auto_rand_pass',
+        'schedule':datetime.timedelta(seconds=15),
+        'args': ()
+    },
+}

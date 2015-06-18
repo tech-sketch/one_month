@@ -309,7 +309,7 @@ def mypage(request):
             tag_added_name = form.cleaned_data['tag_added']
             tags = Tag.objects.all()
             tag_name =[t.name for t in tags]
-            if tag_added_name != "" and q_tag.name not in tag_name: # 新規に追加されたタグだったら保存
+            if tag_added_name != "" and tag_added_name not in tag_name: # 新規に追加されたタグだったら保存
                 t = Tag()
                 t.name = tag_added_name
                 t.save()

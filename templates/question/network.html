@@ -68,7 +68,7 @@ $('#cy').cytoscape({
       { data: { source: '{{edge.answerer}}', target: '{{edge.question.questioner}}', faveColor: '#F5A45D', strength: 10 } },
       {% endfor %}
       {% for edge in all_userTag %}
-      { data: { source: '{{edge.user}}', target: '{{edge.tag}}', faveColor: '#F26964', strength: 10 } },
+      { data: { source: '{{edge.user}}', target: '{{edge.tag}}', faveColor: '#F26964', strength: 1000 } },
       {% endfor %}
     ]
   },

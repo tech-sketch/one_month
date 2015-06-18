@@ -329,3 +329,15 @@ def mypage(request):
     return render_to_response('question/mypage.html',
                               {'form': form, 'user_tags':user_tags, 'uname': request.user.last_name+request.user.first_name},
                               context_instance=RequestContext(request))
+
+@login_required(login_url='/accounts/login')
+def network(request):
+    all_user = User.objects.all()
+    all_tag = Tag.objects.all()
+    all_reply = Reply.objects.all()
+    all_userTag = UserTag.objects.all()
+
+
+    return render_to_response('question/network.html',
+                              {'all_user': all_user, 'all_reply': all_reply, 'all_tag': all_tag, 'all_userTag': all_userTag },
+                              context_instance=RequestContext(request))

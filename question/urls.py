@@ -13,5 +13,6 @@ urlpatterns = patterns('',
         url(r'^q_pass/(?P<id>\d+)/$', views.question_pass, name='q_pass'),  # 質問をパス
         url(r'^q_detail/(?P<id>\d+)/$', views.question_detail, name='q_detail'), # 詳細
         url(r'^mypage/$', views.mypage, name='mypage'), # マイページ
-        url(r'^network/$', views.network, name='network'), # テスト用ページ
+        url(r'^network/$', views.network, name='network'), # ネットワーク
+        url(r'^pass_network/(?P<id>\d+)/$', views.pass_network, name='pass_network'), # パスのネットワーク
 )

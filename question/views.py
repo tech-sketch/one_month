@@ -332,12 +332,34 @@ def mypage(request):
 
 @login_required(login_url='/accounts/login')
 def network(request):
-    all_user = User.objects.all()
-    all_tag = Tag.objects.all()
-    all_reply = Reply.objects.all()
-    all_userTag = UserTag.objects.all()
-
+    all_user = [[u.username, 'u{}'.format(u.id)] for u in User.objects.all()]
+    all_tag = [[t.name, 't{}'.format(t.id)] for t in Tag.objects.all()]
+    all_reply = [['u{}'.format(r.answerer.id),  'u{}'.format(r.question.questioner.id)] for r in Reply.objects.all()]
+    all_reply = set([tuple(sorted(r)) for r in all_reply])
+    all_userTag = [['u{}'.format(u.user.id),  't{}'.format(u.tag.id)] for u in UserTag.objects.all()]
 
     return render_to_response('question/network.html',
                               {'all_user': all_user, 'all_reply': all_reply, 'all_tag': all_tag, 'all_userTag': all_userTag },
+                              context_instance=RequestContext(request))
+
+@login_required(login_url='/accounts/login')
+def pass_network(request, id=None):
+    q = get_object_or_404(Question, pk=id)
+    # user check
+    if q.questioner != request.user:
+        # 他人の質問は表示できないようにする
+        return HttpResponse("他の人の質問は表示できません！") # TODO　表示できないよページ作る
+
+    all_user = [[u.username, 'u{}'.format(u.id)] for u in User.objects.all()]
+    all_tag = [[t.name, 't{}'.format(t.id)] for t in Tag.objects.all()]
+    all_reply = [['u{}'.format(r.answerer.id),  'u{}'.format(r.question.questioner.id)] for r in Reply.objects.all()]
+    all_reply = set([tuple(sorted(r)) for r in all_reply])
+    all_userTag = [['u{}'.format(u.user.id),  't{}'.format(u.tag.id)] for u in UserTag.objects.all()]
+
+    all_pass_temp = ['u{}'.format(r.answerer.id) for r in ReplyList.objects.filter(question=q).order_by('time_limit_date')]
+    all_pass_temp.insert(0, 'u{}'.format(q.questioner.id), )
+    all_pass = [[all_pass_temp[n-1], all_pass_temp[n]] for n in range(1, len(all_pass_temp))]
+
+    return render_to_response('question/pass_network.html',
+                              {'all_user': all_user, 'all_reply': all_reply, 'all_tag': all_tag, 'all_userTag': all_userTag, 'all_pass': all_pass},
                               context_instance=RequestContext(request))

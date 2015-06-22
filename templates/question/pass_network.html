@@ -39,6 +39,7 @@ $('#cy').cytoscape({
       .css({
         'opacity': 0.666,
         'width': 'mapData(strength, 70, 100, 2, 6)',
+        'target-arrow-shape': 'data(faveEdge)',
         'line-color': 'data(faveColor)',
         'source-arrow-color': 'data(faveColor)',
         'target-arrow-color': 'data(faveColor)'
@@ -57,18 +58,25 @@ $('#cy').cytoscape({
   elements: {
     nodes: [
       {% for node in all_user %}
-      { data: { id: '{{node.1}}', name: '{{node.0}}', weight: 15, faveColor: '#6FB1FC'} },
+      {% if node.1 == all_pass.0.0 %}
+      	{ data: { id: '{{node.1}}', name: 'you', weight: 15, faveColor: '#6FB1FC'} },
+      {% else %}
+      	{ data: { id: '{{node.1}}', name: '', weight: 15, faveColor: '#6FB1FC'} },
+      {% endif %}
       {% endfor %}
       {% for node in all_tag %}
       { data: { id: '{{node.1}}', name: '{{node.0}}', weight: 15, faveColor: '#2FCDB4'} },
       {% endfor %}
     ],
     edges: [
-      {% for edge in all_reply %}
-      { data: { source: '{{edge.0}}', target: '{{edge.1}}', faveColor: '#F5A45D', strength: 10 } },
-      {% endfor %}
+      /*{% for edge in all_reply %}
+      { data: { source: '{{edge.0}}', target: '{{edge.1}}', faveColor: '#F5A45D', strength: 1, faveEdge: 'none' } },
+      {% endfor %}*/
       {% for edge in all_userTag %}
-      { data: { source: '{{edge.0}}', target: '{{edge.1}}', faveColor: '#F26964', strength: 10 } },
+      { data: { source: '{{edge.0}}', target: '{{edge.1}}', faveColor: '#F26964', strength: 1, faveEdge: 'none' } },
+      {% endfor %}
+      {% for edge in all_pass %}
+      { data: { source: '{{edge.0}}', target: '{{edge.1}}', faveColor: '#34495e', strength: 10, faveEdge: 'triangle' } },
       {% endfor %}
     ]
   },

@@ -1,7 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
 
-
 """
     これをやると、objects.filterがうまくはたらかないみたい
     def __str__(self):

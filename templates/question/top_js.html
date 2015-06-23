@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% load bootstrap_toolkit %}
+
+{% block title %}トップページ(JS){% endblock title %}
+
+{% block content %}
+
+    {# 挨拶 #}
+    <p>こんにちは！{{uname}}さん</p>
+    <p>最終ログイン {{last_login}} </p>
+    <h2>ここはトップページ(JS ver.)です</h2>
+
+    <div id="masonry" style="position: relative; width: 660px; height: 729px;">
+    {% for q in questions %}
+        {# 自分がした質問 #}
+        {% if q.questioner.last_name|add:q.questioner.first_name = uname %}
+            <div id={{q.id}} class="item" style="position: absolute; border-top: 3px solid #BFBFBF; border-bottom: 7px solid #FDC44F; border-left: none; border-right: 3px solid #BFBFBF;">タイトル: {{q.title}}<p>&nbsp;</p>本文: {{q.text}}</div>
+        {% endif %}
+    {% endfor %}
+
+    {# 他人から来た質問 #}
+    {% for r in replylist %}
+        <div id={{r.question.id}} class="item" style="position: absolute; border-top: 3px solid #BFBFBF; border-bottom: 7px solid #8DCF3F; border-left: none; border-right: 3px solid #BFBFBF;">タイトル: {{r.question.title}}<p>&nbsp;</p>本文: {{r.question.text}}
+            {% if r.has_replied %}
+                <h4>パス済み</h4>
+            {% else %}
+                <a class="btn btn-default" href="{% url 'question:r_new' id=r.question.id %}" role="button">返信</a>
+                <a class="btn btn-default" href="{% url 'question:q_pass' id=r.id %}" role="button">パス</a>
+            {% endif %}
+        </div>
+    {% endfor %}
+    </div>
+
+{% endblock content %}
+

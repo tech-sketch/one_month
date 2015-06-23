@@ -5,11 +5,26 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.contrib.auth.models import User
 from accounts.models import UserProfile
-import random, datetime, pytz
 from question.models import Question, Reply, ReplyList, Tag, UserTag, QuestionTag
 from question.forms import QuestionEditForm, ReplyEditForm, UserProfileEditForm
+import random, datetime, pytz
 
 # Create your views here.
+def top_js(request):
+    """
+    トップページ（JS ver.）
+    """
+
+    # 自分がした質問を取ってくる
+    q = Question.objects.filter(questioner=request.user)
+
+    # 自分あての質問を取ってくる
+    r = ReplyList.objects.filter(answerer=request.user)
+
+    histories = None
+    return render_to_response('question/top_js.html',
+                              {'histories': histories, 'questions': q, 'replylist':r, 'uname': request.user.last_name+request.user.first_name, 'last_login': request.user.last_login},
+                              context_instance=RequestContext(request))
 
 @login_required(login_url='/accounts/login')
 def top_default(request):
@@ -19,7 +34,7 @@ def top_default(request):
 
     histories = None
     return render_to_response('question/top_default.html',
-                              {'histories': histories, 'uname': request.user.last_name+request.user.first_name},
+                              {'histories': histories, 'uname': request.user.last_name+request.user.first_name, 'last_login': request.user.last_login},
                               context_instance=RequestContext(request))
 
 @login_required(login_url='/accounts/login')
@@ -52,12 +67,31 @@ def question_edit(request, id=None):
             q.draft = form.cleaned_data['draft']
             q.save()
 
+            # 06/16追加 : 所属外の人には送らない
+            diff_dev_users_prof = UserProfile.objects.exclude(division=form.cleaned_data['destination_div'])
+            diff_user_list = [prof.user for prof in diff_dev_users_prof]
+            # 06/16追加 : 受信拒否の人には送らない
+            deny_users_prof = UserProfile.objects.exclude(accept_question=1)
+            deny_users_list = [prof.user for prof in deny_users_prof]
+            # 06/23追加：最終ログイン日から一定の日数が経過している人には送らない
+            # TODO　最終ログイン日から何日に設定するか？あるいは動的に決めるか？（今は1日以内）
+            date_out_limit = datetime.datetime.now() - datetime.timedelta(hours=23, minutes=59, seconds=59)
+            no_login_users = User.objects.exclude(last_login__gte=date_out_limit)
+            # 回答ユーザ候補から除外するユーザ
+            ex_user_list = list()
+            ex_user_list.append(request.user)
+            ex_user_list.extend(diff_user_list)
+            ex_user_list.extend(deny_users_list)
+            ex_user_list.extend(no_login_users)
+
             # ランダムに質問者を選んでからReplyListを生成して保存
-            r_list = reply_list_update_random(request.user, q)
+            r_list = reply_list_update_random_except(ex_user_list, q)
+
             if r_list == None:
                 q.delete()
                 return HttpResponse("宛先ユーザが見つかりませんでした。。入力された質問は消去されます")
-            r_list.save()
+            else:
+                r_list.save()
 
             # 選択されたタグから、新規にQuestionTagを生成して保存
             q_tags = form.cleaned_data['tag']
@@ -93,11 +127,11 @@ def question_edit(request, id=None):
 #全ユーザーの中からランダムに返信ユーザーを決定する。（u:User 対象としたくないユーザー, q:Question）
 def reply_list_update_random(u, q):
 
-    rand_user = User.objects.filter(~Q(username=u)).filter(~Q(username=q.questioner))
+    candidate_users = User.objects.filter(~Q(username=u)).filter(~Q(username=q.questioner))
 
     try:
         r_list = ReplyList()
-        r_list.answerer = random.choice(rand_user)
+        r_list.answerer = random.choice(candidate_users)
         r_list.question = q
         r_list.time_limit_date = datetime.datetime.now() + datetime.timedelta(hours=q.time_limit.hour, minutes=q.time_limit.minute, seconds=q.time_limit.second)
         return r_list
@@ -110,14 +144,14 @@ def reply_list_update_random_except(users, question):
     """
 
     #rand_user = User.objects.filter(~Q(username=question.questioner))
-    rand_user = User.objects.all()
+    candidate_users = User.objects.all()
 
     for u in users:
-        rand_user = rand_user.filter(~Q(username=u))
+        candidate_users = candidate_users.filter(~Q(username=u))
 
     try:
         r_list = ReplyList()
-        r_list.answerer = random.choice(rand_user)
+        r_list.answerer = random.choice(candidate_users)
         r_list.question = question
         r_list.time_limit_date = datetime.datetime.now() + datetime.timedelta(
                                     hours=question.time_limit.hour,
@@ -191,19 +225,40 @@ def question_pass(request, id=None):
     また、質問者以外のユーザを質問が回り終わったら、質問者にお知らせする。
     """
 
-    if 'replylist_id' in request.POST:
-        replylist_id = request.POST['replylist_id']
-        replylist = ReplyList.objects.get(id=replylist_id)
+    #if 'replylist_id' in request.POST:
+    if True:
+        #replylist_id = request.POST['replylist_id']
+        replylist =  ReplyList.objects.get(id=id)
+        #replylist = ReplyList.objects.get(id=replylist_id)
         replylist.has_replied = True
         replylist.save()
 
         #new_replylist = reply_list_update_random(replylist.answerer, replylist.question)
+        q = replylist.question
 
-        # 質問者と今までパスした人（自分=request.userも含む）は次の回答ユーザ候補から除く
-        reply_lists_pass_users = ReplyList.objects.filter(question=replylist.question, has_replied=True)
+        # 06/16追加 : 所属外の人には送らない
+        diff_dev_users_prof = UserProfile.objects.filter(~Q(division=q.destination_div))
+        diff_user_list = [prof.user for prof in diff_dev_users_prof]
+        # 今までパスした人（自分=request.userも含む）には送らない
+        reply_lists_pass_users = ReplyList.objects.filter(question=q, has_replied=True)
         pass_user_list = [r.answerer for r in reply_lists_pass_users]
-        pass_user_list.append(replylist.question.questioner)
-        new_replylist = reply_list_update_random_except(pass_user_list, replylist.question)
+        # 06/16 受信拒否の人には送らない
+        deny_users_prof = UserProfile.objects.exclude(accept_question=1)
+        deny_users_list = [prof.user for prof in deny_users_prof]
+        # 06/23追加：最終ログイン日から一定の日数が経過している人には送らない
+        # TODO　最終ログイン日から何日に設定するか？あるいは動的に決めるか？（今は1日以内）
+        date_out_limit = datetime.datetime.now() - datetime.timedelta(hours=23, minutes=59, seconds=59)
+        no_login_users = User.objects.exclude(last_login__gte=date_out_limit)
+
+        # 回答ユーザ候補から除外するユーザ
+        ex_user_list = list()
+        ex_user_list.append(q.questioner)
+        ex_user_list.extend(diff_user_list)
+        ex_user_list.extend(pass_user_list)
+        ex_user_list.extend(deny_users_list)
+        ex_user_list.extend(no_login_users)
+
+        new_replylist = reply_list_update_random_except(ex_user_list, replylist.question)
 
         if new_replylist != None:
             new_replylist.save()
@@ -234,9 +289,9 @@ def question_detail(request, id=None):
         r = None
 
     # user check
-    if q.questioner != request.user:
-        # 他人の質問は表示できないようにする
-        return HttpResponse("他の人の質問は表示できません！") # TODO　表示できないよページ作る
+    #if q.questioner != request.user:
+    #    # 他人の質問は表示できないようにする
+    #    return HttpResponse("他の人の質問は表示できません！") # TODO　表示できないよページ作る
 
     return render_to_response('question/question_detail.html',
                               {'question': q, 'q_tags': q_tags, 'reply': r,},
@@ -297,9 +352,9 @@ def mypage(request):
 
             # 選択されたタグから、新規にQuestionTagを生成して保存
             q_tags = form.cleaned_data['tag']
-            u_tag_name =[t.tag.name for t in user_tags]
+            u_tag_names =[t.tag.name for t in user_tags]
             for q_tag in q_tags:
-                if q_tag.name not in u_tag_name: # ユーザに新規に追加されたタグだったら保存
+                if q_tag.name not in u_tag_names: # ユーザに新規に追加されたタグだったら保存
                     qt = UserTag()
                     qt.tag = q_tag
                     qt.user = request.user
@@ -317,6 +372,8 @@ def mypage(request):
                 qt.tag = t
                 qt.user = request.user
                 qt.save()
+            else:
+                print(tag_added_name)
 
             return redirect('question:top')
         pass

@@ -9,8 +9,10 @@
     {# 修正 #}
     <form action="" method="post" class="form">
       {% csrf_token %}
+      <div class="col-4">
       {{ form|bootstrap }}
-      <input type="submit" name="done" value="確定" class="btn btn-primary">
+      </div>
+      <input type="submit" name="done" value="確定" class="btn btn-primary" >
     </form>
 
     <p>&nbsp;</p>

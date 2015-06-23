@@ -48,7 +48,6 @@ class Tag(models.Model):
 class UserTag(models.Model):
     user = models.ForeignKey(User, verbose_name='ユーザ')
     tag = models.ForeignKey(Tag, verbose_name='タグ')
-
     def __str__(self):
         return u'%sに%sタグ追加' % (self.user, self.tag)
 

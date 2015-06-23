@@ -55,5 +55,6 @@
 
     {# 一覧に戻るボタン #}
     <a class="btn btn-default" href="{% url 'question:q_list' %}" role="button">戻る</a>
-
+    <a class="btn btn-default" href="{% url 'question:pass_network' id=question.id %}" role="button">パス</a>
+    
 {% endblock content %}

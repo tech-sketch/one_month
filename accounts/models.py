@@ -1,8 +1,11 @@
 from django.contrib.auth.models import User
 from django.db import models
 
-#from djangogcal.adapter import CalendarAdapter, CalendarEventData
-#from djangogcal.observer import CalendarObserver
+"""
+    これをやると、objects.filterがうまくはたらかないみたい
+    def __str__(self):
+        return u'%s(%s %s)' % (self.username, self.first_name, self.last_name)
+"""
 
 # 勤務先マスタ
 class WorkPlace(models.Model):

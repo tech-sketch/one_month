@@ -60,7 +60,8 @@ def question_edit(request, id=None):
 
         # 完了がおされたら
         if form.is_valid():
-
+            print("-------------------------------")
+            print(form.cleaned_data['destination'])
             # 質問を保存
             q = form.save(commit=False)
             q.questioner = request.user
@@ -68,15 +69,17 @@ def question_edit(request, id=None):
             q.save()
 
             # 06/16追加 : 所属外の人には送らない
-            diff_dev_users_prof = UserProfile.objects.exclude(division=form.cleaned_data['destination_div'])
+            diff_dev_users_prof = UserProfile.objects.exclude(division__in=[d for d in form.cleaned_data['destination']])
             diff_user_list = [prof.user for prof in diff_dev_users_prof]
             # 06/16追加 : 受信拒否の人には送らない
             deny_users_prof = UserProfile.objects.exclude(accept_question=1)
             deny_users_list = [prof.user for prof in deny_users_prof]
+
             # 06/23追加：最終ログイン日から一定の日数が経過している人には送らない
             # TODO　最終ログイン日から何日に設定するか？あるいは動的に決めるか？（今は1日以内）
-            date_out_limit = datetime.datetime.now() - datetime.timedelta(hours=23, minutes=59, seconds=59)
-            no_login_users = User.objects.exclude(last_login__gte=date_out_limit)
+            #date_out_limit = datetime.datetime.now() - datetime.timedelta(hours=23, minutes=59, seconds=59)
+            #no_login_users = User.objects.exclude(last_login__gte=date_out_limit)
+            no_login_users = []
             # 回答ユーザ候補から除外するユーザ
             ex_user_list = list()
             ex_user_list.append(request.user)
@@ -351,9 +354,9 @@ def mypage(request):
             r.save()
 
             # 選択されたタグから、新規にQuestionTagを生成して保存
-            q_tags = form.cleaned_data['tag']
+            tags = form.cleaned_data['tag']
             u_tag_names =[t.tag.name for t in user_tags]
-            for q_tag in q_tags:
+            for q_tag in tags:
                 if q_tag.name not in u_tag_names: # ユーザに新規に追加されたタグだったら保存
                     qt = UserTag()
                     qt.tag = q_tag

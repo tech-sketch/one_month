@@ -15,7 +15,7 @@
     {% for q in questions %}
         {# 自分がした質問 #}
         {% if q.questioner.last_name|add:q.questioner.first_name = uname %}
-            <div id={{q.id}} class="item" style="position: absolute; border-top: 3px solid #BFBFBF; border-bottom: 7px solid #FDC44F; border-left: none; border-right: 3px solid #BFBFBF;">タイトル: {{q.title}}<p>&nbsp;</p>本文: {{q.text}}</div>
+            <div id={{q.id}} class="item" style="font-weight:bold; color: #ffffff; background-color:#D24726; position: absolute; border-top: 3px solid #BFBFBF; border-bottom: 7px solid #D24726; border-left: none; border-right: 3px solid #BFBFBF;">タイトル: {{q.title}}<p>&nbsp;</p>本文: {{q.text}}</div>
         {% endif %}
     {% endfor %}
 

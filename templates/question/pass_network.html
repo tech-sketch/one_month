@@ -4,7 +4,7 @@
 
 {% load bootstrap %}
 
-{% block title %}ネットワーク{% endblock title %}
+{% block title %}pass_network{% endblock title %}
 
 {% block head %}
   <link href="http://js.cytoscape.org/demos/b7c65115947d9e0e8ec8/style.css" rel="stylesheet">
@@ -12,7 +12,6 @@
   <script src="{% static 'js/cytoscape.min.js' %}"></script>
   <script type="text/javascript">
      $(function(){ // on dom ready
-
 $('#cy').cytoscape({
   layout: {
     name: 'cose',
@@ -87,7 +86,6 @@ $('#cy').cytoscape({
     // giddy up
   }
 });
-
 }); // on dom ready
   </script> 
 {% endblock head %}

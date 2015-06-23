@@ -7,16 +7,17 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link href="{% static 'css/bootstrap.css' %}" rel="stylesheet">
         <link href="{% static 'css/bootstrap-theme.css' %}" rel="stylesheet">
+        <script src="{% static 'js/top.js' %}"></script>
         <script src="{% static 'js/jquery.js' %}"></script>
         <script src="{% static 'js/bootstrap.min.js' %}"></script>
         {% block head %}
         {% endblock %}
-        <script src="{% static 'js/top.js' %}"></script>
+        
 
         <!-- 読みこめない...-->
         <!--link href="//on-ze.com/demo/jquery-masonry/style.css" type="text/css" rel="stylesheet" -->
 
-        <script src="{% static 'js/masonry/jquery.js' %}"></script>
+        
         <script src="{% static 'js/masonry/imagesloaded.js' %}"></script>
         <script src="{% static 'js/masonry/masonry.min.js' %}"></script>
         <script src="{% static 'js/masonry/set.js' %}"></script>
@@ -31,9 +32,9 @@
         #masonry {width:0; text-align:left; margin:0;}
 
         .item{
-        width:500px;
-        min-height:200px;
-        max-height:200px;
+        width:300px;
+        min-height:50px;
+        max-height:400px;
         overflow:hidden;
         padding:10px;
         margin:0 10px 15px 10px;

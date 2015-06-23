@@ -7,7 +7,6 @@ from accounts.models import Division
 
 class Question(models.Model):
     questioner = models.ForeignKey(User, verbose_name='質問者')
-    destination_div = models.ForeignKey(Division, verbose_name='宛先所属コード')
     title = models.CharField('タイトル', max_length=512)
     text = models.TextField('質問内容')
     time_limit = models.TimeField('質問のタイムリミット')
@@ -18,6 +17,10 @@ class Question(models.Model):
     def __str__(self):
         return u'%sから%sへ「%s」についての質問' % (self.questioner, self.destination_div, self.title)
     """
+
+class QuestionDestination(models.Model):
+    question = models.ForeignKey(Question, verbose_name='質問')
+    tag = models.ForeignKey(Division, verbose_name='宛先所属コード')
 
 class Reply(models.Model):
     question = models.ForeignKey(Question, verbose_name='質問')

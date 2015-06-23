@@ -1,36 +1,115 @@
 {% extends "base.html" %}
 
+{% load staticfiles %}
+
 {% load bootstrap_toolkit %}
 
 {% block title %}トップページ{% endblock title %}
+
+{% block head %}
+    <!-- 読みこめない...-->
+    <!--link href="//on-ze.com/demo/jquery-masonry/style.css" type="text/css" rel="stylesheet" -->
+
+    <script src="{% static 'js/masonry/jquery.js' %}"></script>
+    <script src="{% static 'js/masonry/imagesloaded.js' %}"></script>
+    <script src="{% static 'js/masonry/masonry.min.js' %}"></script>
+    <script src="{% static 'js/masonry/set.js' %}"></script>
+    <script src="{% static 'js/top.js' %}"></script>
+
+
+    <link href='http://fonts.googleapis.com/css?family=Puritan:bold' rel='stylesheet' type='text/css'>
+
+    <script type="text/javascript" language="javascript" src="badge.js"></script>
+
+    <style type="text/css">
+        body {background:#f5f5f5;}
+        #masonry {width:0; text-align:left; margin:0;}
+
+        .item{
+            width:350px;
+            min-height:100px;
+            max-height:400px;
+            overflow:hidden;
+            padding:10px;
+            margin:0 10px 15px 10px;
+            background:#fff;
+            float:left;
+            text-align:left;
+            position:relative;
+            border-radius:0px;
+        }
+
+        .badge
+        {
+            position: absolute;
+            width: 200px;
+            top:20px;
+            left:215px;
+            font-family: 'Puritan', arial, serif;
+            -webkit-transform-style: preserve-3d;
+            -webkit-transition-property: -webkit-transform;
+            -webkit-transition-duration: 1s;
+            -webkit-transform: rotateZ(45deg);
+        }
+
+        .info {padding-left:80px;}
+    </style>
+{% endblock head %}
 
 {% block content %}
 
     {# 挨拶 #}
     <p>こんにちは！{{uname}}さん</p>
     <p>最終ログイン {{last_login}} </p>
-    <h2>ここはトップページです</h2>
+    <h2>ここはトップページ(JS ver.)です</h2>
 
     <div id="masonry" style="position: relative; width: 660px; height: 729px;">
     {% for q in questions %}
         {# 自分がした質問 #}
-        {% if q.questioner.last_name|add:q.questioner.first_name = uname %}
-            <div id={{q.id}} class="item" style="position: absolute; border-top: 3px solid #BFBFBF; border-bottom: 7px solid #FDC44F; border-left: none; border-right: 3px solid #BFBFBF;">タイトル: {{q.title}}<p>&nbsp;</p>本文: {{q.text}}</div>
+        {% if q.questioner.last_name|add:q.questioner.first_name == uname %}
+            <div id={{q.id}} class="item" style="position: absolute; border-top: 3px solid #BFBFBF; border-bottom: 7px solid #FDC44F; border-left: none; border-right: 3px solid #BFBFBF;">
+                <div>
+                <img src="/static/images/dotchain.png" align="left" width="50" height="50">
+                &nbsp;質問者：{{q.questioner}}<br>
+                &nbsp;質問日時：{{q.date}}
+                </div>
+                <hr>
+                タイトル: {{q.title}}<p>&nbsp;</p>
+                本文: {{q.text|linebreaksbr }}
+            </div>
         {% endif %}
     {% endfor %}
 
     {# 他人から来た質問 #}
     {% for r in replylist %}
-        <div id={{r.question.id}} class="item" style="position: absolute; border-top: 3px solid #BFBFBF; border-bottom: 7px solid #8DCF3F; border-left: none; border-right: 3px solid #BFBFBF;">タイトル: {{r.question.title}}<p>&nbsp;</p>本文: {{r.question.text}}
+        <div id={{r.question.id}} class="item" style="position: absolute; border-top: 3px solid #BFBFBF; border-bottom: 7px solid #8DCF3F; border-left: none; border-right: 3px solid #BFBFBF;">
+            <div>
+                <img src="/static/images/dotchain.png" align="left" width="50" height="50">
+                &nbsp;質問者：{{r.question.questioner}}<br>
+                &nbsp;質問日時：{{r.question.date}}
+            </div>
+            <hr>
+            タイトル: {{r.question.title}}<p>&nbsp;</p>
+            本文: {{r.question.text|linebreaksbr}}
             {% if r.has_replied %}
-                <h4>パス済み</h4>
+                <div class="badge" onmouseover="flip(event)" onmouseout="flip(event)">
+                    {#TODO パス済みと回答済みを判別するにはどうしたらよいか？#}
+                    <div class="front face">パス済み</div>
+                    <div class="back face">or 回答済み</div>
+                </div>
+
             {% else %}
-                <a class="btn btn-default" href="{% url 'question:r_new' id=r.question.id %}" role="button">返信</a>
-                <a class="btn btn-default" href="{% url 'question:q_pass' id=r.id %}" role="button">パス</a>
+                <div class="badge" onmouseover="flip(event)" onmouseout="flip(event)">
+                    <a class="btn btn-success" href="{% url 'question:r_new' id=r.question.id %}" role="button">返信</a>
+                    <a class="btn btn-danger" href="{% url 'question:q_pass' id=r.id %}" role="button">パス</a>
+                </div>
             {% endif %}
+
         </div>
     {% endfor %}
     </div>
+
+
 
 {% endblock content %}
 

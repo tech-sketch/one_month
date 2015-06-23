@@ -20,11 +20,14 @@ def top_default(request):
     q = Question.objects.filter(questioner=request.user)
 
     # 自分あての質問を取ってくる
-    r = ReplyList.objects.filter(answerer=request.user)
+    reply_list = ReplyList.objects.filter(answerer=request.user)
+
+    # 自分の回答を取ってくる
+    r = Reply.objects.filter(answerer=request.user)
 
     histories = None
     return render_to_response('question/top_default.html',
-                              {'histories': histories, 'questions': q, 'replylist':r, 'uname': request.user.last_name+request.user.first_name, 'last_login': request.user.last_login},
+                              {'histories': histories, 'questions': q, 'replylist':reply_list, 'reply': r, 'uname': request.user.last_name+request.user.first_name, 'last_login': request.user.last_login},
                               context_instance=RequestContext(request))
 
 @login_required(login_url='/accounts/login')
@@ -262,7 +265,7 @@ def question_pass(request, id=None):
 @login_required(login_url='/accounts/login')
 def question_detail(request, id=None):
     """
-    自分の質問の詳細を表示する
+    質問の詳細を表示する
     """
 
     # 指定された質問を取ってくる
@@ -278,13 +281,20 @@ def question_detail(request, id=None):
     except Reply.DoesNotExist:
         r = None
 
+    # 回答リストを取ってくる
+    try:
+        reply_list = ReplyList.objects.get(question=q, answerer=request.user)
+    except ReplyList.DoesNotExist:
+        reply_list = None
+
     # user check
     #if q.questioner != request.user:
     #    # 他人の質問は表示できないようにする
     #    return HttpResponse("他の人の質問は表示できません！") # TODO　表示できないよページ作る
 
     return render_to_response('question/question_detail.html',
-                              {'question': q, 'q_tags': q_tags, 'reply': r,},
+                              {'question': q, 'q_tags': q_tags, 'reply': r, 'reply_list': reply_list,
+                               'uname': request.user.last_name+request.user.first_name},
                               context_instance=RequestContext(request))
 
 @login_required(login_url='/accounts/login')

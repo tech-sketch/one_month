@@ -27,7 +27,7 @@ class Reply(models.Model):
     draft = models.BooleanField('下書き', default=False)
 
     def __str__(self):
-        return u'%sへ「%s」についての回答' % (self.question.questioner, self.title)
+        return u'%sへ「%s」についての回答' % (self.question.questioner, self.question.title)
 
 class ReplyList(models.Model):
     question = models.ForeignKey(Question, verbose_name='質問')

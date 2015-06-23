@@ -4,6 +4,35 @@
 
 {% block title %}トップページ(JS){% endblock title %}
 
+{% block head %}
+  <!-- 読みこめない...-->
+　<!--link href="//on-ze.com/demo/jquery-masonry/style.css" type="text/css" rel="stylesheet" -->
+
+  <script src="{% static 'js/masonry/jquery.js' %}"></script>
+  <script src="{% static 'js/masonry/imagesloaded.js' %}"></script>
+  <script src="{% static 'js/masonry/masonry.min.js' %}"></script>
+  <script src="{% static 'js/masonry/set.js' %}"></script>
+  <script src="{% static 'js/top.js' %}"></script>
+
+　<style type="text/css">
+    　body {background:#f5f5f5;}
+    　#masonry {width:0; text-align:left; margin:0;} 　
+    　.item{
+        　width:500px;
+        　min-height:200px;
+        　max-height:200px;
+        　overflow:hidden;
+        　padding:10px;
+        　margin:0 10px 15px 10px;
+        　background:#fff;
+        　float:left;
+        　text-align:left;
+        　position:relative;
+        　border-radius:0px;
+    　}
+　</style>
+{% endblock head %}
+
 {% block content %}
 
     {# 挨拶 #}

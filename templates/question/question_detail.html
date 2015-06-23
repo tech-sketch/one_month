@@ -55,6 +55,21 @@
 
     {# 一覧に戻るボタン #}
     <a class="btn btn-default" href="{% url 'question:q_list' %}" role="button">戻る</a>
-    <a class="btn btn-default" href="{% url 'question:pass_network' id=question.id %}" role="button">パス</a>
-    
+
+
+    {# 自分がした質問だったらパスは表示しない #}
+    {% if question.questioner.last_name|add:question.questioner.first_name != uname %}
+        {% if reply_list %}
+            <a class="btn btn-default" href="{% url 'question:pass_network' id=question.id %}" role="button">
+                {% if reply_list.has_replied %}
+                    パス済み（押せないようにしたい）
+                {% else %}
+                    パス
+                {% endif %}
+                </a>
+        {% else %}
+            <a class="btn btn-default" href="{% url 'question:pass_network' id=question.id %}" role="button">パス</a>
+        {% endif%}
+    {% endif %}
+
 {% endblock content %}

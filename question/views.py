@@ -10,9 +10,10 @@ from question.forms import QuestionEditForm, ReplyEditForm, UserProfileEditForm
 import random, datetime, pytz
 
 # Create your views here.
-def top_js(request):
+@login_required(login_url='/accounts/login')
+def top_default(request):
     """
-    トップページ（JS ver.）
+    トップページ
     """
 
     # 自分がした質問を取ってくる
@@ -22,19 +23,8 @@ def top_js(request):
     r = ReplyList.objects.filter(answerer=request.user)
 
     histories = None
-    return render_to_response('question/top_js.html',
-                              {'histories': histories, 'questions': q, 'replylist':r, 'uname': request.user.last_name+request.user.first_name, 'last_login': request.user.last_login},
-                              context_instance=RequestContext(request))
-
-@login_required(login_url='/accounts/login')
-def top_default(request):
-    """
-    トップページ（デフォルト）
-    """
-
-    histories = None
     return render_to_response('question/top_default.html',
-                              {'histories': histories, 'uname': request.user.last_name+request.user.first_name, 'last_login': request.user.last_login},
+                              {'histories': histories, 'questions': q, 'replylist':r, 'uname': request.user.last_name+request.user.first_name, 'last_login': request.user.last_login},
                               context_instance=RequestContext(request))
 
 @login_required(login_url='/accounts/login')

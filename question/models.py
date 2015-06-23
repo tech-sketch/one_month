@@ -3,10 +3,11 @@
 from django.db import models
 from datetime import datetime
 from django.contrib.auth.models import User
+from accounts.models import Division
 
 class Question(models.Model):
     questioner = models.ForeignKey(User, verbose_name='質問者')
-    destination_div = models.ForeignKey(m.Division, verbose_name='宛先所属コード')
+    destination_div = models.ForeignKey(Division, verbose_name='宛先所属コード')
     title = models.CharField('タイトル', max_length=512)
     text = models.TextField('質問内容')
     time_limit = models.TimeField('質問のタイムリミット')
@@ -20,7 +21,7 @@ class Question(models.Model):
 
 class Reply(models.Model):
     question = models.ForeignKey(Question, verbose_name='質問')
-    answerer = models.ForeignKey(m.User, verbose_name='返答ユーザ')
+    answerer = models.ForeignKey(User, verbose_name='返答ユーザ')
     text = models.TextField('返信内容')
     date = models.DateTimeField('返信日時', default=datetime.now)
     draft = models.BooleanField('下書き', default=False)
@@ -30,7 +31,7 @@ class Reply(models.Model):
 
 class ReplyList(models.Model):
     question = models.ForeignKey(Question, verbose_name='質問')
-    answerer = models.ForeignKey(m.User, verbose_name='返答ユーザ')
+    answerer = models.ForeignKey(User, verbose_name='返答ユーザ')
     time_limit_date = models.DateTimeField('返信期限')
     has_replied = models.BooleanField('返信済み', default=False)
 
@@ -45,7 +46,7 @@ class Tag(models.Model):
         return u'%s' % (self.name)
 
 class UserTag(models.Model):
-    user = models.ForeignKey(m.User, verbose_name='ユーザ')
+    user = models.ForeignKey(User, verbose_name='ユーザ')
     tag = models.ForeignKey(Tag, verbose_name='タグ')
 
     def __str__(self):

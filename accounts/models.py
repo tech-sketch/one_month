@@ -1,6 +1,9 @@
 from django.contrib.auth.models import User
 from django.db import models
 
+#from djangogcal.adapter import CalendarAdapter, CalendarEventData
+#from djangogcal.observer import CalendarObserver
+
 # 勤務先マスタ
 class WorkPlace(models.Model):
     CHOICES = (

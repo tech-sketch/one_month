@@ -5,6 +5,7 @@ from question import views
 
 urlpatterns = patterns('',
         url(r'^$', views.top_default, name='top'),# トップページ（デフォルト）
+        url(r'^js/$', views.top_js, name='top_js'),# トップページ（JS）
         url(r'^q_new/$', views.question_edit, name='q_new'),              # 新規質問
         url(r'^r_new/(?P<id>\d+)/$', views.reply_edit, name='r_new'),   # 新規回答
         url(r'^r_list/$', views.reply_list, name='r_list'), # 他のユーザから来た質問リスト
@@ -14,5 +15,4 @@ urlpatterns = patterns('',
         url(r'^q_detail/(?P<id>\d+)/$', views.question_detail, name='q_detail'), # 詳細
         url(r'^mypage/$', views.mypage, name='mypage'), # マイページ
 
-        url(r'^surprise/', views.for_ajax, name='ajax'),
 )

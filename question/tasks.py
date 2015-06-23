@@ -16,13 +16,12 @@ def auto_rand_pass():
 
     print("---------------")
     if not r_list_list:
-        print("@@@@")
+        print("@@@@skip@@@@")
+        print("パスすべき質問がありませんでした。スキップします")
         return 1
 
     for r_list in r_list_list:
         print("###pass###")
-        print(r_list.question.title)
-        print('{0}:{1}'.format(r_list.answerer, r_list.time_limit_date))
 
         r_list.has_replied = True
         r_list.save()
@@ -33,6 +32,9 @@ def auto_rand_pass():
         new_r_list = reply_list_update_random_except(pass_user_list,  r_list.question)
         if new_r_list != None:
             new_r_list.save()
+            print('{0}からの質問「{1}」を{2}から{3}にパスしました。 タイムリミットは{4}'.format(r_list.question.questioner, r_list.question.title, r_list.answerer, new_r_list.answerer, new_r_list.time_limit_date))
+        else:
+            print('パスできませんでした')
 
 
 

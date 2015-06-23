@@ -10,6 +10,21 @@ from question.forms import QuestionEditForm, ReplyEditForm, UserProfileEditForm
 import random, datetime, pytz
 
 # Create your views here.
+def top_js(request):
+    """
+    トップページ（JS ver.）
+    """
+
+    # 自分がした質問を取ってくる
+    q = Question.objects.filter(questioner=request.user)
+
+    # 自分あての質問を取ってくる
+    r = ReplyList.objects.filter(answerer=request.user)
+
+    histories = None
+    return render_to_response('question/top_js.html',
+                              {'histories': histories, 'questions': q, 'replylist':r, 'uname': request.user.last_name+request.user.first_name, 'last_login': request.user.last_login},
+                              context_instance=RequestContext(request))
 
 @login_required(login_url='/accounts/login')
 def top_default(request):
@@ -19,7 +34,7 @@ def top_default(request):
 
     histories = None
     return render_to_response('question/top_default.html',
-                              {'histories': histories, 'uname': request.user.last_name+request.user.first_name},
+                              {'histories': histories, 'uname': request.user.last_name+request.user.first_name, 'last_login': request.user.last_login},
                               context_instance=RequestContext(request))
 
 @login_required(login_url='/accounts/login')
@@ -58,12 +73,16 @@ def question_edit(request, id=None):
             # 06/16追加 : 受信拒否の人には送らない
             deny_users_prof = UserProfile.objects.exclude(accept_question=1)
             deny_users_list = [prof.user for prof in deny_users_prof]
-
+            # 06/23追加：最終ログイン日から一定の日数が経過している人には送らない
+            # TODO　最終ログイン日から何日に設定するか？あるいは動的に決めるか？（今は1日以内）
+            date_out_limit = datetime.datetime.now() - datetime.timedelta(hours=23, minutes=59, seconds=59)
+            no_login_users = User.objects.exclude(last_login__gte=date_out_limit)
             # 回答ユーザ候補から除外するユーザ
             ex_user_list = list()
             ex_user_list.append(request.user)
             ex_user_list.extend(diff_user_list)
             ex_user_list.extend(deny_users_list)
+            ex_user_list.extend(no_login_users)
 
             # ランダムに質問者を選んでからReplyListを生成して保存
             r_list = reply_list_update_random_except(ex_user_list, q)
@@ -206,9 +225,11 @@ def question_pass(request, id=None):
     また、質問者以外のユーザを質問が回り終わったら、質問者にお知らせする。
     """
 
-    if 'replylist_id' in request.POST:
-        replylist_id = request.POST['replylist_id']
-        replylist = ReplyList.objects.get(id=replylist_id)
+    #if 'replylist_id' in request.POST:
+    if True:
+        #replylist_id = request.POST['replylist_id']
+        replylist =  ReplyList.objects.get(id=id)
+        #replylist = ReplyList.objects.get(id=replylist_id)
         replylist.has_replied = True
         replylist.save()
 
@@ -224,6 +245,10 @@ def question_pass(request, id=None):
         # 06/16 受信拒否の人には送らない
         deny_users_prof = UserProfile.objects.exclude(accept_question=1)
         deny_users_list = [prof.user for prof in deny_users_prof]
+        # 06/23追加：最終ログイン日から一定の日数が経過している人には送らない
+        # TODO　最終ログイン日から何日に設定するか？あるいは動的に決めるか？（今は1日以内）
+        date_out_limit = datetime.datetime.now() - datetime.timedelta(hours=23, minutes=59, seconds=59)
+        no_login_users = User.objects.exclude(last_login__gte=date_out_limit)
 
         # 回答ユーザ候補から除外するユーザ
         ex_user_list = list()
@@ -231,6 +256,7 @@ def question_pass(request, id=None):
         ex_user_list.extend(diff_user_list)
         ex_user_list.extend(pass_user_list)
         ex_user_list.extend(deny_users_list)
+        ex_user_list.extend(no_login_users)
 
         new_replylist = reply_list_update_random_except(ex_user_list, replylist.question)
 
@@ -263,9 +289,9 @@ def question_detail(request, id=None):
         r = None
 
     # user check
-    if q.questioner != request.user:
-        # 他人の質問は表示できないようにする
-        return HttpResponse("他の人の質問は表示できません！") # TODO　表示できないよページ作る
+    #if q.questioner != request.user:
+    #    # 他人の質問は表示できないようにする
+    #    return HttpResponse("他の人の質問は表示できません！") # TODO　表示できないよページ作る
 
     return render_to_response('question/question_detail.html',
                               {'question': q, 'q_tags': q_tags, 'reply': r,},

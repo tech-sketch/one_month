@@ -1,0 +1,35 @@
+{% extends "question/top_default.html" %}
+
+{% load staticfiles %}
+
+{% load bootstrap_toolkit %}
+
+{% block title %}トップページ{% endblock title %}
+
+{% block tab %}
+
+    <div class="activities">
+        <div id="masonry" style="position: relative; width: 660px; height: 729px;">
+            {% for q in questions %}
+            <div id={{q.id}} class="item" style="position: absolute; border-top: 3px solid #BFBFBF; border-bottom: 7px solid #8DCF3F; border-left: none; border-right: 3px solid #BFBFBF;">
+                <div>
+                    <img src="/static/images/dotchain.png" align="left" width="50" height="50">
+                    &nbsp;質問者：{{q.questioner}}<br>
+                    &nbsp;質問日時：{{q.date}}
+                </div>
+                <hr>
+                タイトル: {{q.title}}<p>&nbsp;</p>
+                本文: {{q.text|linebreaksbr }}
+                <div class="badge" onmouseover="flip(event)" onmouseout="flip(event)">
+                    <a class="btn btn-success" href="{% url 'question:r_new' id=q.id %}" role="button">r.question.id返信</a>
+                    <a class="btn btn-danger" href="{% url 'question:q_pass' id=q.id %}" role="button">r.id パス</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="tail">
+        <div class="more-button btn btn-default btn-block" tabindex="0">もっと見る
+    </div>
+
+{% endblock tab %}

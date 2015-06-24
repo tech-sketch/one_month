@@ -16,17 +16,24 @@ def top_default(request):
     トップページ
     """
 
-    # 自分がした質問を取ってくる
-    q = Question.objects.filter(questioner=request.user)
+    # 自分の質問を取ってくる
+    q_mine = Question.objects.filter(questioner=request.user)
 
-    # 自分あての質問を取ってくる
+    # 自分宛の質問を取ってくる
     reply_list = ReplyList.objects.filter(answerer=request.user)
+
+    # 自分と自分宛の質問を結合して時系列に並べる
+    q_tome = [r.question for r in reply_list]
+    q = list()
+    q.extend(q_mine)
+    q.extend(q_tome)
+    sorted(q, key=lambda x: x.date)#OK?
 
     # 自分の回答を取ってくる
     r = Reply.objects.filter(answerer=request.user)
 
     histories = None
-    return render_to_response('question/top_default.html',
+    return render_to_response('question/top_all.html',
                               {'histories': histories, 'questions': q, 'replylist':reply_list, 'reply': r, 'uname': request.user.last_name+request.user.first_name, 'last_login': request.user.last_login},
                               context_instance=RequestContext(request))
 
@@ -200,14 +207,33 @@ def reply_edit(request, id=None):
 @login_required(login_url='/accounts/login')
 def question_list(request):
     """
-    自分が今までにした質問一覧を表示する
+    自分の質問を表示する
     """
 
-    #最新のものから順に表示（下書きも表示させる）
-    questions = Question.objects.filter(questioner=request.user).order_by('-date')[:]
+    # 自分の質問を取ってくる
+    q_mine = Question.objects.filter(questioner=request.user)
 
-    return render_to_response('question/question_list.html',
-                              {'questions': questions, 'uname': request.user.last_name+request.user.first_name},
+    # 自分の質問を時系列に並べる
+    q = list()
+    q.extend(q_mine)
+    sorted(q, key=lambda x: x.date)#OK?
+
+    qa_list = list()
+    #自分の質問が解決済みかどうか調べる
+    for q in q_mine:
+        r = Reply.objects.filter(question=q) # いまの仕様では返信は一つのはず
+        if len(r): #解決済み
+            qa_list.append([q, 1])
+        else: #未解決or回答待ち
+            if True:
+                qa_list.append([q, 0]) #TODO:未解決
+            else:
+                qa_list.append([q, 2]) #回答待ち
+    print(qa_list)
+
+    histories = None
+    return render_to_response('question/top_q.html',
+                              {'histories': histories, 'qa_list': qa_list, 'uname': request.user.last_name+request.user.first_name, 'last_login': request.user.last_login},
                               context_instance=RequestContext(request))
 
 @login_required(login_url='/accounts/login')
@@ -315,13 +341,29 @@ def reply_list(request):
 
     # 06/09 返信リストの中から自分あて、かつ返信済みでない質問を取ってくる
     # 返信期限がまだ来てないもの、かつ返信期限が早いものから順に表示
-    replylist = ReplyList.objects.filter(answerer=request.user, has_replied=False,
-                                        time_limit_date__gte=datetime.datetime.now(pytz.utc)).order_by('time_limit_date')[:]
-    questions = [r.question for r in replylist]
+    #replylist = ReplyList.objects.filter(answerer=request.user, has_replied=False,time_limit_date__gte=datetime.datetime.now(pytz.utc)).order_by('time_limit_date')[:]
+    #questions = [r.question for r in replylist]
 
-    return render_to_response('question/reply_list.html',
-                                {'questions':questions,},
-                                context_instance=RequestContext(request))
+    #return render_to_response('question/reply_list.html',
+    #                            {'questions':questions,},
+    #                           context_instance=RequestContext(request))
+
+    # 自分宛の質問を取ってくる
+    reply_list = ReplyList.objects.filter(answerer=request.user)
+
+    # 自分と自分宛の質問を結合して時系列に並べる
+    q_tome = [r.question for r in reply_list]
+    q = list()
+    q.extend(q_tome)
+    sorted(q, key=lambda x: x.date)#OK?
+
+    # 自分の回答を取ってくる
+    r = Reply.objects.filter(answerer=request.user)
+
+    histories = None
+    return render_to_response('question/top_r.html',
+                              {'histories': histories, 'questions': q, 'replylist':reply_list, 'reply': r, 'uname': request.user.last_name+request.user.first_name, 'last_login': request.user.last_login},
+                              context_instance=RequestContext(request))
 
 @login_required(login_url='/accounts/login')
 def mypage(request):

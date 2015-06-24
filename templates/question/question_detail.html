@@ -7,6 +7,7 @@
 {% block content %}
 
     {# 内容表示 #}
+    <div class="col-md-8">
     <h2>質問詳細</h2>
     <div class="service">
         <p>&nbsp;</p>
@@ -71,5 +72,11 @@
             <a class="btn btn-default" href="{% url 'question:pass_network' id=question.id %}" role="button">パス</a>
         {% endif%}
     {% endif %}
+    </div>
+
+    <div class="col-md-4">
+        ここにネットワーク図をかく
+        ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+    </div>
 
 {% endblock content %}

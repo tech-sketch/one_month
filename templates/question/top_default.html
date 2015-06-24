@@ -31,12 +31,13 @@
             max-height:400px;
             overflow:hidden;
             padding:10px;
-            margin:0 10px 15px 10px;
+            margin:20px 10px 10px 20px;
             background:#fff;
             float:left;
             text-align:left;
             position:relative;
             border-radius:0px;
+            cursor: pointer;
         }
 
         .badge
@@ -53,7 +54,9 @@
         }
 
         .info {padding-left:80px;}
-    </style>
+
+     </style>
+
 {% endblock head %}
 
 {% block content %}
@@ -63,53 +66,22 @@
     <p>最終ログイン {{last_login}} </p>
     <h2>ここはトップページ(JS ver.)です</h2>
 
-    <div id="masonry" style="position: relative; width: 660px; height: 729px;">
-    {% for q in questions %}
-        {# 自分がした質問 #}
-        {% if q.questioner.last_name|add:q.questioner.first_name == uname %}
-            <div id={{q.id}} class="item" style="position: absolute; border-top: 3px solid #BFBFBF; border-bottom: 7px solid #FDC44F; border-left: none; border-right: 3px solid #BFBFBF;">
-                <div>
-                <img src="/static/images/dotchain.png" align="left" width="50" height="50">
-                &nbsp;質問者：{{q.questioner}}<br>
-                &nbsp;質問日時：{{q.date}}
-                </div>
-                <hr>
-                タイトル: {{q.title}}<p>&nbsp;</p>
-                本文: {{q.text|linebreaksbr }}
-            </div>
-        {% endif %}
-    {% endfor %}
+    <nav>
+            <ul class="nav nav-tabs streamContainer_tabs">
+                <li id="all" class="tab active" data-type="following">
+                    <a href="/question">すべての質問</a>
+                </li>
 
-    {# 他人から来た質問 #}
-    {% for r in replylist %}
-        <div id={{r.question.id}} class="item" style="position: absolute; border-top: 3px solid #BFBFBF; border-bottom: 7px solid #8DCF3F; border-left: none; border-right: 3px solid #BFBFBF;">
-            <div>
-                <img src="/static/images/dotchain.png" align="left" width="50" height="50">
-                &nbsp;質問者：{{r.question.questioner}}<br>
-                &nbsp;質問日時：{{r.question.date}}
-            </div>
-            <hr>
-            タイトル: {{r.question.title}}<p>&nbsp;</p>
-            本文: {{r.question.text|linebreaksbr}}
-            {% if r.has_replied %}
-                <div class="badge" onmouseover="flip(event)" onmouseout="flip(event)">
-                    {#TODO パス済みと回答済みを判別するにはどうしたらよいか？#}
-                    <div class="front face">パス済み</div>
-                    <div class="back face">or 回答済み</div>
-                </div>
+                <li id="mine" class="tab active" data-type="mine">
+                    <a href="/question/q_list">自分の投稿 <span class="label label-info">1</span></a>
+                </li>
+                <li id="reply" class="tab active" data-type="reply">
+                    <a href="/question/r_list">自分宛の質問</a>
+                </li>
+            </ul>
+    </nav>
 
-            {% else %}
-                <div class="badge" onmouseover="flip(event)" onmouseout="flip(event)">
-                    <a class="btn btn-success" href="{% url 'question:r_new' id=r.question.id %}" role="button">返信</a>
-                    <a class="btn btn-danger" href="{% url 'question:q_pass' id=r.id %}" role="button">パス</a>
-                </div>
-            {% endif %}
-
-        </div>
-    {% endfor %}
-    </div>
-
-
+    {% block tab %}
+    {% endblock%}
 
 {% endblock content %}
-

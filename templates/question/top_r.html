@@ -10,19 +10,28 @@
 
     <div class="activities">
         <div id="masonry" style="position: relative; width: 660px; height: 729px;">
-            {% for q in questions %}
-            <div id={{q.id}} class="item" style="position: absolute; border-top: 3px solid #BFBFBF; border-bottom: 7px solid #8DCF3F; border-left: none; border-right: 3px solid #BFBFBF;">
+            {% for qa in qa_list %}
+            <div id={{qa.0.question.id}} class="item" style="position: absolute; border-top: 3px solid #BFBFBF; border-bottom: 7px solid #8DCF3F; border-left: none; border-right: 3px solid #BFBFBF;">
                 <div>
                     <img src="/static/images/dotchain.png" align="left" width="50" height="50">
-                    &nbsp;質問者：{{q.questioner}}<br>
-                    &nbsp;質問日時：{{q.date}}
+                    &nbsp;質問者：{{qa.0.questioner}}<br>
+                    &nbsp;質問日時：{{qa.0.date}}
                 </div>
                 <hr>
-                タイトル: {{q.title}}<p>&nbsp;</p>
-                本文: {{q.text|linebreaksbr }}
+                タイトル: {{qa.0.question.title}}<p>&nbsp;</p>
+                本文: {{qa.0.question.text|linebreaksbr }}
                 <div class="badge" onmouseover="flip(event)" onmouseout="flip(event)">
-                    <a class="btn btn-success" href="{% url 'question:r_new' id=q.id %}" role="button">r.question.id返信</a>
-                    <a class="btn btn-danger" href="{% url 'question:q_pass' id=q.id %}" role="button">r.id パス</a>
+                    {# 回答待ち、回答済み、パス済みを区別して表示する #}
+                    {% if qa.1 == 'pending' %}
+                        <a class="btn btn-success" href="{% url 'question:r_new' id=qa.0.question.id %}" role="button">返信</a>
+                        <a class="btn btn-danger" href="{% url 'question:q_pass' id=qa.0.id %}" role="button">パス</a>
+                    {% elif qa.1 == 'replied' %}
+                        <div class="front face">回答済み</div>
+                        <div class="back face">ありがとう</div>
+                    {% elif qa.1 == 'passed' %}
+                        <div class="front face">パス済み</div>
+                        <div class="back face">次はよろしくね</div>
+                    {% endif %}
                 </div>
             </div>
             {% endfor %}

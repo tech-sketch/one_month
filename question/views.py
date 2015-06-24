@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from accounts.models import UserProfile
 from question.models import Question, Reply, ReplyList, Tag, UserTag, QuestionTag
 from question.forms import QuestionEditForm, ReplyEditForm, UserProfileEditForm
+from question.qa_manager import QAManager, QuestionState, ReplyState
 import random, datetime, pytz
 
 # Create your views here.
@@ -17,24 +18,29 @@ def top_default(request):
     """
 
     # 自分の質問を取ってくる
-    q_mine = Question.objects.filter(questioner=request.user)
+    q_list = Question.objects.filter(questioner=request.user)
 
     # 自分宛の質問を取ってくる
     reply_list = ReplyList.objects.filter(answerer=request.user)
 
+    # 自分の質問と自分宛ての質問の状態を調べる
+    qa_manager = QAManager(request.user)
+    q_list = qa_manager.question_state(q_list)
+    r_list = qa_manager.reply_state(reply_list)
+
     # 自分と自分宛の質問を結合して時系列に並べる
-    q_tome = [r.question for r in reply_list]
-    q = list()
-    q.extend(q_mine)
-    q.extend(q_tome)
-    sorted(q, key=lambda x: x.date)#OK?
+    qa_list = list()
+    qa_list.extend(q_list)
+    qa_list.extend(r_list)
+    sorted(qa_list, key=lambda x: x[0].date if isinstance(x[0],Question) else x[0].question.date)#OK?
+    #print(qa_list)
 
     # 自分の回答を取ってくる
     r = Reply.objects.filter(answerer=request.user)
 
     histories = None
     return render_to_response('question/top_all.html',
-                              {'histories': histories, 'questions': q, 'replylist':reply_list, 'reply': r, 'uname': request.user.last_name+request.user.first_name, 'last_login': request.user.last_login},
+                              {'histories': histories, 'qa_list':qa_list, 'uname': request.user.last_name+request.user.first_name, 'last_login': request.user.last_login},
                               context_instance=RequestContext(request))
 
 @login_required(login_url='/accounts/login')
@@ -218,22 +224,15 @@ def question_list(request):
     q.extend(q_mine)
     sorted(q, key=lambda x: x.date)#OK?
 
-    qa_list = list()
-    #自分の質問が解決済みかどうか調べる
-    for q in q_mine:
-        r = Reply.objects.filter(question=q) # いまの仕様では返信は一つのはず
-        if len(r): #解決済み
-            qa_list.append([q, 1])
-        else: #未解決or回答待ち
-            if True:
-                qa_list.append([q, 0]) #TODO:未解決
-            else:
-                qa_list.append([q, 2]) #回答待ち
-    print(qa_list)
+    # 各質問の状態を調べる
+    q_manager = QAManager(request.user)
+    qa_list = q_manager.question_state(q)
 
     histories = None
     return render_to_response('question/top_q.html',
-                              {'histories': histories, 'qa_list': qa_list, 'uname': request.user.last_name+request.user.first_name, 'last_login': request.user.last_login},
+                              {'histories': histories, 'qa_list': qa_list,
+                               'uname': request.user.last_name+request.user.first_name,
+                               'last_login': request.user.last_login},
                               context_instance=RequestContext(request))
 
 @login_required(login_url='/accounts/login')
@@ -326,7 +325,7 @@ def question_detail(request, id=None):
 @login_required(login_url='/accounts/login')
 def reply_list(request):
     """
-    回答一覧ページ
+    自分に来た質問一覧を表示する
     """
 
     r = Reply()
@@ -351,18 +350,16 @@ def reply_list(request):
     # 自分宛の質問を取ってくる
     reply_list = ReplyList.objects.filter(answerer=request.user)
 
-    # 自分と自分宛の質問を結合して時系列に並べる
-    q_tome = [r.question for r in reply_list]
-    q = list()
-    q.extend(q_tome)
-    sorted(q, key=lambda x: x.date)#OK?
+    # 自分宛の質問を時系列に並べる
+    sorted(reply_list, key=lambda x: x.question.date)#OK?
 
-    # 自分の回答を取ってくる
-    r = Reply.objects.filter(answerer=request.user)
+    # 各質問の状態を調べる
+    q_manager = QAManager(request.user)
+    qa_list = q_manager.reply_state(reply_list=reply_list)
 
     histories = None
     return render_to_response('question/top_r.html',
-                              {'histories': histories, 'questions': q, 'replylist':reply_list, 'reply': r, 'uname': request.user.last_name+request.user.first_name, 'last_login': request.user.last_login},
+                              {'histories': histories, 'qa_list': qa_list, 'uname': request.user.last_name+request.user.first_name, 'last_login': request.user.last_login},
                               context_instance=RequestContext(request))
 
 @login_required(login_url='/accounts/login')

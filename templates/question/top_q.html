@@ -22,14 +22,14 @@
                                 タイトル: {{q.0.title}}<p>&nbsp;</p>
                                 本文: {{q.0.text|linebreaksbr }}
                                 <div class="badge" onmouseover="flip(event)" onmouseout="flip(event)">
-                                {# 解決済み、未解決、回答待ちを区別して表示する #}
-                                    {% if q.1 == 1 %}
+                                    {# 解決済み、未解決、回答待ちを区別して表示する #}
+                                    {% if q.1 == 'solved' %}
                                         <div class="front face">解決済み</div>
                                         <div class="back face">よかったね</div>
-                                    {% elif q.1 == 0 %}
+                                    {% elif q.1 == 'unsolved' %}
                                         <div class="front face">未解決</div>
                                         <div class="back face">ざんねん！</div>
-                                    {% elif q.1 == 2 %}
+                                    {% elif q.1 == 'pending' %}
                                         <div class="front face">回答待ち</div>
                                         <div class="back face">期限:</div>
                                     {% endif %}

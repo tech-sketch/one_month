@@ -1,96 +1,18 @@
 {% extends "base.html" %}
 
-{% load staticfiles %}
 
 {% load bootstrap %}
 
 {% block title %}pass_network{% endblock title %}
 
 {% block head %}
-  <link href="http://js.cytoscape.org/demos/b7c65115947d9e0e8ec8/style.css" rel="stylesheet">
-  <script src="{% static 'js/jquery.min.js' %}"></script>
-  <script src="{% static 'js/cytoscape.min.js' %}"></script>
-  <script type="text/javascript">
-     $(function(){ // on dom ready
-$('#cy').cytoscape({
-  layout: {
-    name: 'cose',
-    padding: 10
-  },
-  
-  style: cytoscape.stylesheet()
-    .selector('node')
-      .css({
-        'width': 'mapData(weight, 40, 80, 20, 60)',
-        'content': 'data(name)',
-        'text-valign': 'center',
-        'text-outline-width': 2,
-        'text-outline-color': 'data(faveColor)',
-        'background-color': 'data(faveColor)',
-        'color': '#fff'
-      })
-    .selector(':selected')
-      .css({
-        'border-width': 3,
-        'border-color': '#333'
-      })
-    .selector('edge')
-      .css({
-        'opacity': 0.666,
-        'width': 'mapData(strength, 70, 100, 2, 6)',
-        'target-arrow-shape': 'data(faveEdge)',
-        'line-color': 'data(faveColor)',
-        'source-arrow-color': 'data(faveColor)',
-        'target-arrow-color': 'data(faveColor)'
-      })
-    .selector('edge.questionable')
-      .css({
-        'line-style': 'dotted',
-        'target-arrow-shape': 'diamond'
-      })
-    .selector('.faded')
-      .css({
-        'opacity': 0.25,
-        'text-opacity': 0
-      }),
-  
-  elements: {
-    nodes: [
-      {% for node in all_user %}
-      {% if node.1 == all_pass.0.0 %}
-      	{ data: { id: '{{node.1}}', name: 'you', weight: 15, faveColor: '#6FB1FC'} },
-      {% else %}
-      	{ data: { id: '{{node.1}}', name: '', weight: 15, faveColor: '#6FB1FC'} },
-      {% endif %}
-      {% endfor %}
-      {% for node in all_tag %}
-      { data: { id: '{{node.1}}', name: '{{node.0}}', weight: 15, faveColor: '#2FCDB4'} },
-      {% endfor %}
-    ],
-    edges: [
-      /*{% for edge in all_reply %}
-      { data: { source: '{{edge.0}}', target: '{{edge.1}}', faveColor: '#F5A45D', strength: 1, faveEdge: 'none' } },
-      {% endfor %}*/
-      {% for edge in all_userTag %}
-      { data: { source: '{{edge.0}}', target: '{{edge.1}}', faveColor: '#F26964', strength: 1, faveEdge: 'none' } },
-      {% endfor %}
-      {% for edge in all_pass %}
-      { data: { source: '{{edge.0}}', target: '{{edge.1}}', faveColor: '#34495e', strength: 10, faveEdge: 'triangle' } },
-      {% endfor %}
-    ]
-  },
-  
-  ready: function(){
-    window.cy = this;
-    
-    // giddy up
-  }
-});
-}); // on dom ready
-  </script> 
+{% include "question/pass_network.js.html" %}
 {% endblock head %}
-  
+
 {% block content %}
-  <div id="cy"><div style="position: absolute; z-index: 0; overflow: hidden; width: 1272px; height: 354px;"><canvas data-id="layer0-selectbox" width="1272" height="354" style="position: absolute; z-index: 3; width: 1272px; height: 354px;"></canvas><canvas data-id="layer1-drag" width="1272" height="354" style="position: absolute; z-index: 2; width: 1272px; height: 354px;"></canvas><canvas data-id="layer2-node" width="1272" height="354" style="position: absolute; z-index: 1; width: 1272px; height: 354px;"></canvas></div></div>
-  <div style="font-family: Helvetica; font-style: normal; font-size: 16px; font-weight: normal; position: absolute; left: -9999px; top: -9999px; z-index: -1; visibility: hidden; pointer-events: none; padding: 0px; line-height: 1; white-space: normal;">George</div>
+<div id="cy">
+	<div style="position: absolute; z-index: 0; overflow: hidden; width: 1272px; height: 354px;">
+		<canvas data-id="layer0-selectbox" width="1272" height="354" style="position: absolute; z-index: 3; width: 1272px; height: 354px;"></canvas><canvas data-id="layer1-drag" width="1272" height="354" style="position: absolute; z-index: 2; width: 1272px; height: 354px;"></canvas><canvas data-id="layer2-node" width="1272" height="354" style="position: absolute; z-index: 1; width: 1272px; height: 354px;"></canvas>
+	</div>
+</div>
 {% endblock content %}

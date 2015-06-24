@@ -121,7 +121,7 @@ def question_edit(request, id=None):
         pass
     # new
     else:
-        form = QuestionEditForm(instance=q)
+        form = QuestionEditForm(instance=q, initial={'time_limit': datetime.timedelta(minutes=1)})
 
     return render_to_response('question/question_edit.html',
                               {'form': form, 'id': id},

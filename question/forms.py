@@ -3,6 +3,7 @@ from django import forms
 from django.forms import ModelForm
 from question.models import Question, Reply, ReplyList, Tag, UserTag, QuestionTag
 from accounts.models import User, UserProfile, Division
+import datetime
 
 class CustomChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
@@ -26,15 +27,14 @@ class QuestionEditForm(ModelForm):
     #tag = CustomChoiceField(label='タグ', queryset=Tag.objects.all(), required=False,
     #                             to_field_name='name')
     # タグを複数選ばせる場合
-    destination = CustomMultipleChoiceField(label='あて先', queryset=Division.objects.all(), widget=forms.CheckboxSelectMultiple)
+    destination = CustomMultipleChoiceField(label='あて先', queryset=Division.objects.all(), widget=forms.CheckboxSelectMultiple, initial=Division.objects.all())
     tag = CustomMultipleChoiceField(label='タグ', queryset=Tag.objects.all(), widget=forms.CheckboxSelectMultiple, required=False)
     tag_added = forms.CharField(label='追加タグ', max_length=512, required=False)
 
     class Meta:
         model = Question
-        fields = ('title', 'date', 'time_limit', 'text', 'draft')
+        fields = ('destination', 'title', 'date', 'time_limit', 'text', 'draft')
         widgets = {
-
           'title': forms.TextInput(attrs={'size': '100'}),
           'text': forms.Textarea(attrs={'rows':20, 'cols':100}),
         }

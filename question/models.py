@@ -4,8 +4,14 @@ from django.db import models
 from datetime import datetime
 from django.contrib.auth.models import User
 from accounts.models import Division
-
+import datetime as t
 class Question(models.Model):
+    TIIE_LIMIT = (
+        (t.timedelta(minutes=1), t.timedelta(minutes=1)),
+        (t.timedelta(minutes=5), t.timedelta(minutes=5)),
+        (t.timedelta(minutes=10), t.timedelta(hours=10)),
+    )
+
     questioner = models.ForeignKey(User, verbose_name='質問者')
     title = models.CharField('タイトル', max_length=512)
     text = models.TextField('質問内容')

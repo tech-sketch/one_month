@@ -32,7 +32,7 @@ def top_default(request):
     qa_list = list()
     qa_list.extend(q_list)
     qa_list.extend(r_list)
-    sorted(qa_list, key=lambda x: x[0].date if isinstance(x[0],Question) else x[0].question.date)#OK?
+    qa_list = sorted(qa_list, reverse=True, key=lambda x: x[0].date if isinstance(x[0],Question) else x[0].question.date)#OK?
     #print(qa_list)
 
     # 自分の回答を取ってくる
@@ -222,7 +222,7 @@ def question_list(request):
     # 自分の質問を時系列に並べる
     q = list()
     q.extend(q_mine)
-    sorted(q, key=lambda x: x.date)#OK?
+    q = sorted(q, reverse=True, key=lambda x: x.date)#OK?
 
     # 各質問の状態を調べる
     q_manager = QAManager(request.user)
@@ -351,7 +351,7 @@ def reply_list(request):
     reply_list = ReplyList.objects.filter(answerer=request.user)
 
     # 自分宛の質問を時系列に並べる
-    sorted(reply_list, key=lambda x: x.question.date)#OK?
+    reply_list = sorted(reply_list, reverse=True, key=lambda x: x.question.date)#OK?
 
     # 各質問の状態を調べる
     q_manager = QAManager(request.user)

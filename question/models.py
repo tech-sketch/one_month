@@ -6,18 +6,13 @@ from django.contrib.auth.models import User
 from accounts.models import Division
 import datetime as t
 class Question(models.Model):
-    TIIE_LIMIT = (
-        (t.timedelta(minutes=1), t.timedelta(minutes=1)),
-        (t.timedelta(minutes=5), t.timedelta(minutes=5)),
-        (t.timedelta(minutes=10), t.timedelta(hours=10)),
-    )
-
     questioner = models.ForeignKey(User, verbose_name='質問者')
     title = models.CharField('タイトル', max_length=512)
     text = models.TextField('質問内容')
     time_limit = models.TimeField('質問のタイムリミット')
     date = models.DateTimeField('質問日時', default=datetime.now)
     draft = models.BooleanField('下書き', default=False)
+    is_closed = models.BooleanField('募集終了', default=False)
 
     """
     def __str__(self):
@@ -36,7 +31,7 @@ class Reply(models.Model):
     draft = models.BooleanField('下書き', default=False)
 
     def __str__(self):
-        return u'%sへ「%s」についての回答' % (self.question.questioner, self.title)
+        return u'%sへ「%s」についての回答' % (self.question.questioner, self.question.title)
 
 class ReplyList(models.Model):
     question = models.ForeignKey(Question, verbose_name='質問')

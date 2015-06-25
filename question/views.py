@@ -7,34 +7,40 @@ from django.contrib.auth.models import User
 from accounts.models import UserProfile
 from question.models import Question, Reply, ReplyList, Tag, UserTag, QuestionTag
 from question.forms import QuestionEditForm, ReplyEditForm, UserProfileEditForm
+from question.qa_manager import QAManager, QuestionState, ReplyState
 import random, datetime, pytz
 
 # Create your views here.
-def top_js(request):
-    """
-    トップページ（JS ver.）
-    """
-
-    # 自分がした質問を取ってくる
-    q = Question.objects.filter(questioner=request.user)
-
-    # 自分あての質問を取ってくる
-    r = ReplyList.objects.filter(answerer=request.user)
-
-    histories = None
-    return render_to_response('question/top_js.html',
-                              {'histories': histories, 'questions': q, 'replylist':r, 'uname': request.user.last_name+request.user.first_name, 'last_login': request.user.last_login},
-                              context_instance=RequestContext(request))
-
 @login_required(login_url='/accounts/login')
 def top_default(request):
     """
-    トップページ（デフォルト）
+    トップページ
     """
 
+    # 自分の質問を取ってくる
+    q_list = Question.objects.filter(questioner=request.user)
+
+    # 自分宛の質問を取ってくる
+    reply_list = ReplyList.objects.filter(answerer=request.user)
+
+    # 自分の質問と自分宛ての質問の状態を調べる
+    qa_manager = QAManager(request.user)
+    q_list = qa_manager.question_state(q_list)
+    r_list = qa_manager.reply_state(reply_list)
+
+    # 自分と自分宛の質問を結合して時系列に並べる
+    qa_list = list()
+    qa_list.extend(q_list)
+    qa_list.extend(r_list)
+    sorted(qa_list, key=lambda x: x[0].date if isinstance(x[0],Question) else x[0].question.date)#OK?
+    #print(qa_list)
+
+    # 自分の回答を取ってくる
+    r = Reply.objects.filter(answerer=request.user)
+
     histories = None
-    return render_to_response('question/top_default.html',
-                              {'histories': histories, 'uname': request.user.last_name+request.user.first_name, 'last_login': request.user.last_login},
+    return render_to_response('question/top_all.html',
+                              {'histories': histories, 'qa_list':qa_list, 'uname': request.user.last_name+request.user.first_name, 'last_login': request.user.last_login},
                               context_instance=RequestContext(request))
 
 @login_required(login_url='/accounts/login')
@@ -127,44 +133,6 @@ def question_edit(request, id=None):
                               {'form': form, 'id': id},
                               context_instance=RequestContext(request))
 
-#全ユーザーの中からランダムに返信ユーザーを決定する。（u:User 対象としたくないユーザー, q:Question）
-def reply_list_update_random(u, q):
-
-    candidate_users = User.objects.filter(~Q(username=u)).filter(~Q(username=q.questioner))
-
-    try:
-        r_list = ReplyList()
-        r_list.answerer = random.choice(candidate_users)
-        r_list.question = q
-        r_list.time_limit_date = datetime.datetime.now() + datetime.timedelta(hours=q.time_limit.hour, minutes=q.time_limit.minute, seconds=q.time_limit.second)
-        return r_list
-    except IndexError:
-        return None
-
-def reply_list_update_random_except(users, question):
-    """
-    指定されたユーザリスト以外の中からランダムに次の回答ユーザを決定する。
-    """
-
-    #rand_user = User.objects.filter(~Q(username=question.questioner))
-    candidate_users = User.objects.all()
-
-    for u in users:
-        candidate_users = candidate_users.filter(~Q(username=u))
-
-    try:
-        r_list = ReplyList()
-        r_list.answerer = random.choice(candidate_users)
-        r_list.question = question
-        r_list.time_limit_date = datetime.datetime.now() + datetime.timedelta(
-                                    hours=question.time_limit.hour,
-                                    minutes=question.time_limit.minute,
-                                    seconds=question.time_limit.second)
-        return r_list
-    except IndexError:
-        return None
-
-
 @login_required(login_url='/accounts/login')
 def reply_edit(request, id=None):
     """
@@ -210,14 +178,26 @@ def reply_edit(request, id=None):
 @login_required(login_url='/accounts/login')
 def question_list(request):
     """
-    自分が今までにした質問一覧を表示する
+    自分の質問を表示する
     """
 
-    #最新のものから順に表示（下書きも表示させる）
-    questions = Question.objects.filter(questioner=request.user).order_by('-date')[:]
+    # 自分の質問を取ってくる
+    q_mine = Question.objects.filter(questioner=request.user)
 
-    return render_to_response('question/question_list.html',
-                              {'questions': questions, 'uname': request.user.last_name+request.user.first_name},
+    # 自分の質問を時系列に並べる
+    q = list()
+    q.extend(q_mine)
+    sorted(q, key=lambda x: x.date)#OK?
+
+    # 各質問の状態を調べる
+    q_manager = QAManager(request.user)
+    qa_list = q_manager.question_state(q)
+
+    histories = None
+    return render_to_response('question/top_q.html',
+                              {'histories': histories, 'qa_list': qa_list,
+                               'uname': request.user.last_name+request.user.first_name,
+                               'last_login': request.user.last_login},
                               context_instance=RequestContext(request))
 
 @login_required(login_url='/accounts/login')
@@ -275,7 +255,7 @@ def question_pass(request, id=None):
 @login_required(login_url='/accounts/login')
 def question_detail(request, id=None):
     """
-    自分の質問の詳細を表示する
+    質問の詳細を表示する
     """
 
     # 指定された質問を取ってくる
@@ -291,19 +271,26 @@ def question_detail(request, id=None):
     except Reply.DoesNotExist:
         r = None
 
+    # 回答リストを取ってくる
+    try:
+        reply_list = ReplyList.objects.get(question=q, answerer=request.user)
+    except ReplyList.DoesNotExist:
+        reply_list = None
+
     # user check
     #if q.questioner != request.user:
     #    # 他人の質問は表示できないようにする
     #    return HttpResponse("他の人の質問は表示できません！") # TODO　表示できないよページ作る
 
     return render_to_response('question/question_detail.html',
-                              {'question': q, 'q_tags': q_tags, 'reply': r,},
+                              {'question': q, 'q_tags': q_tags, 'reply': r, 'reply_list': reply_list,
+                               'uname': request.user.last_name+request.user.first_name},
                               context_instance=RequestContext(request))
 
 @login_required(login_url='/accounts/login')
 def reply_list(request):
     """
-    回答一覧ページ
+    自分に来た質問一覧を表示する
     """
 
     r = Reply()
@@ -318,13 +305,27 @@ def reply_list(request):
 
     # 06/09 返信リストの中から自分あて、かつ返信済みでない質問を取ってくる
     # 返信期限がまだ来てないもの、かつ返信期限が早いものから順に表示
-    replylist = ReplyList.objects.filter(answerer=request.user, has_replied=False,
-                                        time_limit_date__gte=datetime.datetime.now(pytz.utc)).order_by('time_limit_date')[:]
-    questions = [r.question for r in replylist]
+    #replylist = ReplyList.objects.filter(answerer=request.user, has_replied=False,time_limit_date__gte=datetime.datetime.now(pytz.utc)).order_by('time_limit_date')[:]
+    #questions = [r.question for r in replylist]
 
-    return render_to_response('question/reply_list.html',
-                                {'questions':questions,},
-                                context_instance=RequestContext(request))
+    #return render_to_response('question/reply_list.html',
+    #                            {'questions':questions,},
+    #                           context_instance=RequestContext(request))
+
+    # 自分宛の質問を取ってくる
+    reply_list = ReplyList.objects.filter(answerer=request.user)
+
+    # 自分宛の質問を時系列に並べる
+    sorted(reply_list, key=lambda x: x.question.date)#OK?
+
+    # 各質問の状態を調べる
+    q_manager = QAManager(request.user)
+    qa_list = q_manager.reply_state(reply_list=reply_list)
+
+    histories = None
+    return render_to_response('question/top_r.html',
+                              {'histories': histories, 'qa_list': qa_list, 'uname': request.user.last_name+request.user.first_name, 'last_login': request.user.last_login},
+                              context_instance=RequestContext(request))
 
 @login_required(login_url='/accounts/login')
 def mypage(request):

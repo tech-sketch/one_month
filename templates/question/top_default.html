@@ -1,14 +1,87 @@
 {% extends "base.html" %}
 
+{% load staticfiles %}
+
 {% load bootstrap_toolkit %}
 
 {% block title %}トップページ{% endblock title %}
+
+{% block head %}
+    <!-- 読みこめない...-->
+    <!--link href="//on-ze.com/demo/jquery-masonry/style.css" type="text/css" rel="stylesheet" -->
+
+    <script src="{% static 'js/masonry/jquery.js' %}"></script>
+    <script src="{% static 'js/masonry/imagesloaded.js' %}"></script>
+    <script src="{% static 'js/masonry/masonry.min.js' %}"></script>
+    <script src="{% static 'js/masonry/set.js' %}"></script>
+    <script src="{% static 'js/top.js' %}"></script>
+
+
+    <link href='http://fonts.googleapis.com/css?family=Puritan:bold' rel='stylesheet' type='text/css'>
+
+    <script type="text/javascript" language="javascript" src="badge.js"></script>
+
+    <style type="text/css">
+        body {background:#f5f5f5;}
+        #masonry {width:0; text-align:left; margin:0;}
+
+        .item{
+            width:350px;
+            min-height:100px;
+            max-height:400px;
+            overflow:hidden;
+            padding:10px;
+            margin:20px 10px 10px 20px;
+            background:#fff;
+            float:left;
+            text-align:left;
+            position:relative;
+            border-radius:0px;
+            cursor: pointer;
+        }
+
+        .badge
+        {
+            position: absolute;
+            width: 200px;
+            top:20px;
+            left:215px;
+            font-family: 'Puritan', arial, serif;
+            -webkit-transform-style: preserve-3d;
+            -webkit-transition-property: -webkit-transform;
+            -webkit-transition-duration: 1s;
+            -webkit-transform: rotateZ(45deg);
+        }
+
+        .info {padding-left:80px;}
+
+     </style>
+
+{% endblock head %}
 
 {% block content %}
 
     {# 挨拶 #}
     <p>こんにちは！{{uname}}さん</p>
-    <h2>ここはトップページです</h2>
     <p>最終ログイン {{last_login}} </p>
+    <h2>ここはトップページ(JS ver.)です</h2>
+
+    <nav>
+            <ul class="nav nav-tabs streamContainer_tabs">
+                <li id="all" class="tab active" data-type="following">
+                    <a href="/question">すべての質問</a>
+                </li>
+
+                <li id="mine" class="tab active" data-type="mine">
+                    <a href="/question/q_list">自分の投稿 <span class="label label-info">1</span></a>
+                </li>
+                <li id="reply" class="tab active" data-type="reply">
+                    <a href="/question/r_list">自分宛の質問</a>
+                </li>
+            </ul>
+    </nav>
+
+    {% block tab %}
+    {% endblock%}
 
 {% endblock content %}

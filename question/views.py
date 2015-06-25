@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.contrib.auth.models import User
 from accounts.models import UserProfile
-from question.models import Question, Reply, ReplyList, Tag, UserTag, QuestionTag
+from question.models import Question, Reply, ReplyList, Tag, UserTag, QuestionTag, QuestionDestination
 from question.forms import QuestionEditForm, ReplyEditForm, UserProfileEditForm
 from question.qa_manager import QAManager, QuestionState, ReplyState
 import random, datetime, pytz
@@ -66,35 +66,22 @@ def question_edit(request, id=None):
 
         # 完了がおされたら
         if form.is_valid():
-            print("-------------------------------")
-            print(form.cleaned_data['destination'])
             # 質問を保存
             q = form.save(commit=False)
             q.questioner = request.user
             q.draft = form.cleaned_data['draft']
             q.save()
 
-            # 06/16追加 : 所属外の人には送らない
-            diff_dev_users_prof = UserProfile.objects.exclude(division__in=[d for d in form.cleaned_data['destination']])
-            diff_user_list = [prof.user for prof in diff_dev_users_prof]
-            # 06/16追加 : 受信拒否の人には送らない
-            deny_users_prof = UserProfile.objects.exclude(accept_question=1)
-            deny_users_list = [prof.user for prof in deny_users_prof]
-
-            # 06/23追加：最終ログイン日から一定の日数が経過している人には送らない
-            # TODO　最終ログイン日から何日に設定するか？あるいは動的に決めるか？（今は1日以内）
-            #date_out_limit = datetime.datetime.now() - datetime.timedelta(hours=23, minutes=59, seconds=59)
-            #no_login_users = User.objects.exclude(last_login__gte=date_out_limit)
-            no_login_users = []
-            # 回答ユーザ候補から除外するユーザ
-            ex_user_list = list()
-            ex_user_list.append(request.user)
-            ex_user_list.extend(diff_user_list)
-            ex_user_list.extend(deny_users_list)
-            ex_user_list.extend(no_login_users)
+            div_list = form.cleaned_data['destination']
+            for div in div_list:
+                d = QuestionDestination()
+                d.question = q
+                d.tag = div
+                d.save()
 
             # ランダムに質問者を選んでからReplyListを生成して保存
-            r_list = reply_list_update_random_except(ex_user_list, q)
+            qa_manager = QAManager()
+            r_list = qa_manager.make_reply_list(q, qa_manager.reply_list_update_random_except)
 
             if r_list == None:
                 q.delete()
@@ -165,6 +152,9 @@ def reply_edit(request, id=None):
             r_list.has_replied = True
             r_list.save()
 
+            r_list.question.is_closed = True
+            r_list.question.save()
+
             return redirect('question:top')
         pass
     # new
@@ -211,44 +201,17 @@ def question_pass(request, id=None):
     #if 'replylist_id' in request.POST:
     if True:
         #replylist_id = request.POST['replylist_id']
-        replylist =  ReplyList.objects.get(id=id)
-        #replylist = ReplyList.objects.get(id=replylist_id)
-        replylist.has_replied = True
-        replylist.save()
+        replylist = ReplyList.objects.get(id=id)
 
         #new_replylist = reply_list_update_random(replylist.answerer, replylist.question)
-        q = replylist.question
-
-        # 06/16追加 : 所属外の人には送らない
-        diff_dev_users_prof = UserProfile.objects.filter(~Q(division=q.destination_div))
-        diff_user_list = [prof.user for prof in diff_dev_users_prof]
-        # 今までパスした人（自分=request.userも含む）には送らない
-        reply_lists_pass_users = ReplyList.objects.filter(question=q, has_replied=True)
-        pass_user_list = [r.answerer for r in reply_lists_pass_users]
-        # 06/16 受信拒否の人には送らない
-        deny_users_prof = UserProfile.objects.exclude(accept_question=1)
-        deny_users_list = [prof.user for prof in deny_users_prof]
-        # 06/23追加：最終ログイン日から一定の日数が経過している人には送らない
-        # TODO　最終ログイン日から何日に設定するか？あるいは動的に決めるか？（今は1日以内）
-        date_out_limit = datetime.datetime.now() - datetime.timedelta(hours=23, minutes=59, seconds=59)
-        no_login_users = User.objects.exclude(last_login__gte=date_out_limit)
-
-        # 回答ユーザ候補から除外するユーザ
-        ex_user_list = list()
-        ex_user_list.append(q.questioner)
-        ex_user_list.extend(diff_user_list)
-        ex_user_list.extend(pass_user_list)
-        ex_user_list.extend(deny_users_list)
-        ex_user_list.extend(no_login_users)
-
-        new_replylist = reply_list_update_random_except(ex_user_list, replylist.question)
-
-        if new_replylist != None:
-            new_replylist.save()
-            return HttpResponse("パスしました") # TODO　パスしましたページ作る
+        qa_manager = QAManager()
+        print(replylist.question.title)
+        if qa_manager.pass_question(replylist.question, qa_manager.reply_list_update_random_except):
+            return HttpResponse("パスしました")
         else:
-            # TODO パスが回り終わったときに質問者に通知する仕組みを考える
-            return HttpResponse("パスしましたが、次の回答ユーザが見つかりませんでした。この質問は回答者無しとして質問者に報告されます")
+            replylist.question.is_closed = True
+            replylist.question.save()
+            return HttpResponse("パスしましたがすべてのユーザがパスしたため質問は締め切ります")
     else:
         return HttpResponse("不明なエラーです！（question_pass() in views.py）")
 

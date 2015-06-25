@@ -5,7 +5,7 @@
 {% block title %}質問ページ{% endblock title %}
 
 {% block content %}
-
+<div style="background-color: #FFFFFF;border-top: 3px solid #BFBFBF; border-bottom: 7px solid #D24726; border-left: none; border-right: 3px solid #BFBFBF;">
 {# 修正 #}
 <form action="" method="post" class="form">
 	{% csrf_token %}
@@ -32,7 +32,7 @@
 
 			</div>
 		</div>
-
+		
 		{{ form.title | bootstrap}}
 		{{ form.date | bootstrap}}
 		{{ form.time_limit | bootstrap}}
@@ -79,7 +79,7 @@
 <p>
 	&nbsp;
 </p>
-
+</div>
 {# 一覧に戻るボタン #}
 <!--
 <a class="btn btn-default" href="{% url 'question:top' %}" role="button">戻る</a>

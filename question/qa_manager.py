@@ -83,26 +83,19 @@ class QAManager():
 
     def reply_list_update_random_except(self, users, question):
         """
-        指定されたユーザリスト以外の中からランダムに次の回答ユーザを決定する。
+        指定されたユーザリストの中からランダムに次の回答ユーザを決定する。
         """
-
-        #rand_user = User.objects.filter(~Q(username=question.questioner))
-        candidate_users = User.objects.all()
-
-        for u in users:
-            candidate_users = candidate_users.filter(~Q(username=u))
-
-        try:
-            r_list = ReplyList()
-            r_list.answerer = random.choice(candidate_users)
-            r_list.question = question
-            r_list.time_limit_date = datetime.datetime.now() + datetime.timedelta(
-                                        hours=question.time_limit.hour,
-                                        minutes=question.time_limit.minute,
-                                        seconds=question.time_limit.second)
-            return r_list
-        except IndexError:
+        if not users:
             return None
+
+        r_list = ReplyList()
+        r_list.answerer = random.choice(users)
+        r_list.question = question
+        r_list.time_limit_date = datetime.datetime.now() + datetime.timedelta(
+                                    hours=question.time_limit.hour,
+                                    minutes=question.time_limit.minute,
+                                    seconds=question.time_limit.second)
+        return r_list
 
     def pass_question(self, passed_question, reply_list_update):
         if passed_question.is_closed:
@@ -113,20 +106,40 @@ class QAManager():
             reply_list.has_replied = True
             reply_list.save()
 
+            reply_user_list = []
+
             for qd in QuestionDestination.objects.filter(question=passed_question):
                 reply_user_list.extend([up.user for up in UserProfile.objects.filter(accept_question=1).filter(division=qd.tag)])#質問の送信範囲のユーザ
-            passed_user_list = [rl.user for rl in ReplyList.objects.filter(question=passed_question, has_replied=True)].append(passed_question.questioner)#質問にすでにパスしたユーザ
+            passed_user_list = [rl.answerer for rl in ReplyList.objects.filter(question=passed_question, has_replied=True)]#質問にすでにパスしたユーザ
+            passed_user_list.append(passed_question.questioner)#質問者
             no_login_users = User.objects.exclude(last_login__gte=(datetime.datetime.now() - datetime.timedelta(hours=23, minutes=59, seconds=59)))#ログインしていないユーザ
 
-            reply_user_list = list(set(reply_user_list) - set(passed_user_list) - set(no_login_users))
+            reply_user_list = list((set(reply_user_list) - set(passed_user_list)) - set(no_login_users))
 
-            reply_list = reply_list_update(reply_user_list, passed_question)
-            if reply_list != None:
-                reply_list.save()
-                print('{0}からの質問「{1}」を{2}から{3}にパスしました。 タイムリミットは{4}'.format(reply_list.question.questioner,reply_listquestion.title, reply_list.answerer, reply_list.answerer,reply_list.time_limit_date))
+            next_reply_list = reply_list_update(reply_user_list, passed_question)
+            if next_reply_list != None:
+                next_reply_list.save()
+                print('{0}からの質問「{1}」を{2}から{3}にパスしました。 タイムリミットは{4}'.format(reply_list.question.questioner, reply_list.question.title, reply_list.answerer, next_reply_list.answerer, reply_list.time_limit_date))
+                return True
             else:
                 print('パスできませんでした')
+                return False
 
         except MultipleObjectsReturned:
             print("ReplyListの値が不正です")
             return
+
+    def make_reply_list(self, question, reply_list_update):
+
+        reply_user_list = []
+
+        for qd in QuestionDestination.objects.filter(question=question):
+            reply_user_list.extend([up.user for up in UserProfile.objects.filter(accept_question=1).filter(division=qd.tag)])#質問の送信範囲のユーザ
+        if question.questioner in reply_user_list: reply_user_list.remove(question.questioner)
+        no_login_users = User.objects.exclude(last_login__gte=(datetime.datetime.now() - datetime.timedelta(hours=23, minutes=59, seconds=59)))#ログインしていないユーザ
+
+        reply_user_list = list(set(reply_user_list) - set(no_login_users))
+
+        print(reply_user_list)
+
+        return reply_list_update(reply_user_list, question)

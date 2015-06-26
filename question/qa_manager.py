@@ -33,8 +33,9 @@ class QAManager():
             if len(r): #解決済み
                 qa_list.append([q, QuestionState.solved.name])
             else:
-                if True:
-                    qa_list.append([q, QuestionState.unsolved.name]) #未解決
+                if True: #TODO 未解決or回答待ちの判定は未実装です！！！
+                    #qa_list.append([q, QuestionState.unsolved.name]) #未解決
+                    qa_list.append([q, QuestionState.pending.name]) #未解決
                 else:
                     qa_list.append([q, QuestionState.pending.name]) #回答待ち
 

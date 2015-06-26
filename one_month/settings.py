@@ -157,8 +157,8 @@ SOCIALACCOUNT_PROVIDERS = \
 
 
 LOGIN_URL = 'accounts/login/'
-LOGIN_REDIRECT_URL = '/question'
-ACCOUNT_LOGOUT_REDIRECT_URL = '/question'
+LOGIN_REDIRECT_URL = '/dotchain'
+ACCOUNT_LOGOUT_REDIRECT_URL = '/dotchain'
 
 SITE_ID = 1
 

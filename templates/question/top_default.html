@@ -27,8 +27,23 @@
 
         .item{
             width:350px;
-            min-height:100px;
-            max-height:400px;
+            min-height:250px;
+            max-height:550px;
+            overflow:hidden;
+            padding:10px;
+            margin:20px 10px 10px 20px;
+            background:#fff;
+            float:left;
+            text-align:left;
+            position:relative;
+            border-radius:0px;
+            cursor: pointer;
+        }
+
+        .item_op{
+            width:350px;
+            min-height:250px;
+            max-height:550px;
             overflow:hidden;
             padding:10px;
             margin:20px 10px 10px 20px;
@@ -44,9 +59,26 @@
         {
             position: absolute;
             width: 200px;
+            height: 35px;
             top:20px;
             left:215px;
-            font-family: 'Puritan', arial, serif;
+            background:#0E7AC4;
+            font-family: "ＭＳ ゴシック",sans-serif;
+            -webkit-transform-style: preserve-3d;
+            -webkit-transition-property: -webkit-transform;
+            -webkit-transition-duration: 1s;
+            -webkit-transform: rotateZ(45deg);
+        }
+
+        .badge_black
+        {
+            position: absolute;
+            width: 200px;
+            height: 35px;
+            top:20px;
+            left:215px;
+            background:#B7B7B7;
+            font-family: "ＭＳ ゴシック",sans-serif;
             -webkit-transform-style: preserve-3d;
             -webkit-transition-property: -webkit-transform;
             -webkit-transition-duration: 1s;
@@ -54,6 +86,13 @@
         }
 
         .info {padding-left:80px;}
+
+        #wrapper { width:960px; margin:0 auto; padding:50px 0 0 0; }
+        .showmore { line-height:18px; font-size:12px; padding:15px; margin:0 0 20px 0; }
+        .showmore p {margin: 0 0 10px0 ;}
+        .showmore_content { position:relative; overflow:hidden; }
+        .showmore_trigger { width:100%; height:45px; line-height:45px; cursor:pointer; }
+        .showmore_trigger span { display:block; }
 
      </style>
 
@@ -68,15 +107,14 @@
 
     <nav>
             <ul class="nav nav-tabs streamContainer_tabs">
-                <li id="all" class="tab active" data-type="following">
-                    <a href="/question">すべての質問</a>
-                </li>
-
-                <li id="mine" class="tab active" data-type="mine">
-                    <a href="/question/q_list">自分の投稿 <span class="label label-info">1</span></a>
-                </li>
                 <li id="reply" class="tab active" data-type="reply">
-                    <a href="/question/r_list">自分宛の質問</a>
+                    <a href="/dotchain/r_list">自分宛の質問</a>
+                </li>
+                <li id="mine" class="tab active" data-type="mine">
+                    <a href="/dotchain/q_list">自分の投稿 </a>
+                </li>
+                <li id="all" class="tab active" data-type="following">
+                    <a href="/dotchain">すべての質問</a>
                 </li>
             </ul>
     </nav>

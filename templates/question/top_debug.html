@@ -6,9 +6,12 @@
 
 {% load question_extras %}
 
-{% block title %}トップページ{% endblock title %}
+{% block title %}デバッグ用トップページ{% endblock title %}
 
 {% block tab %}
+
+        <h1>総質問数：　{{qa_list|length}}</h1>
+
 
            <div class="activities">
                 <div id="masonry" style="position: relative; width: 660px; height: 729px;">
@@ -16,7 +19,6 @@
                         {# 自分がした質問 #}
                         {% with qa.0|classname as modelclass %}
                         {% if modelclass == "Question" %}
-                            <!--div id={{qa.0.id}} class="item" style="position: absolute; border-top: 3px solid #BFBFBF; border-bottom: 7px solid #FDC44F; border-left: none; border-right: 3px solid #BFBFBF;"-->
                             <div id={{qa.0.id}} class="item" style="position: absolute; border-top: 3px solid #BFBFBF; border-bottom: 10px solid #FDC44F; border-left: none; border-right: 3px solid #BFBFBF;">
 
                                 <img src="/static/images/dotchain.png" align="left" width="50" height="50">
@@ -35,7 +37,7 @@
                                     {% endif %}
                                 </span>
                                 <hr>
-                                <span style="font-size: 9pt;">コメント数：(TODO)</span>
+                                <span>コメント数：</span>
                                 {# 回答待ちのもののみリボンで表示する #}
                                 {% if qa.1 == 'pending' %}
                                     <div class="badge" onmouseover="flip(event)" onmouseout="flip(event)">
@@ -62,11 +64,12 @@
                                 {% endif %}
                                 </span>
                                 <hr>
-                                <span style="font-size: 9pt;">コメント数：(TODO)</span>
+                                <span>コメント数：</span>
                                 {# パス済みのもののみリボンで表示する #}
                                 <div class="badge_black" onmouseover="flip(event)" onmouseout="flip(event)">
                                     <div class="front face" style="font-size:x-large;">　　 パス済</div>
                                 </div>
+                            </div>
                             {% else %}
                             <div id={{qa.0.question.id}} class="item" style="position: absolute; border-top: 3px solid #BFBFBF; border-bottom: 10px solid #8DCF3F; border-left: none; border-right: 3px solid #BFBFBF;">
                             <img src="/static/images/xxx.png" align="left" width="50" height="50">
@@ -85,7 +88,7 @@
                                     {% endif %}
                                 </span>
                                 <hr>
-                                <span style="font-size: 9pt;">コメント数：(TODO)</span>
+                                <span>コメント数：</span>
                                 {# 回答待ちの場合返信・パスボタンを表示する #}
                                 {% if qa.1 == 'pending' %}
                                 <span>制限時間：(TODO)</span>
@@ -94,8 +97,8 @@
                                         <a class="btn btn-danger" href="{% url 'question:q_pass' id=qa.0.id %}" role="button">パス</a>
                                 </div>
                                 {% endif %}
-                            {% endif %}
                             </div>
+                            {% endif %}
                         {% endif %}
                         {% endwith %}
                     {% endfor %}

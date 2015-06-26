@@ -7,9 +7,10 @@
 {% block content %}
 <div style="background-color: #FFFFFF;border-top: 3px solid #BFBFBF; border-bottom: 7px solid #D24726; border-left: none; border-right: 3px solid #BFBFBF;">
 {# 修正 #}
+<div class="col-md-12" style="height: 3%"></div>
 <form action="" method="post" class="form">
 	{% csrf_token %}
-	<div class="col-md-5">
+	<div class="col-md-6">
 		<div>
 			<div id="hide_1-1"  style="display:none">
 				<p>
@@ -67,12 +68,12 @@
 		</div>
 	</div>
 
-	<div class="col-md-5" >
+	<div class="col-md-6" >
 		{{ form.text | bootstrap}}
 	</div>
 
 	<div style="clear:both;" >
-		<input type="submit" name="done" value="確定" class="btn btn-primary" >
+		<input type="submit" name="done" value="確定" class="btn btn-primary">
 	</div>
 </form>
 

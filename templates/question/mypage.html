@@ -6,30 +6,116 @@
 
 {% block content %}
 
-    {# 挨拶 #}
-    <p>こんにちは！{{uname}}さん</p>
-    <h2>ここはマイページです</h2>
+{# 挨拶 #}
+<p>
+	こんにちは！{{uname}}さん
+</p>
+<h2>ここはマイページです</h2>
 
-    <h2>プロフィール</h2>
+<h2>プロフィール</h2>
+<div class="col-md-10" >
+	{# ユーザータグ #}
+	<h4>{{uname}}さんの登録タグ</h4>
+	{% for u_tag in user_tags%}
+	{{ u_tag.tag.name }}&nbsp;&nbsp;
+	{% empty %}
+	なし
+	{% endfor %}
 
-    {# 設定フォーム #}
-    <form action="" method="post" class="form", name="profile", id="p_id">
-      {% csrf_token %}
-      {{ form|bootstrap }}
-      <input type="submit" name="done" value="確定" class="btn btn-primary">
-    </form>
+	<p>
+		&nbsp;
+	</p>
+</div>
 
-    {# ユーザータグ #}
-    <h4>{{uname}}さんの登録タグ(本当は上のフォームの中に持っていきたい)</h4>
-    {% for u_tag in user_tags%}
-        {{ u_tag.tag.name }}&nbsp;&nbsp;
-    {% empty %}
-        なし
-    {% endfor %}
+{# 設定フォーム #}
+<form action="" method="post" class="form", name="profile", id="p_id">
+	{% csrf_token %}
+	<div class="col-md-3" >
+		<div id="hide_1-1">
+			<p>
+				<input type="button" value="勤務地を変更する" style="WIDTH:200px"
+				onClick="document.getElementById('hide_1-2').style.display='block';
+				document.getElementById('hide_1-1').style.display='none'">
+			</p>
+		</div>
+		<div id="hide_1-2" style="display:none">
+			<p>
+				<input type="button" value="勤務地を隠す" style="WIDTH:200px"
+				onClick="document.getElementById('hide_1-2').style.display='none';
+				document.getElementById('hide_1-1').style.display='block'">
+			</p>
+			<p>
+				{{ form.work_place }}
+			</p>
+		</div>
+		<!------------------------------>
+	</div>
+	<div class="col-md-3" >
+		<div id="hide_2-1">
+			<p>
+				<input type="button" value="勤務ステータスを変更する" style="WIDTH:200px"
+				onClick="document.getElementById('hide_2-2').style.display='block';
+				document.getElementById('hide_2-1').style.display='none'">
+			</p>
+		</div>
+		<div id="hide_2-2" style="display:none">
+			<p>
+				<input type="button" value="勤務ステータスを隠す" style="WIDTH:200px"
+				onClick="document.getElementById('hide_2-2').style.display='none';
+				document.getElementById('hide_2-1').style.display='block'">
+			</p>
+			<p>
+				{{ form.work_status }}
+			</p>
+		</div>
+		<!--------------------------------------->
+	</div>
+	<div class="col-md-3" >
+		<div id="hide_3-1">
+			<p>
+				<input type="button" value="所属を変更する" style="WIDTH:200px"
+				onClick="document.getElementById('hide_3-2').style.display='block';
+				document.getElementById('hide_3-1').style.display='none'">
+			</p>
+		</div>
+		<div id="hide_3-2" style="display:none">
+			<p>
+				<input type="button" value="所属を隠す" style="WIDTH:200px"
+				onClick="document.getElementById('hide_3-2').style.display='none';
+				document.getElementById('hide_3-1').style.display='block'">
+			</p>
+			<p>
+				{{ form.division }}
+			</p>
+		</div>
+		<!--------------------------------------->
+	</div>
+	<div class="col-md-3" >
+		<div id="hide_4-1">
+			<p>
+				<input type="button" value="受信ステータスを変更する" style="WIDTH:200px"
+				onClick="document.getElementById('hide_4-2').style.display='block';
+				document.getElementById('hide_4-1').style.display='none'">
+			</p>
+		</div>
+		<div id="hide_4-2" style="display:none">
+			<p>
+				<input type="button" value="受信ステータスを隠す" style="WIDTH:200px"
+				onClick="document.getElementById('hide_4-2').style.display='none';
+				document.getElementById('hide_4-1').style.display='block'">
+			</p>
+			<p>
+				{{ form.accept_question }}
+			</p>
+		</div>
 
-    <p>&nbsp;</p>
+		<input type="submit" name="done" value="確定" class="btn btn-primary">
 
-    {# 一覧に戻るボタン #}
-    <a class="btn btn-default" href="{% url 'question:top' %}" role="button">戻る</a>
+		{# 一覧に戻るボタン #}
+		<a class="btn btn-default" href="{% url 'question:top' %}" role="button">戻る</a>
+
+	</div>
+
+</form>
 
 {% endblock content %}

@@ -4,79 +4,102 @@
 
 {% block title %}質問詳細{% endblock title %}
 
+{% block head %}
+{% include "question/pass_network.js.html" %}
+{% endblock head %}
+
 {% block content %}
 
-    {# 内容表示 #}
-    <div class="col-md-8">
-    <h2>質問詳細</h2>
-    <div class="service">
-        <p>&nbsp;</p>
-        <div class="panel panel-default">
-            <!-- Default panel contents -->
-            <div class="panel-heading">
-                <h5>{{ question.questioner.last_name }}{{ question.questioner.first_name }}&nbsp;
-                    {{ question.date }}&nbsp;
-                    {% if question.draft %} <font color="#DD0000">下書き</font> {% else %}送信済み{% endif %}<p>&nbsp;</p>
-                    回答期限：{{ question.time_limit }}&nbsp;
-                </h5>
-            </div>
-            <!-- List group -->
-            <ul class="list-group">
-                <li class="list-group-item"><h4>タイトル：{{ question.title }}</h4></li>
-                <li class="list-group-item"><h5>タグ：{% for q_tag in q_tags %} {{ q_tag.tag.name }}&nbsp; {% endfor %}</h5></li>
-                <li class="list-group-item"><h4>本文：<p>&nbsp;</p>{{ question.text|linebreaksbr }}</h4></li>
-            </ul>
-        </div>
-    </div>
+{# 内容表示 #}
+<div class="col-md-6">
+	<h2>質問詳細</h2>
+	<div class="service">
+		<p>
+			&nbsp;
+		</p>
+		<div class="panel panel-default">
+			<!-- Default panel contents -->
+			<div class="panel-heading">
+				<h5>{{ question.questioner.last_name }}{{ question.questioner.first_name }}&nbsp;
+				{{ question.date }}&nbsp;
+				{% if question.draft %} <font color="#DD0000">下書き</font> {% else %}送信済み{% endif %}
+				<p>
+					&nbsp;
+				</p> 回答期限：{{ question.time_limit }}&nbsp; </h5>
+			</div>
+			<!-- List group -->
+			<ul class="list-group">
+				<li class="list-group-item">
+					<h4>タイトル：{{ question.title }}</h4>
+				</li>
+				<li class="list-group-item">
+					<h5>タグ：{% for q_tag in q_tags %} {{ q_tag.tag.name }}&nbsp; {% endfor %}</h5>
+				</li>
+				<li class="list-group-item">
+					<h4>本文：
+					<p>
+						&nbsp;
+					</p>{{ question.text|linebreaksbr }}</h4>
+				</li>
+			</ul>
+		</div>
+	</div>
 
-    <p>&nbsp;</p>
+	<p>
+		&nbsp;
+	</p>
 
-    {% if reply %}
-        <h2>回答詳細</h2>
-        <div class="service">
-            <p>&nbsp;</p>
-            <div class="panel panel-default">
-                <!-- Default panel contents -->
-                <div class="panel-heading">
-                    <h4>{{ reply.answerer.last_name }}{{ reply.answerer.first_name }}&nbsp;
-                        {{ reply.date }}&nbsp;
-                    </h4>
-                </div>
-                <!-- List group -->
-                <ul class="list-group">
-                    <li class="list-group-item"><h4>本文：<p>&nbsp;</p>{{ reply.text|linebreaksbr }}</h4></li>
-                </ul>
-            </div>
-        </div>
-    {% else %}
-        <h2>回答なし</h2>
-    {% endif %}
+	{% if reply %}
+	<h2>回答詳細</h2>
+	<div class="service">
+		<p>
+			&nbsp;
+		</p>
+		<div class="panel panel-default">
+			<!-- Default panel contents -->
+			<div class="panel-heading">
+				<h4>{{ reply.answerer.last_name }}{{ reply.answerer.first_name }}&nbsp;
+				{{ reply.date }}&nbsp; </h4>
+			</div>
+			<!-- List group -->
+			<ul class="list-group">
+				<li class="list-group-item">
+					<h4>本文：
+					<p>
+						&nbsp;
+					</p>{{ reply.text|linebreaksbr }}</h4>
+				</li>
+			</ul>
+		</div>
+	</div>
+	{% else %}
+	<h2>回答なし</h2>
+	{% endif %}
 
-    <p>&nbsp;</p>
+	<p>
+		&nbsp;
+	</p>
 
-    {# 一覧に戻るボタン #}
-    <a class="btn btn-default" href="{% url 'question:q_list' %}" role="button">戻る</a>
+	{# 自分がした質問だったらパスは表示しない #}
+	{% if question.questioner.last_name|add:question.questioner.first_name != uname %}
+		{% if reply_list %}
+			{% if reply_list.has_replied %}
+				<a class="btn btn-default" role="button"  disabled="disabled">パス済みです</a>
+			{% else %}
+				<a class="btn btn-default" href="{% url 'question:q_pass' id=reply_list.id %}" role="button">パス</a>
+				<a class="btn btn-default" href="{% url 'question:r_new' id=question.id %}" role="button">返信</a>
+			{% endif %}
+		{% else %}
+			<a class="btn btn-default" href="{% url 'question:q_pass' id=reply_list.id %}" role="button">パス?</a>
+		{% endif%}
+	{% endif %}
+	
+	{# 一覧に戻るボタン #}
+	<a class="btn btn-default" href="{% url 'question:q_list' %}" role="button">戻る</a>
+</div>
 
-
-    {# 自分がした質問だったらパスは表示しない #}
-    {% if question.questioner.last_name|add:question.questioner.first_name != uname %}
-        {% if reply_list %}
-            <a class="btn btn-default" href="{% url 'question:pass_network' id=question.id %}" role="button">
-                {% if reply_list.has_replied %}
-                    パス済み（押せないようにしたい）
-                {% else %}
-                    パス
-                {% endif %}
-                </a>
-        {% else %}
-            <a class="btn btn-default" href="{% url 'question:pass_network' id=question.id %}" role="button">パス</a>
-        {% endif%}
-    {% endif %}
-    </div>
-
-    <div class="col-md-4">
-        ここにネットワーク図をかく
-        ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
-    </div>
+<div class="col-md-6">
+	<iframe width="100%" height="80%" src="{% url 'question:pass_network' id=question.id %}" scrolling="auto" style="border:none"></iframe>
+</div>
 
 {% endblock content %}

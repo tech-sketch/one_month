@@ -1,18 +1,23 @@
-{% extends "base.html" %}
+<html>
+	<head>
 
+		{% include "question/pass_network.js.html" %}
+		{% include "question/count.html" %}
+	</head>
 
-{% load bootstrap %}
+	<body style="background-color: #f5f5f5;">
 
-{% block title %}pass_network{% endblock title %}
+			
+		<div id="cy">
+			{% if user_reply_list.has_replied %}
+			<div style="color: red"><b>終了しました</b></div>
+			{% else %}
+			<div id="countdown" style="z-index: 1000;"></div>
+			{% endif %}
+			<div style="position: absolute; z-index: 0; overflow: hidden; width: 1272px;">
+				<canvas data-id="layer0-selectbox" width="1272" height="354" style="position: absolute; z-index: 3; width: 1272px; height: 354px;"></canvas><canvas data-id="layer1-drag" width="1272" height="354" style="position: absolute; z-index: 2; width: 1272px; height: 354px;"></canvas><canvas data-id="layer2-node" width="1272" height="354" style="position: absolute; z-index: 1; width: 1272px; height: 354px;"></canvas>
+			</div>
+		</div>
+	</body>
 
-{% block head %}
-{% include "question/pass_network.js.html" %}
-{% endblock head %}
-
-{% block content %}
-<div id="cy">
-	<div style="position: absolute; z-index: 0; overflow: hidden; width: 1272px; height: 354px;">
-		<canvas data-id="layer0-selectbox" width="1272" height="354" style="position: absolute; z-index: 3; width: 1272px; height: 354px;"></canvas><canvas data-id="layer1-drag" width="1272" height="354" style="position: absolute; z-index: 2; width: 1272px; height: 354px;"></canvas><canvas data-id="layer2-node" width="1272" height="354" style="position: absolute; z-index: 1; width: 1272px; height: 354px;"></canvas>
-	</div>
-</div>
-{% endblock content %}
+</html>

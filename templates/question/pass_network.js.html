@@ -3,6 +3,7 @@
 <link href="http://js.cytoscape.org/demos/b7c65115947d9e0e8ec8/style.css" rel="stylesheet">
 <script src="{% static 'js/jquery.min.js' %}"></script>
 <script src="{% static 'js/cytoscape.min.js' %}"></script>
+
 <script type="text/javascript">
      $(function(){ // on dom ready
 $('#cy').cytoscape({
@@ -51,6 +52,8 @@ $('#cy').cytoscape({
     nodes: [
       {% for node in all_user %}
       {% if node.1 == all_pass.0.0 %}
+      	{ data: { id: '{{node.1}}', name: '質問者', weight: 15, faveColor: '#6FB1FC'} },
+      {% elif node.1 == you.1 %}
       	{ data: { id: '{{node.1}}', name: 'you', weight: 15, faveColor: '#6FB1FC'} },
       {% else %}
       	{ data: { id: '{{node.1}}', name: '', weight: 15, faveColor: '#6FB1FC'} },

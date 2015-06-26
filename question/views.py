@@ -129,6 +129,9 @@ def reply_edit(request, id=None):
     # 指定された質問を取ってくる
     q = get_object_or_404(Question, pk=id)
 
+    if q.is_closed:
+        return HttpResponse("回答は締め切られました")
+
     #replylist = ReplyList.objects.filter(question=q)[0]
     # 各質問について、has_replied=Falseの回答済みリストは一つのみのはず
     replylist = get_object_or_404(ReplyList, question=q, has_replied=False)
@@ -141,6 +144,10 @@ def reply_edit(request, id=None):
 
         # 完了がおされたら
         if form.is_valid():
+            #質問を締め切る
+            q.is_closed = True
+            q.save()
+
             r = form.save(commit=False)
             r.question = q
             r.answerer = request.user
@@ -202,6 +209,8 @@ def question_pass(request, id=None):
     if True:
         #replylist_id = request.POST['replylist_id']
         replylist = ReplyList.objects.get(id=id)
+        if replylist.has_replied:
+             return HttpResponse("パス済みです")
 
         #new_replylist = reply_list_update_random(replylist.answerer, replylist.question)
         qa_manager = QAManager()
@@ -241,9 +250,12 @@ def question_detail(request, id=None):
         reply_list = None
 
     # user check
-    #if q.questioner != request.user:
-    #    # 他人の質問は表示できないようにする
-    #    return HttpResponse("他の人の質問は表示できません！") # TODO　表示できないよページ作る
+    print(q.questioner)
+    print(request.user)
+    print(reply_list)
+    if q.questioner != request.user and reply_list==None:
+        # 他人の質問は表示できないようにする
+        return HttpResponse("他の人の質問は表示できません！") # TODO　表示できないよページ作る
 
     return render_to_response('question/question_detail.html',
                               {'question': q, 'q_tags': q_tags, 'reply': r, 'reply_list': reply_list,
@@ -369,10 +381,15 @@ def network(request):
 @login_required(login_url='/accounts/login')
 def pass_network(request, id=None):
     q = get_object_or_404(Question, pk=id)
+
+    user_reply_list =ReplyList.objects.filter(question=q).order_by('time_limit_date')[0]
+    if ReplyList.objects.filter(question=q, answerer=request.user):
+        user_reply_list = ReplyList.objects.get(question=q, answerer=request.user)
     # user check
     if q.questioner != request.user:
+        pass
         # 他人の質問は表示できないようにする
-        return HttpResponse("他の人の質問は表示できません！") # TODO　表示できないよページ作る
+        #return HttpResponse("他の人の質問は表示できません！") # TODO　表示できないよページ作る
 
     all_user = [[u.username, 'u{}'.format(u.id)] for u in User.objects.all()]
     all_tag = [[t.name, 't{}'.format(t.id)] for t in Tag.objects.all()]
@@ -383,7 +400,8 @@ def pass_network(request, id=None):
     all_pass_temp = ['u{}'.format(r.answerer.id) for r in ReplyList.objects.filter(question=q).order_by('time_limit_date')]
     all_pass_temp.insert(0, 'u{}'.format(q.questioner.id), )
     all_pass = [[all_pass_temp[n-1], all_pass_temp[n]] for n in range(1, len(all_pass_temp))]
+    print( request.user)
 
     return render_to_response('question/pass_network.html',
-                              {'all_user': all_user, 'all_reply': all_reply, 'all_tag': all_tag, 'all_userTag': all_userTag, 'all_pass': all_pass},
+                              {'user_reply_list': user_reply_list, 'you': [request.user.username, 'u{}'.format(request.user.id)], 'all_user': all_user, 'all_reply': all_reply, 'all_tag': all_tag, 'all_userTag': all_userTag, 'all_pass': all_pass},
                               context_instance=RequestContext(request))

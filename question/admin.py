@@ -1,10 +1,14 @@
 from django.contrib import admin
-from question.models import Question, Reply, ReplyList, Tag, UserTag, QuestionTag
+from question.models import Question, Reply, ReplyList, Tag, UserTag, QuestionTag, QuestionDestination
 
 # Register your models here.
 class QuestionAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', 'text','date')
     list_display_links = ('id', 'title', 'text','date')
+
+class QuestionDestinationAdmin(admin.ModelAdmin):
+    list_display = ('id', 'question', 'tag')
+    list_display_link = ('id', 'question', 'tag')
 
 class ReplyAdmin(admin.ModelAdmin):
     list_display = ('id', 'text', 'date', 'question')
@@ -27,6 +31,7 @@ class QuestionTagAdmin(admin.ModelAdmin):
     list_display_links = ('question', 'tag')
 
 admin.site.register(Question, QuestionAdmin)
+admin.site.register(QuestionDestination, QuestionDestinationAdmin)
 admin.site.register(Reply, ReplyAdmin)
 admin.site.register(ReplyList, ReplyListAdmin)
 admin.site.register(Tag, TagAdmin)

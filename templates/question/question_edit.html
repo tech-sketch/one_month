@@ -1,23 +1,88 @@
 {% extends "base.html" %}
 
+{% load question_templatetags %}
 {% load bootstrap %}
-
 {% block title %}質問ページ{% endblock title %}
 
 {% block content %}
+<div style="background-color: #FFFFFF;border-top: 3px solid #BFBFBF; border-bottom: 7px solid #D24726; border-left: none; border-right: 3px solid #BFBFBF;">
+{# 修正 #}
+<div class="col-md-12" style="height: 3%"></div>
+<form action="" method="post" class="form">
+	{% csrf_token %}
+	<div class="col-md-6">
+		<div>
+			<div id="hide_1-1"  style="display:none">
+				<p>
+					<input type="button" value="宛て先を表示する" style="WIDTH:150px"
+					onClick="document.getElementById('hide_1-2').style.display='block';
+					document.getElementById('hide_1-1').style.display='none'">
+				</p>
+			</div>
+			<div id="hide_1-2">
+				<p>
+					<input type="button" value="宛て先を隠す" style="WIDTH:150px"
+					onClick="document.getElementById('hide_1-2').style.display='none';
+					document.getElementById('hide_1-1').style.display='block'">
+				</p>
+				<p>
+					{% for f in form.destination %}
+					{%if forloop.last%} <label class="checkbox-inline" style="float: none"> {{ form.destination|index:forloop.counter0 }} </label> {% else %} <label class="checkbox-inline" style="float: left"> {{ form.destination|index:forloop.counter0 }} </label> {% endif %}
+					{% endfor%}
+				</p>
 
-    {# 修正 #}
-    <form action="" method="post" class="form">
-      {% csrf_token %}
-      <div class="col-4">
-      {{ form|bootstrap }}
-      </div>
-      <input type="submit" name="done" value="確定" class="btn btn-primary" >
-    </form>
+			</div>
+		</div>
+		
+		{{ form.title | bootstrap}}
+		{{ form.date | bootstrap}}
+		{{ form.time_limit | bootstrap}}
 
-    <p>&nbsp;</p>
+		<div>
+			<div id="hide_2-1">
+				<p>
+					<input type="button" value="タグを表示する" style="WIDTH:150px"
+					onClick="document.getElementById('hide_2-2').style.display='block';
+					document.getElementById('hide_2-1').style.display='none'">
+				</p>
+			</div>
+			<div id="hide_2-2" style="display:none">
+				<p>
+					<input type="button" value="タグを隠す" style="WIDTH:150px"
+					onClick="document.getElementById('hide_2-2').style.display='none';
+					document.getElementById('hide_2-1').style.display='block'">
+				</p>
+				<p>
+					{% for t in form.tag %}
+					{%if forloop.last%}
+					<label class="checkbox-inline" style="float: none"> {{ form.tag|index:forloop.counter0 }} </label>
+					{% else %}
+					<label class="checkbox-inline" style="float: left"> {{ form.tag|index:forloop.counter0 }} </label>
+					{% endif %}
+					{% endfor%}
+				</p>
 
-    {# 一覧に戻るボタン #}
-    <a class="btn btn-default" href="{% url 'question:top' %}" role="button">戻る</a>
+			</div>
+			{{ form.tag_added | bootstrap}}
+			{{ form.draft | bootstrap}}
+		</div>
+	</div>
 
+	<div class="col-md-6" >
+		{{ form.text | bootstrap}}
+	</div>
+
+	<div style="clear:both;" >
+		<input type="submit" name="done" value="確定" class="btn btn-primary">
+	</div>
+</form>
+
+<p>
+	&nbsp;
+</p>
+</div>
+{# 一覧に戻るボタン #}
+<!--
+<a class="btn btn-default" href="{% url 'question:top' %}" role="button">戻る</a>
+-->
 {% endblock content %}

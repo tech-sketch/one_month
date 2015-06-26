@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.contrib.auth.models import User
 from accounts.models import UserProfile
-from question.models import Question, Reply, ReplyList, Tag, UserTag, QuestionTag
+from question.models import Question, Reply, ReplyList, Tag, UserTag, QuestionTag, QuestionDestination
 from question.forms import QuestionEditForm, ReplyEditForm, UserProfileEditForm
 from question.qa_manager import QAManager, QuestionState, ReplyState
 import random, datetime, pytz
@@ -66,32 +66,22 @@ def question_edit(request, id=None):
 
         # 完了がおされたら
         if form.is_valid():
-
             # 質問を保存
             q = form.save(commit=False)
             q.questioner = request.user
             q.draft = form.cleaned_data['draft']
             q.save()
 
-            # 06/16追加 : 所属外の人には送らない
-            diff_dev_users_prof = UserProfile.objects.exclude(division=form.cleaned_data['destination_div'])
-            diff_user_list = [prof.user for prof in diff_dev_users_prof]
-            # 06/16追加 : 受信拒否の人には送らない
-            deny_users_prof = UserProfile.objects.exclude(accept_question=1)
-            deny_users_list = [prof.user for prof in deny_users_prof]
-            # 06/23追加：最終ログイン日から一定の日数が経過している人には送らない
-            # TODO　最終ログイン日から何日に設定するか？あるいは動的に決めるか？（今は1日以内）
-            date_out_limit = datetime.datetime.now() - datetime.timedelta(hours=23, minutes=59, seconds=59)
-            no_login_users = User.objects.exclude(last_login__gte=date_out_limit)
-            # 回答ユーザ候補から除外するユーザ
-            ex_user_list = list()
-            ex_user_list.append(request.user)
-            ex_user_list.extend(diff_user_list)
-            ex_user_list.extend(deny_users_list)
-            ex_user_list.extend(no_login_users)
+            div_list = form.cleaned_data['destination']
+            for div in div_list:
+                d = QuestionDestination()
+                d.question = q
+                d.tag = div
+                d.save()
 
             # ランダムに質問者を選んでからReplyListを生成して保存
-            r_list = reply_list_update_random_except(ex_user_list, q)
+            qa_manager = QAManager()
+            r_list = qa_manager.make_reply_list(q, qa_manager.reply_list_update_random_except)
 
             if r_list == None:
                 q.delete()
@@ -129,49 +119,11 @@ def question_edit(request, id=None):
         pass
     # new
     else:
-        form = QuestionEditForm(instance=q)
+        form = QuestionEditForm(instance=q, initial={'time_limit': datetime.timedelta(minutes=1)})
 
     return render_to_response('question/question_edit.html',
                               {'form': form, 'id': id},
                               context_instance=RequestContext(request))
-
-#全ユーザーの中からランダムに返信ユーザーを決定する。（u:User 対象としたくないユーザー, q:Question）
-def reply_list_update_random(u, q):
-
-    candidate_users = User.objects.filter(~Q(username=u)).filter(~Q(username=q.questioner))
-
-    try:
-        r_list = ReplyList()
-        r_list.answerer = random.choice(candidate_users)
-        r_list.question = q
-        r_list.time_limit_date = datetime.datetime.now() + datetime.timedelta(hours=q.time_limit.hour, minutes=q.time_limit.minute, seconds=q.time_limit.second)
-        return r_list
-    except IndexError:
-        return None
-
-def reply_list_update_random_except(users, question):
-    """
-    指定されたユーザリスト以外の中からランダムに次の回答ユーザを決定する。
-    """
-
-    #rand_user = User.objects.filter(~Q(username=question.questioner))
-    candidate_users = User.objects.all()
-
-    for u in users:
-        candidate_users = candidate_users.filter(~Q(username=u))
-
-    try:
-        r_list = ReplyList()
-        r_list.answerer = random.choice(candidate_users)
-        r_list.question = question
-        r_list.time_limit_date = datetime.datetime.now() + datetime.timedelta(
-                                    hours=question.time_limit.hour,
-                                    minutes=question.time_limit.minute,
-                                    seconds=question.time_limit.second)
-        return r_list
-    except IndexError:
-        return None
-
 
 @login_required(login_url='/accounts/login')
 def reply_edit(request, id=None):
@@ -181,6 +133,11 @@ def reply_edit(request, id=None):
 
     # 指定された質問を取ってくる
     q = get_object_or_404(Question, pk=id)
+    if ReplyList.objects.filter(question=q, answerer=request.user, has_replied=True):
+        return HttpResponse("パスされました")
+
+    if q.is_closed:
+        return HttpResponse("回答は締め切られました")
 
     #replylist = ReplyList.objects.filter(question=q)[0]
     # 各質問について、has_replied=Falseの回答済みリストは一つのみのはず
@@ -194,16 +151,25 @@ def reply_edit(request, id=None):
 
         # 完了がおされたら
         if form.is_valid():
+            # この質問の自分あての回答リストを取ってきて、回答済みにしておく
+            r_list = get_object_or_404(ReplyList, question=q, answerer=request.user) #has_replied=Falseはいらないと思う
+            if r_list.has_replied:
+                return HttpResponse("自動的にパスされました")
+            r_list.has_replied = True
+            r_list.save()
+
+            r_list.question.is_closed = True
+            r_list.question.save()
+
             r = form.save(commit=False)
             r.question = q
             r.answerer = request.user
             r.draft = form.cleaned_data['draft']
             r.save()
 
-            # この質問の自分あての回答リストを取ってきて、回答済みにしておく
-            r_list = get_object_or_404(ReplyList, question = r.question, answerer=request.user, has_replied=False) #has_replied=Falseはいらないと思う
-            r_list.has_replied = True
-            r_list.save()
+            #質問を締め切る
+            q.is_closed = True
+            q.save()
 
             return redirect('question:top')
         pass
@@ -251,44 +217,19 @@ def question_pass(request, id=None):
     #if 'replylist_id' in request.POST:
     if True:
         #replylist_id = request.POST['replylist_id']
-        replylist =  ReplyList.objects.get(id=id)
-        #replylist = ReplyList.objects.get(id=replylist_id)
-        replylist.has_replied = True
-        replylist.save()
+        replylist = ReplyList.objects.get(id=id)
+        if replylist.has_replied:
+             return HttpResponse("パス済みです")
 
         #new_replylist = reply_list_update_random(replylist.answerer, replylist.question)
-        q = replylist.question
-
-        # 06/16追加 : 所属外の人には送らない
-        diff_dev_users_prof = UserProfile.objects.filter(~Q(division=q.destination_div))
-        diff_user_list = [prof.user for prof in diff_dev_users_prof]
-        # 今までパスした人（自分=request.userも含む）には送らない
-        reply_lists_pass_users = ReplyList.objects.filter(question=q, has_replied=True)
-        pass_user_list = [r.answerer for r in reply_lists_pass_users]
-        # 06/16 受信拒否の人には送らない
-        deny_users_prof = UserProfile.objects.exclude(accept_question=1)
-        deny_users_list = [prof.user for prof in deny_users_prof]
-        # 06/23追加：最終ログイン日から一定の日数が経過している人には送らない
-        # TODO　最終ログイン日から何日に設定するか？あるいは動的に決めるか？（今は1日以内）
-        date_out_limit = datetime.datetime.now() - datetime.timedelta(hours=23, minutes=59, seconds=59)
-        no_login_users = User.objects.exclude(last_login__gte=date_out_limit)
-
-        # 回答ユーザ候補から除外するユーザ
-        ex_user_list = list()
-        ex_user_list.append(q.questioner)
-        ex_user_list.extend(diff_user_list)
-        ex_user_list.extend(pass_user_list)
-        ex_user_list.extend(deny_users_list)
-        ex_user_list.extend(no_login_users)
-
-        new_replylist = reply_list_update_random_except(ex_user_list, replylist.question)
-
-        if new_replylist != None:
-            new_replylist.save()
-            return HttpResponse("パスしました") # TODO　パスしましたページ作る
+        qa_manager = QAManager()
+        print(replylist.question.title)
+        if qa_manager.pass_question(replylist.question, qa_manager.reply_list_update_random_except):
+            return HttpResponse("パスしました")
         else:
-            # TODO パスが回り終わったときに質問者に通知する仕組みを考える
-            return HttpResponse("パスしましたが、次の回答ユーザが見つかりませんでした。この質問は回答者無しとして質問者に報告されます")
+            replylist.question.is_closed = True
+            replylist.question.save()
+            return HttpResponse("パスしましたがすべてのユーザがパスしたため質問は締め切ります")
     else:
         return HttpResponse("不明なエラーです！（question_pass() in views.py）")
 
@@ -318,9 +259,12 @@ def question_detail(request, id=None):
         reply_list = None
 
     # user check
-    #if q.questioner != request.user:
-    #    # 他人の質問は表示できないようにする
-    #    return HttpResponse("他の人の質問は表示できません！") # TODO　表示できないよページ作る
+    print(q.questioner)
+    print(request.user)
+    print(reply_list)
+    if q.questioner != request.user and reply_list==None:
+        # 他人の質問は表示できないようにする
+        return HttpResponse("他の人の質問は表示できません！") # TODO　表示できないよページ作る
 
     return render_to_response('question/question_detail.html',
                               {'question': q, 'q_tags': q_tags, 'reply': r, 'reply_list': reply_list,
@@ -395,9 +339,9 @@ def mypage(request):
             r.save()
 
             # 選択されたタグから、新規にQuestionTagを生成して保存
-            q_tags = form.cleaned_data['tag']
+            tags = form.cleaned_data['tag']
             u_tag_names =[t.tag.name for t in user_tags]
-            for q_tag in q_tags:
+            for q_tag in tags:
                 if q_tag.name not in u_tag_names: # ユーザに新規に追加されたタグだったら保存
                     qt = UserTag()
                     qt.tag = q_tag
@@ -446,10 +390,15 @@ def network(request):
 @login_required(login_url='/accounts/login')
 def pass_network(request, id=None):
     q = get_object_or_404(Question, pk=id)
+
+    user_reply_list =ReplyList.objects.filter(question=q).order_by('time_limit_date')[0]
+    if ReplyList.objects.filter(question=q, answerer=request.user):
+        user_reply_list = ReplyList.objects.get(question=q, answerer=request.user)
     # user check
     if q.questioner != request.user:
+        pass
         # 他人の質問は表示できないようにする
-        return HttpResponse("他の人の質問は表示できません！") # TODO　表示できないよページ作る
+        #return HttpResponse("他の人の質問は表示できません！") # TODO　表示できないよページ作る
 
     all_user = [[u.username, 'u{}'.format(u.id)] for u in User.objects.all()]
     all_tag = [[t.name, 't{}'.format(t.id)] for t in Tag.objects.all()]
@@ -460,9 +409,10 @@ def pass_network(request, id=None):
     all_pass_temp = ['u{}'.format(r.answerer.id) for r in ReplyList.objects.filter(question=q).order_by('time_limit_date')]
     all_pass_temp.insert(0, 'u{}'.format(q.questioner.id), )
     all_pass = [[all_pass_temp[n-1], all_pass_temp[n]] for n in range(1, len(all_pass_temp))]
+    print( request.user)
 
     return render_to_response('question/pass_network.html',
-                              {'all_user': all_user, 'all_reply': all_reply, 'all_tag': all_tag, 'all_userTag': all_userTag, 'all_pass': all_pass},
+                              {'user_reply_list': user_reply_list, 'you': [request.user.username, 'u{}'.format(request.user.id)], 'all_user': all_user, 'all_reply': all_reply, 'all_tag': all_tag, 'all_userTag': all_userTag, 'all_pass': all_pass},
                               context_instance=RequestContext(request))
 
 def debug(request):

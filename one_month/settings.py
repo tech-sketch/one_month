@@ -170,7 +170,7 @@ CELERY_ALWAYS_EAGER = False
 CELERYBEAT_SCHEDULE = {
     'auto_rand_pass': {
         'task': 'question.tasks.auto_rand_pass',
-        'schedule':datetime.timedelta(seconds=15),
+        'schedule':datetime.timedelta(seconds=60),
         'args': ()
     },
 }

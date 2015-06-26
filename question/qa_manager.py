@@ -37,7 +37,9 @@ class QAManager():
         #自分の質問が解決済みかどうか調べる
         for q in question_list:
             r = Reply.objects.filter(question=q) # いまの仕様では返信は一つのはず
-            if q.is_closed and len(r): #解決済み
+            if not q.is_closed and len(r): #返信が来たが未解決
+                pass
+            elif q.is_closed and len(r): #解決済み
                 qa_list.append([q, QuestionState.solved.name])
             elif q.is_closed and not len(r):
                 qa_list.append([q, QuestionState.unsolved.name]) #未解決

@@ -128,6 +128,8 @@ def reply_edit(request, id=None):
 
     # 指定された質問を取ってくる
     q = get_object_or_404(Question, pk=id)
+    if ReplyList.objects.filter(question=q, answerer=request.user, has_replied=True):
+        return HttpResponse("パスされました")
 
     if q.is_closed:
         return HttpResponse("回答は締め切られました")
@@ -144,9 +146,15 @@ def reply_edit(request, id=None):
 
         # 完了がおされたら
         if form.is_valid():
-            #質問を締め切る
-            q.is_closed = True
-            q.save()
+            # この質問の自分あての回答リストを取ってきて、回答済みにしておく
+            r_list = get_object_or_404(ReplyList, question=q, answerer=request.user) #has_replied=Falseはいらないと思う
+            if r_list.has_replied:
+                return HttpResponse("自動的にパスされました")
+            r_list.has_replied = True
+            r_list.save()
+
+            r_list.question.is_closed = True
+            r_list.question.save()
 
             r = form.save(commit=False)
             r.question = q
@@ -154,13 +162,9 @@ def reply_edit(request, id=None):
             r.draft = form.cleaned_data['draft']
             r.save()
 
-            # この質問の自分あての回答リストを取ってきて、回答済みにしておく
-            r_list = get_object_or_404(ReplyList, question = r.question, answerer=request.user, has_replied=False) #has_replied=Falseはいらないと思う
-            r_list.has_replied = True
-            r_list.save()
-
-            r_list.question.is_closed = True
-            r_list.question.save()
+            #質問を締め切る
+            q.is_closed = True
+            q.save()
 
             return redirect('question:top')
         pass

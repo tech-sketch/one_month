@@ -356,9 +356,10 @@ def mypage(request):
                 qt.user = request.user
                 qt.save()
             else:
+                print("tag_added")
                 print(tag_added_name)
 
-            return redirect('question:top')
+            return redirect('question:mypage')
         pass
     # new
     else:
@@ -366,8 +367,10 @@ def mypage(request):
         #tag_form = UserTagEditForm(instance=t)
         # TODO マイページにユーザが登録済みのタグを表示しつつ、追加・編集できるようにしたい
 
+    user_question = Question.objects.filter(questioner=request.user)
+    user_reply = Reply.objects.filter(answerer=request.user)
     return render_to_response('question/mypage.html',
-                              {'form': form, 'user_tags':user_tags, 'uname': request.user.last_name+request.user.first_name},
+                              {'form': form, 'user_tags':user_tags, 'uname': request.user, 'uprof':p, 'uquestion':user_question, 'ureply':user_reply},
                               context_instance=RequestContext(request))
 
 @login_required(login_url='/accounts/login')

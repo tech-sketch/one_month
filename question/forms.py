@@ -60,7 +60,7 @@ class UserProfileEditForm(ModelForm):
     #                             to_field_name='name')
     # タグを複数選ばせる場合
     tag = CustomMultipleChoiceField(label='タグ', queryset=Tag.objects.all(), widget=forms.CheckboxSelectMultiple, required=False)
-    tag_added = forms.CharField(label='追加タグ', max_length=512, required=False)
+    tag_added = forms.CharField(label='新規追加タグを入力する', max_length=512, required=False)
 
     class Meta:
         ACCEPT = ((1, '受信'), (0, '拒否'))

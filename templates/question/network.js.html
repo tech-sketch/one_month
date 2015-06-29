@@ -62,12 +62,13 @@ edges: [
 {% for edge in all_userTag %}
 { data: { source: '{{edge.0}}', target: '{{edge.1}}', faveColor: '#F26964', strength: 10 } },
 {% endfor %}
+],
+positions: [ { 'u{{user.id}}': { x:0,y:0 } }, 
 ]
 },
 
 ready: function(){
 window.cy = this;
-
 // giddy up
 }
 });

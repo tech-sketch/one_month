@@ -11,34 +11,35 @@
     <div class="activities">
         <div id="masonry" style="position: relative; width: 660px; height: 729px;">
             {% for qa in qa_list %}
-            <div id={{qa.0.question.id}} class="item" style="position: absolute; border-top: 3px solid #BFBFBF; border-bottom: 7px solid #8DCF3F; border-left: none; border-right: 3px solid #BFBFBF;">
+            <div id={{qa.0.question.id}} class="item" style="position: absolute; border-top: 3px solid #BFBFBF; border-bottom: 10px solid #8DCF3F; border-left: none; border-right: 3px solid #BFBFBF;">
                 <div>
-                    <img src="/static/images/dotchain.png" align="left" width="50" height="50">
-                    &nbsp;質問者：{{qa.0.questioner}}<br>
-                    &nbsp;質問日時：{{qa.0.date}}
+                    <img src="/static/images/xxx.png" align="left" width="50" height="50">
+                    &nbsp;質問者：{{qa.0.question.questioner}}<br>
+                    &nbsp;質問日時：{{qa.0.question.date}}
+                    <!--&nbsp;残り時間：-->
                 </div>
                 <hr>
-                タイトル: {{qa.0.question.title}}<p>&nbsp;</p>
-                本文: {{qa.0.question.text|linebreaksbr }}
-                <div class="badge" onmouseover="flip(event)" onmouseout="flip(event)">
-                    {# 回答待ち、回答済み、パス済みを区別して表示する #}
-                    {% if qa.1 == 'pending' %}
+                <span style="font-size: medium;font-weight: bold;">
+                    {{qa.0.question.title}}<p>&nbsp;</p>
+                </span>
+                <span style="font-size: 9pt;">
+                    {{qa.0.question.text | truncatechars:"80" | linebreaksbr }}
+                    {% if q.0.text|length > 80 %}
+                        <a href="{% url 'question:q_detail' q.0.id %}">...続きを読む</a>
+                    {% endif %}
+                </span>
+                <hr>
+                {# 回答待ちの場合返信・パスボタンを表示する #}
+                {% if qa.1 == 'pending' %}
+                    <span>制限時間：(TODO)</span>
+                    <div style="float:right">
                         <a class="btn btn-success" href="{% url 'question:r_new' id=qa.0.question.id %}" role="button">返信</a>
                         <a class="btn btn-danger" href="{% url 'question:q_pass' id=qa.0.id %}" role="button">パス</a>
-                    {% elif qa.1 == 'replied' %}
-                        <div class="front face">回答済み</div>
-                        <div class="back face">ありがとう</div>
-                    {% elif qa.1 == 'passed' %}
-                        <div class="front face">パス済み</div>
-                        <div class="back face">次はよろしくね</div>
-                    {% endif %}
-                </div>
+                    </div>
+                {% endif %}
             </div>
             {% endfor %}
         </div>
-    </div>
-    <div class="tail">
-        <div class="more-button btn btn-default btn-block" tabindex="0">もっと見る
     </div>
 
 {% endblock tab %}

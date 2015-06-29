@@ -12,34 +12,37 @@
                 <div id="masonry" style="position: relative; width: 660px; height: 729px;">
                     {% for q in qa_list %}
                             {# 自分がした質問 #}
-                            <div id={{q.0.id}} class="item" style="position: absolute; border-top: 3px solid #BFBFBF; border-bottom: 7px solid #FDC44F; border-left: none; border-right: 3px solid #BFBFBF;">
+                            <div id={{q.0.id}} class="item" style="position: absolute; border-top: 3px solid #BFBFBF; border-bottom: 10px solid #FDC44F; border-left: none; border-right: 3px solid #BFBFBF; ">
                                 <div>
                                     <img src="/static/images/dotchain.png" align="left" width="50" height="50">
-                                    &nbsp;質問者：{{q.0.questioner}}<br>
-                                    &nbsp;質問日時：{{q.0.date}}
+                                    <span style="font-size: 10pt;">
+                                        &nbsp;質問者：&nbsp;&nbsp;{{q.0.questioner}}<br>
+                                        &nbsp;質問日時：&nbsp;&nbsp;{{q.0.date}}
+                                        <!--&nbsp;残り時間：-->
+                                    </span>
                                 </div>
                                 <hr>
-                                タイトル: {{q.0.title}}<p>&nbsp;</p>
-                                本文: {{q.0.text|linebreaksbr }}
-                                <div class="badge" onmouseover="flip(event)" onmouseout="flip(event)">
-                                    {# 解決済み、未解決、回答待ちを区別して表示する #}
-                                    {% if q.1 == 'solved' %}
-                                        <div class="front face">解決済み</div>
-                                        <div class="back face">よかったね</div>
-                                    {% elif q.1 == 'unsolved' %}
-                                        <div class="front face">未解決</div>
-                                        <div class="back face">ざんねん！</div>
-                                    {% elif q.1 == 'pending' %}
-                                        <div class="front face">回答待ち</div>
-                                        <div class="back face">期限:</div>
+                                <span style="font-size: medium;font-weight: bold;">
+                                    {{q.0.title}}<p>&nbsp;</p>
+                                </span>
+                                <span style="font-size: 9pt;">
+                                    {{q.0.text | truncatechars:"80" |linebreaksbr }}
+                                    {% if q.0.text|length > 80 %}
+                                        <a href="{% url 'question:q_detail' q.0.id %}">...続きを読む</a>
                                     {% endif %}
-                                </div>
+                                </span>
+                                <hr>
+                                <span style="font-size: 9pt;">コメント数：(TODO)</span>
+
+                                {# 回答待ちのもののみリボンで表示する #}
+                                {% if q.1 == 'pending' %}
+                                    <div class="badge" onmouseover="flip(event)" onmouseout="flip(event)">
+                                        <div class="front face" style="font-size:x-large;">質問中</div>
+                                    </div>
+                                {% endif %}
                             </div>
                     {% endfor %}
                 </div>
-            </div>
-            <div class="tail">
-                <div class="more-button btn btn-default btn-block" tabindex="0">もっと見る
           </div>
 
 {% endblock tab %}

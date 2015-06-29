@@ -1,6 +1,6 @@
 function question_clicked(){
         //$(this).css("color", "blue")
-        window.location.href = '/question/q_detail/'+this.id;
+        window.location.href = '/dotchain/q_detail/'+this.id;
 }
 
 $(function(){
@@ -43,3 +43,4 @@ $(function() {
     //わざと1つ目を表示させておくことができます
     $('#tabs a[href^="#panel"]:eq(0)').trigger('click');
 });
+

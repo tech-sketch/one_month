@@ -25,6 +25,6 @@ urlpatterns = [
     #url(r'^', include('question.urls', namespace='question')),
 
     # アプリ関係
-    url(r'^question/', include('question.urls', namespace='question')),#ここ、質問のnsとかぶる？
+    url(r'^dotchain/', include('question.urls', namespace='question')),
 ]
 

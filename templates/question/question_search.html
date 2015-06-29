@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% load bootstrap_toolkit %}
+
+{% block title %}質問検索{% endblock title %}
+
+{% block content %}
+
+    {#　検索　#}
+    <div class="col-md-6">
+        <form action="../" method="post" class="form">
+            {% csrf_token %}
+            <h2>検索フォーム</h2>
+            <p>キーワードに合致する質問タイトル・内容・タグを検索します</p>
+            <div class="form-group">
+                <input type="text" name="keyword" class="form-control" placeholder="検索キーワードを入力" required="" autofocus="" autocomplete="off">
+            </div>
+            <div class="form-group">
+                <input type="submit" class="btn btn-primary">
+            </div>
+        </form>
+    </div>
+
+    <p>&nbsp;</p>
+
+{% endblock content %}

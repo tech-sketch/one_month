@@ -51,7 +51,7 @@ class QAManager():
     def reply_state(self, reply_list):
 
         if isinstance(reply_list, ReplyList):
-            print('[qa_manager:reply_state] Warning: the arg is not a type Question!')
+            print('[qa_manager:reply_state] Warning: the arg is not a type ReplyList!')
             print('[qa_manager:reply_state] Returns None')
             return None
 

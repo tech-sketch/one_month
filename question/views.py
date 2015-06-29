@@ -6,7 +6,7 @@ from django.db.models import Q
 from django.contrib.auth.models import User
 from accounts.models import UserProfile
 from question.models import Question, Reply, ReplyList, Tag, UserTag, QuestionTag, QuestionDestination
-from question.forms import QuestionEditForm, ReplyEditForm, UserProfileEditForm
+from question.forms import QuestionEditForm, ReplyEditForm, UserProfileEditForm, KeywordSearchForm
 from question.qa_manager import QAManager, QuestionState, ReplyState
 import random, datetime, pytz
 
@@ -17,30 +17,74 @@ def top_default(request):
     トップページ
     """
 
-    # 自分の質問を取ってくる
-    q_list = Question.objects.filter(questioner=request.user)
+    # added
+    form = None
+    if request.method == 'GET':
+        form = KeywordSearchForm()
+        # 自分の質問を取ってくる
+        q_list = Question.objects.filter(questioner=request.user)
+        # 自分宛の質問を取ってくる
+        r_list = ReplyList.objects.filter(answerer=request.user)
 
-    # 自分宛の質問を取ってくる
-    reply_list = ReplyList.objects.filter(answerer=request.user)
+    elif request.method == 'POST':
+      print(request.POST)
+      form = KeywordSearchForm(request.POST)
+      if form.is_valid():
+          # 質問内容にキーワードが含まれるもの
+          q_list = list(Question.objects.filter(Q(title__contains=form.clean()['keyword']) |
+                                             Q(text__contains=form.clean()['keyword']), questioner=request.user))
 
+          r_list = ReplyList.objects.filter(answerer=request.user)
+          for r in r_list:
+              r.question.text
+
+          # 回答内容にキーワードが含まれるもの
+          rep_list = list(Reply.objects.filter(Q(text__contains=form.clean()['keyword']), answerer=request.user))
+
+          r_list = ReplyList.objects.filter(answerer=request.user)
+          print(q_list)
+          """
+          for r in r_list:
+              # 自分宛の質問を取ってくる
+              r_list = ReplyList.objects.filter(answerer=request.user, que)
+
+          try:
+              tag_list = list(Tag.objects.filter(Q(name__contains=form.clean()['keyword']))) #キーワードが含まれるタグ（複数）
+
+              for tmp in tag_list:
+                  qtags = QuestionTag.objects.filter(tag=tmp)# 質問タグ
+                  q = [qt.question for qt in qtags if qt.questioner == request.user]
+                  q_list = list(set(q_list.extend(q)))
+                  #print(q[0].title)
+
+              #自分が答えた質問のタグにキーワードが含まれていたら
+              for r_tmp in r_list:
+                  q = tmp.question
+                  for  tmp in tag_list:
+                      qtags = QuestionTag.objects.filter(question=q, tag=tmp)# 質問タグ
+                      q = [qt.question for qt in qtags if r_tmp.answerer == request.user]
+                      q_list = list(set(q_list.extend(q)))
+
+          except:
+              tag = None
+        """
     # 自分の質問と自分宛ての質問の状態を調べる
     qa_manager = QAManager(request.user)
     q_list = qa_manager.question_state(q_list)
-    r_list = qa_manager.reply_state(reply_list)
+    r_list = qa_manager.reply_state(r_list)
 
     # 自分と自分宛の質問を結合して時系列に並べる
     qa_list = list()
     qa_list.extend(q_list)
     qa_list.extend(r_list)
     qa_list = sorted(qa_list, reverse=True, key=lambda x: x[0].date if isinstance(x[0],Question) else x[0].question.date)#OK?
-    #print(qa_list)
 
-    # 自分の回答を取ってくる
-    r = Reply.objects.filter(answerer=request.user)
 
     histories = None
     return render_to_response('question/top_all.html',
-                              {'histories': histories, 'qa_list':qa_list, 'uname': request.user.last_name+request.user.first_name, 'last_login': request.user.last_login},
+                              {'histories': histories, 'qa_list':qa_list, 'form':form,
+                               'uname': request.user.last_name+request.user.first_name,
+                               'last_login': request.user.last_login},
                               context_instance=RequestContext(request))
 
 @login_required(login_url='/accounts/login')
@@ -373,6 +417,20 @@ def mypage(request):
 
     return render_to_response('question/mypage.html',
                               {'form': form, 'user_tags':user_tags, 'uname': request.user.last_name+request.user.first_name},
+                              context_instance=RequestContext(request))
+
+
+@login_required(login_url='/accounts/login')
+def search(request):
+
+    if request.method == 'GET':
+        form = KeywordSearchForm()
+
+    #elif request.method == 'POST':
+    #  form = KeywordSearchForm(request.POST)
+
+    return render_to_response('question/question_search.html',
+                              {'form': form, 'uname': request.user.last_name+request.user.first_name},
                               context_instance=RequestContext(request))
 
 @login_required(login_url='/accounts/login')

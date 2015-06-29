@@ -27,23 +27,8 @@
 
         .item{
             width:350px;
-            min-height:250px;
-            max-height:550px;
-            overflow:hidden;
-            padding:10px;
-            margin:20px 10px 10px 20px;
-            background:#fff;
-            float:left;
-            text-align:left;
-            position:relative;
-            border-radius:0px;
-            cursor: pointer;
-        }
-
-        .item_op{
-            width:350px;
-            min-height:250px;
-            max-height:550px;
+            min-height:150px;
+            max-height:350px;
             overflow:hidden;
             padding:10px;
             margin:20px 10px 10px 20px;
@@ -87,13 +72,6 @@
 
         .info {padding-left:80px;}
 
-        #wrapper { width:960px; margin:0 auto; padding:50px 0 0 0; }
-        .showmore { line-height:18px; font-size:12px; padding:15px; margin:0 0 20px 0; }
-        .showmore p {margin: 0 0 10px0 ;}
-        .showmore_content { position:relative; overflow:hidden; }
-        .showmore_trigger { width:100%; height:45px; line-height:45px; cursor:pointer; }
-        .showmore_trigger span { display:block; }
-
      </style>
 
 {% endblock head %}
@@ -103,18 +81,17 @@
     {# 挨拶 #}
     <p>こんにちは！{{uname}}さん</p>
     <p>最終ログイン {{last_login}} </p>
-    <h2>ここはトップページ(JS ver.)です</h2>
 
     <nav>
             <ul class="nav nav-tabs streamContainer_tabs">
                 <li id="reply" class="tab active" data-type="reply">
-                    <a href="/dotchain/r_list">自分宛の質問</a>
+                    <a href="/dotchain/r_list"><i class="fa fa-reply"></i>自分宛の質問</a>
                 </li>
                 <li id="mine" class="tab active" data-type="mine">
-                    <a href="/dotchain/q_list">自分の投稿 </a>
+                    <a href="/dotchain/q_list"><i class="fa fa-th-list"></i>自分の投稿 </a>
                 </li>
                 <li id="all" class="tab active" data-type="following">
-                    <a href="/dotchain">すべての質問</a>
+                    <a href="/dotchain/">すべての質問</a>
                 </li>
             </ul>
     </nav>

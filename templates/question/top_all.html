@@ -54,15 +54,6 @@
                                 <span style="font-size: medium;font-weight: bold;">
                                     {{qa.0.question.title}}
                                 </span>
-                                <span style="font-size: 9pt;">
-                                <p>&nbsp;</p>
-                                {{qa.0.question.text | truncatechars:"80"| linebreaksbr }}
-                                {% if qa.0.question.text|length > 80 %}
-                                    <a href="{% url 'question:q_detail' qa.0.id %}">...続きを読む</a>
-                                {% endif %}
-                                </span>
-                                <hr>
-                                <span style="font-size: 9pt;">コメント数：(TODO)</span>
                                 {# パス済みのもののみリボンで表示する #}
                                 <div class="badge_black" onmouseover="flip(event)" onmouseout="flip(event)">
                                     <div class="front face" style="font-size:x-large;">　　 パス済</div>

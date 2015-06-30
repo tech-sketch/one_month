@@ -22,61 +22,97 @@ def top_default(request):
     if request.method == 'GET':
         form = KeywordSearchForm()
         # 自分の質問を取ってくる
-        q_list = Question.objects.filter(questioner=request.user)
-        # 自分宛の質問を取ってくる
-        r_list = ReplyList.objects.filter(answerer=request.user)
+        questions = Question.objects.filter(questioner=request.user)
+        # 自分宛の質問リストを取ってくる
+        reply_lists = ReplyList.objects.filter(answerer=request.user)
 
     elif request.method == 'POST':
-      print(request.POST)
-      form = KeywordSearchForm(request.POST)
-      if form.is_valid():
-          # 質問内容にキーワードが含まれるもの
-          q_list = list(Question.objects.filter(Q(title__contains=form.clean()['keyword']) |
-                                             Q(text__contains=form.clean()['keyword']), questioner=request.user))
+        form = KeywordSearchForm(request.POST)
 
-          r_list = ReplyList.objects.filter(answerer=request.user)
-          for r in r_list:
-              r.question.text
-
-          # 回答内容にキーワードが含まれるもの
-          rep_list = list(Reply.objects.filter(Q(text__contains=form.clean()['keyword']), answerer=request.user))
-
-          r_list = ReplyList.objects.filter(answerer=request.user)
-          print(q_list)
-          """
-          for r in r_list:
-              # 自分宛の質問を取ってくる
-              r_list = ReplyList.objects.filter(answerer=request.user, que)
-
-          try:
-              tag_list = list(Tag.objects.filter(Q(name__contains=form.clean()['keyword']))) #キーワードが含まれるタグ（複数）
-
-              for tmp in tag_list:
-                  qtags = QuestionTag.objects.filter(tag=tmp)# 質問タグ
-                  q = [qt.question for qt in qtags if qt.questioner == request.user]
-                  q_list = list(set(q_list.extend(q)))
-                  #print(q[0].title)
-
-              #自分が答えた質問のタグにキーワードが含まれていたら
-              for r_tmp in r_list:
-                  q = tmp.question
-                  for  tmp in tag_list:
-                      qtags = QuestionTag.objects.filter(question=q, tag=tmp)# 質問タグ
-                      q = [qt.question for qt in qtags if r_tmp.answerer == request.user]
-                      q_list = list(set(q_list.extend(q)))
-
-          except:
-              tag = None
         """
+       以下の質問をキーワード検索で取ってくる
+       * 自分がした質問のタイトル・内容・タグいずれかがキーワードと部分一致
+       * 相手から自分へ来た質問のタイトル・内容・タグいずれかがキーワードと部分一致
+       * 自分の回答内容がキーワードと部分一致
+       * 自分の投稿に対する相手の回答内容がキーワードと部分一致
+       """
+
+        if form.is_valid():
+            # すべての質問の中からキーワードに合致する質問のみ取り出す
+            questions = list(Question.objects.filter(Q(title__contains=form.clean()['keyword']) |
+                                                  Q(text__contains=form.clean()['keyword'])))
+
+            # 回答内容にキーワードが含まれるもののうち自分が答えた質問のみ取り出す
+            replies = list(Reply.objects.filter(Q(text__contains=form.clean()['keyword'])))
+
+            # 自分宛の質問リストを取ってくる（パス含む）
+            reply_lists = ReplyList.objects.filter(answerer=request.user)
+
+            # キーワードに合致するすべての質問のうち、自分が投稿した質問と、自分に来た質問を取り出す
+            q_list_tmp = []
+            r_list_tmp = []
+            for ql in questions:
+                if ql.questioner == request.user:
+                    q_list_tmp.append(ql)
+                rl = [rl for rl in reply_lists if ql.id == rl.question.id]
+                r_list_tmp.extend(rl)
+
+            # 自分の返信内容とキーワードが合致するものを取り出す
+            for r in replies:
+                if r.answerer == request.user:
+                    rl = [rl for rl in reply_lists if r.question.id == rl.question.id]
+                    r_list_tmp.extend(rl)
+                elif r.question.questioner == request.user:
+                    reply_lists = ReplyList.objects.filter(question=r.question)
+                    rl = [rl for rl in reply_lists if r.question.id == rl.question.id]
+                    r_list_tmp.extend(rl)
+
+            reply_lists = r_list_tmp
+
+            # キーワードに合致するすべてのタグを取り出す
+            tags = list(Tag.objects.filter(Q(name__contains=form.clean()['keyword']))) #キーワードが含まれるタグ（複数）
+
+            # 自分が投稿した質問のタグと一致するもののみ取り出す
+            for tag in tags:
+                  q_tags = QuestionTag.objects.filter(tag=tag)#タグ名が合致する質問タグ
+                  q = [q_tag.question for q_tag in q_tags if q_tag.question.questioner == request.user]
+                  q_list_tmp.extend(q)
+                  q_list_tmp = list(set(q_list_tmp))
+            questions = q_list_tmp
+
+            # 自分が答えた質問のタグと一致するもののみ取り出す
+            replies = list(Reply.objects.filter(answerer=request.user))
+            for r in replies:
+                for tag in tags:
+                    q_tags = QuestionTag.objects.filter(tag=tag)#タグ名が合致する質問タグ
+                    q = [q_tag.question for q_tag in q_tags if r.question.id == q_tag.question.id and r.answerer == request.user]
+                    q_list_tmp.extend(q)
+                    q_list_tmp = list(set(q_list_tmp))
+
+            a = []
+            b = []
+            r_list_tmp = ReplyList.objects.filter(answerer=request.user)
+            for tag in tags:
+                q_tags = QuestionTag.objects.filter(tag=tag)#タグ名が合致する質問タグ
+                for rl in r_list_tmp:#自分に来た質問
+                    for q_tag in q_tags:
+                        if rl.question.id == q_tag.question.id:
+                            a.append(rl)
+                            b = list(set(a))
+                            reply_lists.extend(b)
+
+            reply_lists = list(set(reply_lists))
+
+
     # 自分の質問と自分宛ての質問の状態を調べる
     qa_manager = QAManager(request.user)
-    q_list = qa_manager.question_state(q_list)
-    r_list = qa_manager.reply_state(r_list)
+    questions = qa_manager.question_state(questions)
+    reply_lists = qa_manager.reply_state(reply_lists)
 
     # 自分と自分宛の質問を結合して時系列に並べる
     qa_list = list()
-    qa_list.extend(q_list)
-    qa_list.extend(r_list)
+    qa_list.extend(questions)
+    qa_list.extend(reply_lists)
     qa_list = sorted(qa_list, reverse=True, key=lambda x: x[0].date if isinstance(x[0],Question) else x[0].question.date)#OK?
 
 

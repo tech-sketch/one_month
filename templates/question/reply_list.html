@@ -18,7 +18,7 @@
                     </div>
                     <!-- List group -->
                     <ul class="list-group">
-                        <li class="list-group-item"><h4>タイトル：&nbsp;<a href="{% url 'question:r_new' id=question.id %}">{{ question.title }}</a></h4></li>
+                        <li class="list-group-item"><h4>タイトル：&nbsp;<a href="{% url 'dotchain:r_new' id=question.id %}">{{ question.title }}</a></h4></li>
                         <li class="list-group-item"><h4>本文：<p>&nbsp;</p>{{ question.text|linebreaksbr }}</h4></li>
                     </ul>
                 </div>
@@ -29,6 +29,6 @@
     {% endif %}
 
     {# 一覧に戻るボタン #}
-    <a class="btn btn-default" href="{% url 'question:top' %}" role="button">戻る</a>
+    <a class="btn btn-default" href="{% url 'dotchain:top' %}" role="button">戻る</a>
 
 {% endblock content %}

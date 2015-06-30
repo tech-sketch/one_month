@@ -124,6 +124,8 @@ class QAManager():
                 print('{0}からの質問「{1}」を{2}から{3}にパスしました。 タイムリミットは{4}'.format(reply_list.question.questioner, reply_list.question.title, reply_list.answerer, next_reply_list.answerer, reply_list.time_limit_date))
                 return True
             else:
+                passed_question.is_closed = True
+                passed_question.save()
                 print('パスできませんでした')
                 return False
 

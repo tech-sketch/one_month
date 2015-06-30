@@ -33,7 +33,7 @@
                                     <p>&nbsp;</p>
                                     {{qa.0.text | truncatechars:"80" | linebreaksbr }}
                                     {% if qa.0.text|length > 80 %}
-                                        <a href="{% url 'question:q_detail' qa.0.id %}">...続きを読む</a>
+                                        <a href="{% url 'dotchain:q_detail' qa.0.id %}">...続きを読む</a>
                                     {% endif %}
                                 </span>
                                 <hr>
@@ -60,7 +60,7 @@
                                 <p>&nbsp;</p>
                                 {{qa.0.question.text | truncatechars:"80"| linebreaksbr }}
                                 {% if qa.0.question.text|length > 80 %}
-                                    <a href="{% url 'question:q_detail' qa.0.id %}">...続きを読む</a>
+                                    <a href="{% url 'dotchain:q_detail' qa.0.id %}">...続きを読む</a>
                                 {% endif %}
                                 </span>
                                 <hr>
@@ -84,7 +84,7 @@
                                     <p>&nbsp;</p>
                                     {{qa.0.question.text | truncatechars:"80"| linebreaksbr }}
                                     {% if qa.0.question.text|length > 80 %}
-                                        <a href="{% url 'question:q_detail' qa.0.id %}">...続きを読む</a>
+                                        <a href="{% url 'dotchain:q_detail' qa.0.id %}">...続きを読む</a>
                                     {% endif %}
                                 </span>
                                 <hr>
@@ -93,8 +93,8 @@
                                 {% if qa.1 == 'pending' %}
                                 <span>制限時間：(TODO)</span>
                                 <div style="float:right">
-                                        <a class="btn btn-success" href="{% url 'question:r_new' id=qa.0.question.id %}" role="button">返信</a>
-                                        <a class="btn btn-danger" href="{% url 'question:q_pass' id=qa.0.id %}" role="button">パス</a>
+                                        <a class="btn btn-success" href="{% url 'dotchain:r_new' id=qa.0.question.id %}" role="button">返信</a>
+                                        <a class="btn btn-danger" href="{% url 'dotchain:q_pass' id=qa.0.id %}" role="button">パス</a>
                                 </div>
                                 {% endif %}
                             </div>

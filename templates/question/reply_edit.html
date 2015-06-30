@@ -5,58 +5,71 @@
 {% block title %}回答ページ{% endblock title %}
 
 {% block header %}
-    <STYLE type="text/css">
-        .scr_l {
-          overflow: scroll;
-          width: 450px;
-          height: 600px;
-          background-color: white;
-        }
-        .scr_r {
-          overflow: scroll;
-          width: 750px;
-          height: 600px;
-          background-color: white;
-        }
-        </STYLE>
+<STYLE type="text/css">
+	.scr_l {
+		overflow: scroll;
+		width: 450px;
+		height: 600px;
+		background-color: white;
+	}
+	.scr_r {
+		overflow: scroll;
+		width: 750px;
+		height: 600px;
+		background-color: white;
+	}
+</STYLE>
 {% endblock header%}
 
 {% block content %}
 
-    {# 届いた質問 #}
-    <div class="service">
-        <p>&nbsp;</p>
-        <div class="panel panel-default">
-            <!-- Default panel contents -->
-            <div class="panel-heading">
-                <h4>{{ question.questioner }}さんからの質問</h4>
-                <h5>{{ question.date }}&nbsp;回答期限：{{ question.time_limit }}&nbsp;</h5>
-            </div>
-            <!-- List group -->
-            <ul class="list-group">
-                <li class="list-group-item"><h4>タイトル：{{ question.title }}</h4></li>
-                <li class="list-group-item"><h4>本文：<p>&nbsp;</p>{{ question.text|linebreaksbr }}</h4></li>
-            </ul>
-        </div>
-    </div>
+{# 届いた質問 #}
+<div class="service">
+	<p>
+		&nbsp;
+	</p>
+	<div class="panel panel-default">
+		<!-- Default panel contents -->
+		<div class="panel-heading">
+			<h4>{{ question.questioner }}さんからの質問</h4>
+			<h5>{{ question.date }}&nbsp;回答期限：{{ question.time_limit }}&nbsp;</h5>
+		</div>
+		<!-- List group -->
+		<ul class="list-group">
+			<li class="list-group-item">
+				<h4>タイトル：{{ question.title }}</h4>
+			</li>
+			<li class="list-group-item">
+				<h4>本文：
+				<p>
+					&nbsp;
+				</p>{{ question.text|linebreaksbr }}</h4>
+			</li>
+		</ul>
+	</div>
+</div>
 
-    {# 回答作成フォーム #}
-    <form action="" method="post" class="form">
-      {% csrf_token %}
-      {{ form|bootstrap }}
-      <input type="submit" name="done" value="回答" class="btn btn-primary">
-    </form>
+{# 回答作成フォーム #}
+<form action="" method="post" class="form">
+	{% csrf_token %}
+	{{ form|bootstrap }}
+	<input type="submit" name="done" value="回答" class="btn btn-primary">
+</form>
 
-    <p>&nbsp;</p>
+<p>
+	&nbsp;
+</p>
 
-    {# パスするボタン #}
-    <form action="{% url 'question:q_pass' id=replylist.id %}" method="post">
-    	{% csrf_token %}
-		<input type="submit"  name="pass" value="パスする" class="btn btn-primary">
-	</form>
-	<p>&nbsp;</p>
+{# パスするボタン #}
+<form action="{% url 'dotchain:q_pass' id=replylist.id %}" method="post">
+	{% csrf_token %}
+	<input type="submit"  name="pass" value="パスする" class="btn btn-primary">
+</form>
+<p>
+	&nbsp;
+</p>
 
-    {# 一覧に戻るボタン #}
-    <a class="btn btn-default" href="{% url 'question:top' %}" role="button">戻る</a>
+{# 一覧に戻るボタン #}
+<a class="btn btn-default" href="{% url 'dotchain:top' %}" role="button">戻る</a>
 
 {% endblock content %}

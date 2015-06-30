@@ -2,13 +2,18 @@ from django.shortcuts import render_to_response, redirect, get_object_or_404
 from django.template import RequestContext
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.core.files.base import File
 from django.db.models import Q
 from django.contrib.auth.models import User
 from accounts.models import UserProfile
 from question.models import Question, Reply, ReplyList, Tag, UserTag, QuestionTag, QuestionDestination
 from question.forms import QuestionEditForm, ReplyEditForm, UserProfileEditForm, KeywordSearchForm
 from question.qa_manager import QAManager, QuestionState, ReplyState
+from one_month import settings
 import random, datetime, pytz
+from PIL import Image
+
 
 # Create your views here.
 @login_required(login_url='/accounts/login')
@@ -115,11 +120,14 @@ def top_default(request):
     qa_list.extend(reply_lists)
     qa_list = sorted(qa_list, reverse=True, key=lambda x: x[0].date if isinstance(x[0],Question) else x[0].question.date)#OK?
 
+    # プロフィール
+    profile = UserProfile.objects.get(user=request.user)
 
     histories = None
     return render_to_response('question/top_all.html',
                               {'histories': histories, 'qa_list':qa_list, 'form':form,
                                'uname': request.user.last_name+request.user.first_name,
+                               'profile': profile,
                                'last_login': request.user.last_login},
                               context_instance=RequestContext(request))
 
@@ -411,6 +419,11 @@ def mypage(request):
 
     # edit
     if request.method == 'POST':
+        #from cStringIO import StringIO
+        #image = Image.open(StringIO(self.image.read()))
+        #fh = File(file(settings.MEDIA_ROOT + request.POST['avatar']))
+        #uploaded_file = {'avatar':SimpleUploadedFile(fh.name, fh.read())}
+
         form = UserProfileEditForm(request.POST, instance=p)
 
         # 完了がおされたら

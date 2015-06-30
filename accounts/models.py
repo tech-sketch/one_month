@@ -50,6 +50,7 @@ class WorkStatus(models.Model):
 class UserProfile(models.Model):
 
     user = models.ForeignKey(User)
+    avatar = models.ImageField(upload_to='images', null=True, blank=True)
     work_place = models.ForeignKey(WorkPlace, verbose_name='勤務先', null=True)
     work_status = models.ForeignKey(WorkStatus, verbose_name='勤務形態', null=True)# default入れるべき？
     division = models.ForeignKey(Division, verbose_name='所属コード', null=True)

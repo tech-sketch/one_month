@@ -13,7 +13,7 @@
     <h2>プロフィール</h2>
 
     {# 設定フォーム #}
-    <form action="" method="post" class="form", name="profile", id="p_id">
+    <form action="" method="post" class="form", name="profile", id="p_id", enctype="multipart/form-data">
       {% csrf_token %}
       {{ form|bootstrap }}
       <input type="submit" name="done" value="確定" class="btn btn-primary">

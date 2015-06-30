@@ -64,7 +64,7 @@ class UserProfileEditForm(ModelForm):
 
     class Meta:
         model = UserProfile
-        fields = ('user', 'work_place', 'work_status', 'division', 'accept_question')
+        fields = ('user', 'avatar', 'work_place', 'work_status', 'division', 'accept_question')
 
 class KeywordSearchForm(forms.Form):
     keyword = forms.CharField(max_length=100, label='キーワード')

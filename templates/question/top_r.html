@@ -13,7 +13,11 @@
             {% for qa in qa_list %}
             <div id={{qa.0.question.id}} class="item" style="position: absolute; border-top: 3px solid #BFBFBF; border-bottom: 10px solid #8DCF3F; border-left: none; border-right: 3px solid #BFBFBF;">
                 <div>
-                    <img src="/static/images/xxx.png" align="left" width="50" height="50">
+                    {% if qa.2.avatar %}
+                        <img src="/static/{{qa.2.avatar}}" align="left" width="50" height="50">
+                    {% else %}
+                        <img src="/static/images/no_image.png" align="left" width="50" height="50">
+                    {% endif%}
                     &nbsp;質問者：{{qa.0.question.questioner}}<br>
                     &nbsp;質問日時：{{qa.0.question.date}}
                     <!--&nbsp;残り時間：-->

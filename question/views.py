@@ -2,17 +2,13 @@ from django.shortcuts import render_to_response, redirect, get_object_or_404
 from django.template import RequestContext
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
-from django.core.files.uploadedfile import SimpleUploadedFile
-from django.core.files.base import File
 from django.db.models import Q
 from django.contrib.auth.models import User
 from accounts.models import UserProfile
 from question.models import Question, Reply, ReplyList, Tag, UserTag, QuestionTag, QuestionDestination
 from question.forms import QuestionEditForm, ReplyEditForm, UserProfileEditForm, KeywordSearchForm
 from question.qa_manager import QAManager, QuestionState, ReplyState
-from one_month import settings
-import random, datetime, pytz
-from PIL import Image
+import datetime
 
 
 # Create your views here.
@@ -121,13 +117,17 @@ def top_default(request):
     qa_list = sorted(qa_list, reverse=True, key=lambda x: x[0].date if isinstance(x[0],Question) else x[0].question.date)#OK?
 
     # プロフィール
-    profile = UserProfile.objects.get(user=request.user)
+    for qa in qa_list:
+        if isinstance(qa[0], Question):
+            profile = UserProfile.objects.get(user=qa[0].questioner)
+        elif isinstance(qa[0], ReplyList):
+            profile = UserProfile.objects.get(user=qa[0].question.questioner)
+        qa.append(profile)
 
     histories = None
     return render_to_response('question/top_all.html',
                               {'histories': histories, 'qa_list':qa_list, 'form':form,
                                'uname': request.user.last_name+request.user.first_name,
-                               'profile': profile,
                                'last_login': request.user.last_login},
                               context_instance=RequestContext(request))
 
@@ -287,6 +287,14 @@ def question_list(request):
     q_manager = QAManager(request.user)
     qa_list = q_manager.question_state(q)
 
+    # プロフィール
+    for qa in qa_list:
+        if isinstance(qa[0], Question):
+            profile = UserProfile.objects.get(user=qa[0].questioner)
+        elif isinstance(qa[0], ReplyList):
+            profile = UserProfile.objects.get(user=qa[0].question.questioner)
+        qa.append(profile)
+
     histories = None
     return render_to_response('question/top_q.html',
                               {'histories': histories, 'qa_list': qa_list,
@@ -394,6 +402,14 @@ def reply_list(request):
     q_manager = QAManager(request.user)
     qa_list = q_manager.reply_state(reply_list=reply_list)
 
+    # プロフィール
+    for qa in qa_list:
+        if isinstance(qa[0], Question):
+            profile = UserProfile.objects.get(user=qa[0].questioner)
+        elif isinstance(qa[0], ReplyList):
+            profile = UserProfile.objects.get(user=qa[0].question.questioner)
+        qa.append(profile)
+
     histories = None
     return render_to_response('question/top_r.html',
                               {'histories': histories, 'qa_list': qa_list, 'uname': request.user.last_name+request.user.first_name, 'last_login': request.user.last_login},
@@ -419,15 +435,14 @@ def mypage(request):
 
     # edit
     if request.method == 'POST':
-        #from cStringIO import StringIO
-        #image = Image.open(StringIO(self.image.read()))
-        #fh = File(file(settings.MEDIA_ROOT + request.POST['avatar']))
-        #uploaded_file = {'avatar':SimpleUploadedFile(fh.name, fh.read())}
 
-        form = UserProfileEditForm(request.POST, instance=p)
+        form = UserProfileEditForm(request.POST, request.FILES, instance=p)
 
         # 完了がおされたら
         if form.is_valid():
+            p.avatar = form.cleaned_data['avatar']
+            p.save()
+
             r = form.save(commit=False)
             r.save()
 

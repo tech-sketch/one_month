@@ -1,5 +1,4 @@
-
-
+{% load question_templatetags %}
 		<style>
 			body {
 				margin: 0;
@@ -17,7 +16,7 @@
 				color: #990000;
 			}
 			.day, .hou, .min, .sec, .mil {/*カウントする数字の大きさ*/
-				font-size: 48px;
+				font-size: 30px;
 			}
 			.day {
 			}
@@ -30,7 +29,7 @@
 			.mil {
 			}
 			.moji {/*日とか時間とか秒とかの文字の色と大きさ*/
-				font-size: 36px;
+				font-size: 30px;
 				color: #000000;
 			}
 		</style>
@@ -68,7 +67,8 @@
 						}, 10);
 					} else {
 						this.elem.innerHTML = this.mes;
-						window.location.href = '{% url 'question:q_pass' id=user_reply_list.id %}';
+						
+						window.location.href = '{% url 'dotchain:q_pass' id=question.id %}';
 						return;
 					}
 				},
@@ -77,9 +77,14 @@
 				}
 			}
 			function countdown() {
-				var tl = new Date('{{user_reply_list.time_limit_date|date:'Y/m/d H:i:s'}}');
+				var tl = new Date('{{reply_list.time_limit_date|date:'Y/m/d H:i:s'}}');
+				
 				//この上の部分で終了時間を設定するYO！
+				{% if reply_list|pass_check:question == 3　%}
+				var timer = new CountdownTimer('countdown', tl, 'タイマーは設定されていません');
+				{% else %}
 				var timer = new CountdownTimer('countdown', tl, '終了しました');
+				{% endif %}
 				//この上の文は終了した後に表示する文字!
 				timer.countDown();
 			}

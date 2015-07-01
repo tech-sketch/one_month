@@ -49,7 +49,7 @@ style: cytoscape.stylesheet()
 elements: {
 nodes: [
 {% for node in all_user %}
-{ data: { id: '{{node.1}}', name: '{{node.0}}', weight: 15, faveColor: '#6FB1FC'} },
+{ data: { id: '{{node.1}}', name: '{{node.0}}', weight: {{node.2}}, faveColor: '#6FB1FC'} },
 {% endfor %}
 {% for node in all_tag %}
 { data: { id: '{{node.1}}', name: '{{node.0}}', weight: 15, faveColor: '#2FCDB4'} },
@@ -57,17 +57,20 @@ nodes: [
 ],
 edges: [
 {% for edge in all_reply %}
+{% if edge.0 != edge.1 %}
 { data: { source: '{{edge.0}}', target: '{{edge.1}}', faveColor: '#F5A45D', strength: 10 } },
+{% endif %}
 {% endfor %}
 {% for edge in all_userTag %}
 { data: { source: '{{edge.0}}', target: '{{edge.1}}', faveColor: '#F26964', strength: 10 } },
 {% endfor %}
+],
+positions: [ { 'u{{user.id}}': { x:0,y:0 } }, 
 ]
 },
 
 ready: function(){
 window.cy = this;
-
 // giddy up
 }
 });

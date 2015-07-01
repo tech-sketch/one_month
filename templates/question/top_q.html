@@ -32,7 +32,7 @@
                                 <span style="font-size: 9pt;">
                                     {{q.0.text | truncatechars:"80" |linebreaksbr }}
                                     {% if q.0.text|length > 80 %}
-                                        <a href="{% url 'question:q_detail' q.0.id %}">...続きを読む</a>
+                                        <a href="{% url 'dotchain:q_detail' q.0.id %}">...続きを読む</a>
                                     {% endif %}
                                 </span>
                                 <span style="font-size: 9pt;">コメント数：(TODO)</span>

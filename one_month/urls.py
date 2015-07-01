@@ -25,6 +25,6 @@ urlpatterns = [
     #url(r'^', include('question.urls', namespace='question')),
 
     # アプリ関係
-    url(r'^dotchain/', include('question.urls', namespace='question')),
+    url(r'^dotchain/', include('question.urls', namespace='dotchain')),
 ]
 

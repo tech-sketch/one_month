@@ -1,20 +1,15 @@
-{% extends "base.html" %}
+<html>
+	<head>
 
-{% load bootstrap %}
+		{% include "question/network.js.html" %}
 
-{% block title %}ネットワーク{% endblock title %}
+		<body style="background-color: #f5f5f5;">
+			<div id="cy">
+				<div style="position: absolute; z-index: 0; overflow: hidden; width: 1272px; height: 354px;">
+					<canvas data-id="layer0-selectbox" width="1272" height="354" style="position: absolute; z-index: 3; width: 1272px; height: 354px;"></canvas><canvas data-id="layer1-drag" width="1272" height="354" style="position: absolute; z-index: 2; width: 1272px; height: 354px;"></canvas><canvas data-id="layer2-node" width="1272" height="354" style="position: absolute; z-index: 1; width: 1272px; height: 354px;"></canvas>
+				</div>
+			</div>
 
-{% block head %}
+		</body>
 
-{% include "question/network.js.html" %}
-
-{% endblock head %}
-
-{% block content %}
-<div id="cy">
-	<div style="position: absolute; z-index: 0; overflow: hidden; width: 1272px; height: 354px;">
-		<canvas data-id="layer0-selectbox" width="1272" height="354" style="position: absolute; z-index: 3; width: 1272px; height: 354px;"></canvas><canvas data-id="layer1-drag" width="1272" height="354" style="position: absolute; z-index: 2; width: 1272px; height: 354px;"></canvas><canvas data-id="layer2-node" width="1272" height="354" style="position: absolute; z-index: 1; width: 1272px; height: 354px;"></canvas>
-	</div>
-</div>
-
-{% endblock content %}
+</html>

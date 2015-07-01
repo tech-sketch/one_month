@@ -2,7 +2,7 @@
 from django import forms
 from django.forms import ModelForm
 from question.models import Question, Reply, ReplyList, Tag, UserTag, QuestionTag
-from accounts.models import User, UserProfile, Division
+from accounts.models import User, UserProfile, Division, WorkPlace, WorkStatus
 import datetime
 
 class CustomChoiceField(forms.ModelChoiceField):
@@ -59,12 +59,19 @@ class UserProfileEditForm(ModelForm):
     #tag = CustomChoiceField(label='タグ', queryset=Tag.objects.all(), required=False,
     #                             to_field_name='name')
     # タグを複数選ばせる場合
-    tag = CustomMultipleChoiceField(label='タグ', queryset=Tag.objects.all(), required=False)
-    tag_added = forms.CharField(label='追加タグ', max_length=512, required=False)
+    tag = CustomMultipleChoiceField(label='タグ', queryset=Tag.objects.all(), widget=forms.CheckboxSelectMultiple, required=False)
+    tag_added = forms.CharField(label='新規追加タグを入力する', max_length=512, required=False)
 
     class Meta:
+        ACCEPT = ((1, '受信'), (0, '拒否'))
         model = UserProfile
-        fields = ('user', 'avatar', 'work_place', 'work_status', 'division', 'accept_question')
+        fields = ('avatar', 'work_place', 'work_status', 'division', 'accept_question')
+        widgets = {
+            'work_place': forms.RadioSelect(),
+            'work_status': forms.RadioSelect(),
+            'division': forms.RadioSelect(),
+            'accept_question': forms.RadioSelect(choices=ACCEPT),
+        }
 
 class KeywordSearchForm(forms.Form):
     keyword = forms.CharField(max_length=100, label='キーワード')

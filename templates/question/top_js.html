@@ -54,8 +54,8 @@
             {% if r.has_replied %}
                 <h4>パス済み</h4>
             {% else %}
-                <a class="btn btn-default" href="{% url 'question:r_new' id=r.question.id %}" role="button">返信</a>
-                <a class="btn btn-default" href="{% url 'question:q_pass' id=r.id %}" role="button">パス</a>
+                <a class="btn btn-default" href="{% url 'dotchain:r_new' id=r.question.id %}" role="button">返信</a>
+                <a class="btn btn-default" href="{% url 'dotchain:q_pass' id=r.id %}" role="button">パス</a>
             {% endif %}
         </div>
     {% endfor %}

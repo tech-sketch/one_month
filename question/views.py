@@ -1,6 +1,6 @@
 from django.shortcuts import render_to_response, redirect, get_object_or_404
 from django.template import RequestContext
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.contrib.auth.models import User
@@ -10,10 +10,9 @@ from question.forms import QuestionEditForm, ReplyEditForm, UserProfileEditForm,
 from question.qa_manager import QAManager, QuestionState, ReplyState
 import datetime
 
-
 # Create your views here.
 @login_required(login_url='/accounts/login')
-def top_default(request):
+def top_default(request, msg=None):
     """
     トップページ
     """
@@ -126,13 +125,13 @@ def top_default(request):
 
     histories = None
     return render_to_response('question/top_all.html',
-                              {'histories': histories, 'qa_list':qa_list, 'form':form,
+                              {'histories': histories, 'qa_list':qa_list,
                                'uname': request.user.last_name+request.user.first_name,
-                               'last_login': request.user.last_login},
+                               'last_login': request.user.last_login, 'msg':msg},
                               context_instance=RequestContext(request))
 
 @login_required(login_url='/accounts/login')
-def question_edit(request, id=None):
+def question_edit(request, id=None, msg=None):
     """
     質問ページ
     """
@@ -143,7 +142,7 @@ def question_edit(request, id=None):
         # user check
         if q.questioner != request.user:
             print("不正なアクセスです！")
-            return redirect('question:top')
+            return redirect('dotchain:top')
     # new
     else:
         q = Question()
@@ -173,12 +172,14 @@ def question_edit(request, id=None):
 
             if r_list == None:
                 q.delete()
-                msg = '宛先ユーザが見つかりませんでした。。入力された質問は消去されます。'
-                msg += '次の原因が考えられます。'
-                msg += '・送信先にユーザがいない'
-                msg += '・送信先に1日以内にログインしたユーザがいない'
+                msg = '宛先ユーザが見つかりませんでした。入力された質問は消去されます。\n'
+                msg += '次の原因が考えられます。\n'
+                msg += '・送信先にユーザがいない\n'
+                msg += '・送信先に1日以内にログインしたユーザがいない\n'
                 msg += '・送信先に受信拒否のユーザしかいない'
-                return HttpResponse(msg)
+                return render_to_response('question/question_edit.html',
+                              {'form': form, 'id': id, 'msg': msg},
+                              context_instance=RequestContext(request))
             else:
                 r_list.save()
 
@@ -203,7 +204,7 @@ def question_edit(request, id=None):
                 qt.question = q
                 qt.save()
 
-            return redirect('question:top')
+            return redirect('dotchain:top')
         pass
     # new
     else:
@@ -221,15 +222,19 @@ def reply_edit(request, id=None):
 
     # 指定された質問を取ってくる
     q = get_object_or_404(Question, pk=id)
-    if ReplyList.objects.filter(question=q, answerer=request.user, has_replied=True):
-        return HttpResponse("パスされました")
+    #if ReplyList.objects.filter(question=q, answerer=request.user, has_replied=True):
+    #    msg = 'その質問はすでにパスされています'
+    #    return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
 
     if q.is_closed:
-        return HttpResponse("回答は締め切られました")
+        msg = 'その質問の回答は締め切られました。'
+        return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
 
     #replylist = ReplyList.objects.filter(question=q)[0]
     # 各質問について、has_replied=Falseの回答済みリストは一つのみのはず
+
     replylist = get_object_or_404(ReplyList, question=q, has_replied=False)
+    print("rep")
 
     r = Reply()
 
@@ -240,14 +245,14 @@ def reply_edit(request, id=None):
         # 完了がおされたら
         if form.is_valid():
             # この質問の自分あての回答リストを取ってきて、回答済みにしておく
-            r_list = get_object_or_404(ReplyList, question=q, answerer=request.user) #has_replied=Falseはいらないと思う
-            if r_list.has_replied:
-                return HttpResponse("自動的にパスされました")
-            r_list.has_replied = True
-            r_list.save()
-
-            r_list.question.is_closed = True
-            r_list.question.save()
+            if(q.questioner!=request.user):
+                r_list = get_object_or_404(ReplyList, question=q, answerer=request.user) #has_replied=Falseはいらないと思う
+                if r_list.has_replied:
+                    msg = 'その質問は自動的にパスされました'
+                    return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
+                #r_list.has_replied = True
+                r_list.time_limit_date=None
+                r_list.save()
 
             r = form.save(commit=False)
             r.question = q
@@ -256,10 +261,11 @@ def reply_edit(request, id=None):
             r.save()
 
             #質問を締め切る
-            q.is_closed = True
-            q.save()
+            #q.is_closed = True
+            #q.save()
 
-            return redirect('question:top')
+            msg = '返信しました。'
+            return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
         pass
     # new
     else:
@@ -277,6 +283,7 @@ def question_list(request):
 
     # 自分の質問を取ってくる
     q_mine = Question.objects.filter(questioner=request.user)
+    print(len(q_mine))
 
     # 自分の質問を時系列に並べる
     q = list()
@@ -286,6 +293,7 @@ def question_list(request):
     # 各質問の状態を調べる
     q_manager = QAManager(request.user)
     qa_list = q_manager.question_state(q)
+    print(len(qa_list))
 
     # プロフィール
     for qa in qa_list:
@@ -315,17 +323,21 @@ def question_pass(request, id=None):
         #replylist_id = request.POST['replylist_id']
         replylist = ReplyList.objects.get(id=id)
         if replylist.has_replied:
-             return HttpResponse("パス済みです")
+            msg = 'すでにパスした質問です。'
+            return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
 
         #new_replylist = reply_list_update_random(replylist.answerer, replylist.question)
         qa_manager = QAManager()
         print(replylist.question.title)
         if qa_manager.pass_question(replylist.question, qa_manager.reply_list_update_random_except):
-            return HttpResponse("パスしました")
+            msg = '質問をパスしました。'
+            return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
         else:
             replylist.question.is_closed = True
             replylist.question.save()
-            return HttpResponse("パスしましたがすべてのユーザがパスしたため質問は締め切ります")
+            msg = '質問をパスしました。\n'
+            msg += '次の送信先がないため質問は締め切られます。'
+            return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
     else:
         return HttpResponse("不明なエラーです！（question_pass() in views.py）")
 
@@ -344,7 +356,7 @@ def question_detail(request, id=None):
     # 質問に対する回答を取ってくる
     # まだ回答が来てない場合のためにget_object_or_404は使わずにこちらを使う
     try:
-        r = Reply.objects.get(question=q) # 一つの質問につき返信が複数ある場合はfilterを使うこと
+        r = Reply.objects.filter(question=q) # 一つの質問につき返信が複数ある場合はfilterを使うこと
     except Reply.DoesNotExist:
         r = None
 
@@ -360,7 +372,9 @@ def question_detail(request, id=None):
     print(reply_list)
     if q.questioner != request.user and reply_list==None:
         # 他人の質問は表示できないようにする
-        return HttpResponse("他の人の質問は表示できません！") # TODO　表示できないよページ作る
+        msg = '他の人の質問は閲覧できません。'
+        msg = '他の人の質問は閲覧できません。'
+        return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request)) # TODO　表示できないよページ作る
 
     return render_to_response('question/question_detail.html',
                               {'question': q, 'q_tags': q_tags, 'reply': r, 'reply_list': reply_list,
@@ -469,9 +483,10 @@ def mypage(request):
                 qt.user = request.user
                 qt.save()
             else:
+                print("tag_added")
                 print(tag_added_name)
 
-            return redirect('question:top')
+            return redirect('dotchain:mypage')
         pass
     # new
     else:
@@ -479,8 +494,10 @@ def mypage(request):
         #tag_form = UserTagEditForm(instance=t)
         # TODO マイページにユーザが登録済みのタグを表示しつつ、追加・編集できるようにしたい
 
+    user_question = Question.objects.filter(questioner=request.user)
+    user_reply = Reply.objects.filter(answerer=request.user)
     return render_to_response('question/mypage.html',
-                              {'form': form, 'user_tags':user_tags, 'uname': request.user.last_name+request.user.first_name},
+                              {'form': form, 'user_tags':user_tags, 'uname': request.user, 'uprof':p, 'uquestion':user_question, 'ureply':user_reply},
                               context_instance=RequestContext(request))
 
 
@@ -499,7 +516,7 @@ def search(request):
 
 @login_required(login_url='/accounts/login')
 def network(request):
-    all_user = [[u.username, 'u{}'.format(u.id)] for u in User.objects.all()]
+    all_user = [[u.username, 'u{}'.format(u.id), 5*len(Reply.objects.filter(answerer=u))] for u in User.objects.all()]
     all_tag = [[t.name, 't{}'.format(t.id)] for t in Tag.objects.all()]
     all_reply = [['u{}'.format(r.answerer.id),  'u{}'.format(r.question.questioner.id)] for r in Reply.objects.all()]
     all_reply = set([tuple(sorted(r)) for r in all_reply])

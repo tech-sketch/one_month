@@ -1,6 +1,7 @@
 from celery import task
 from question.models import ReplyList
 from question.qa_manager import QAManager
+from django.db.models import Q
 import datetime
 import pytz
 
@@ -11,7 +12,7 @@ def auto_rand_pass():
     tz_tokyo = pytz.timezone('Asia/Tokyo')
     time = datetime.datetime.now()
     print(tz_tokyo.localize(time))
-    reply_list_list = ReplyList.objects.filter(time_limit_date__lt=tz_tokyo.localize(time), has_replied=False)
+    reply_list_list = ReplyList.objects.filter(time_limit_date__lt=tz_tokyo.localize(time), has_replied=False).filter(~Q(time_limit_date=None))
     #r_list_list = ReplyList.objects.filter(time_limit_date__it=datetime.datetime.now())
 
     print("---------------")

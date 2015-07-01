@@ -38,7 +38,7 @@ class QAManager():
         for q in question_list:
             r = Reply.objects.filter(question=q) # いまの仕様では返信は一つのはず
             if not q.is_closed and len(r): #返信が来たが未解決
-                pass
+                qa_list.append([q, QuestionState.pending.name]) #回答待ち
             elif q.is_closed and len(r): #解決済み
                 qa_list.append([q, QuestionState.solved.name])
             elif q.is_closed and not len(r):
@@ -124,6 +124,8 @@ class QAManager():
                 print('{0}からの質問「{1}」を{2}から{3}にパスしました。 タイムリミットは{4}'.format(reply_list.question.questioner, reply_list.question.title, reply_list.answerer, next_reply_list.answerer, reply_list.time_limit_date))
                 return True
             else:
+                passed_question.is_closed = True
+                passed_question.save()
                 print('パスできませんでした')
                 return False
 

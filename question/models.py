@@ -36,7 +36,7 @@ class Reply(models.Model):
 class ReplyList(models.Model):
     question = models.ForeignKey(Question, verbose_name='質問')
     answerer = models.ForeignKey(User, verbose_name='返答ユーザ')
-    time_limit_date = models.DateTimeField('返信期限')
+    time_limit_date = models.DateTimeField('返信期限', null=True)
     has_replied = models.BooleanField('返信済み', default=False)
 
     def __str__(self):

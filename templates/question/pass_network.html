@@ -2,21 +2,13 @@
 	<head>
 
 		{% include "question/pass_network.js.html" %}
-		{% include "question/count.html" %}
+		
 	</head>
 
 	<body style="background-color: #f5f5f5;">
 
 		<div id="cy">
-			{% if user_reply_list.answerer = user%}
-			{% if user_reply_list.has_replied %}
-			<div style="color: red">
-				<b>終了しました</b>
-			</div>
-			{% else %}
-			<div id="countdown" style="z-index: 1000;"></div>
-			{% endif %}
-			{% endif %}
+			
 			<div style="position: absolute; z-index: 0; overflow: hidden; width: 100%;">
 				<canvas data-id="layer0-selectbox" width="1272" height="354" style="position: absolute; z-index: 3; width: 100%; height: 354px;"></canvas><canvas data-id="layer1-drag" width="1272" height="354" style="position: absolute; z-index: 2; width: 1272px; height: 354px;"></canvas><canvas data-id="layer2-node" width="1272" height="354" style="position: absolute; z-index: 1; width: 1272px; height: 354px;"></canvas>
 			</div>

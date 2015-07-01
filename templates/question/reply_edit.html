@@ -61,6 +61,7 @@
 </p>
 
 {# パスするボタン #}
+{% if question.questioner != user %}
 <form action="{% url 'dotchain:q_pass' id=replylist.id %}" method="post">
 	{% csrf_token %}
 	<input type="submit"  name="pass" value="パスする" class="btn btn-primary">
@@ -68,6 +69,7 @@
 <p>
 	&nbsp;
 </p>
+{% endif %}
 
 {# 一覧に戻るボタン #}
 <a class="btn btn-default" href="{% url 'dotchain:top' %}" role="button">戻る</a>

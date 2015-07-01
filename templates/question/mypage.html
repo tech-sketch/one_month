@@ -7,164 +7,163 @@
 
 {% block content %}
 {# 挨拶 #}
-
-<p>
-	こんにちは！{{uname.username}}さん
-</p>
-<div class="col-md-8" >
-	<table class="table table-hover">
-		<thead></thead>
-		<tbody>
-			<tr class="info">
-				<td>勤務地</td>
-				<td>{{uprof.work_place}}</td>
-				<td>
-				<div id="hide_1-1" role="button" style="color: blue; font-weight: bold" onClick="document.getElementById('hide_1-2').style.display='block'; document.getElementById('hide_1-1').style.display='none'">
-					<p>
-						設定
-					</p>
-				</div></td>
-			</tr>
-			<tr class="active">
-				<td>勤務ステータス</td>
-				<td>{{uprof.work_status}}</td>
-				<td>
-				<div id="hide_2-1" role="button" style="color: blue; font-weight: bold" onClick="document.getElementById('hide_2-2').style.display='block'; document.getElementById('hide_2-1').style.display='none'">
-					<p>
-						設定
-					</p>
-				</td>
-			</tr>
-			<tr class="info">
-				<td>所属</td>
-				<td>{{uprof.division}}</td>
-				<td>
-				<div id="hide_3-1" role="button" style="color: blue; font-weight: bold" onClick="document.getElementById('hide_3-2').style.display='block'; document.getElementById('hide_3-1').style.display='none'">
-					<p>
-						設定
-					</p>
-				</td>
-			</tr>
-			<tr class="active">
-				<td>受信ステータス</td>
-				<td>{% if uprof.accept_question %}受信{% else %}拒否{% endif %}</td>
-				<td>
-				<div id="hide_4-1" role="button" style="color: blue; font-weight: bold" onClick="document.getElementById('hide_4-2').style.display='block'; document.getElementById('hide_4-1').style.display='none'">
-					<p>
-						設定
-					</p>
-				</td>
-			</tr>
-			<tr class="info">
-				<td>質問数</td>
-				<td>{{uquestion|length }}回</td>
-				<td></td>
-			</tr>
-			<tr class="active">
-				<td>返答数</td>
-				<td>{{ureply|length }}回</td>
-				<td></td>
-			</tr>
-		</tbody>
-	</table>
-</div>
-{# 設定フォーム #}
-<form action="" method="post" class="form", name="profile", id="p_id">
-	{% csrf_token %}
-	<div class="col-md-3" >
-		<div id="hide_1-2" style="display:none">
-			<p>
-				<input type="button" value="勤務地を隠す" style="WIDTH:200px; font-weight:bold;"
-				onClick="document.getElementById('hide_1-2').style.display='none';
-				document.getElementById('hide_1-1').style.display='block'">
-			</p>
-			<p>
-				{{ form.work_place| bootstrap }}
-				<input type="submit" name="done" value="確定" class="btn btn-primary">
-			</p>
-		</div>
-		<!------------------------------>
-		<div id="hide_2-2" style="display:none">
-			<p>
-				<input type="button" value="勤務ステータスを隠す" style="WIDTH:200px; font-weight:bold;"
-				onClick="document.getElementById('hide_2-2').style.display='none'
-				document.getElementById('hide_2-1').style.display='block'">
-			</p>
-			<p>
-				{{ form.work_status| bootstrap }}
-				<input type="submit" name="done" value="確定" class="btn btn-primary">
-			</p>
-		</div>
-		<!--------------------------------------->
-		<div id="hide_3-2" style="display:none">
-			<p>
-				<input type="button" value="所属を隠す" style="WIDTH:200px; font-weight:bold;"
-				onClick="document.getElementById('hide_3-2').style.display='none';
-				document.getElementById('hide_3-1').style.display='block'">
-			</p>
-			<p>
-				{{ form.division | bootstrap}}
-				<input type="submit" name="done" value="確定" class="btn btn-primary">
-			</p>
-		</div>
-		<!--------------------------------------->
-		<div id="hide_4-2" style="display:none">
-			<p>
-				<input type="button" value="受信ステータスを隠す" style="WIDTH:200px; font-weight:bold;"
-				onClick="document.getElementById('hide_4-2').style.display='none';
-				document.getElementById('hide_4-1').style.display='block'">
-			</p>
-			<p>
-				{{ form.accept_question| bootstrap }}
-				<input type="submit" name="done" value="確定" class="btn btn-primary">
-			</p>
-		</div>
-	</div>
-	<div class="col-md-12" >
-	{# ユーザータグ #}
-	<h4>{{uname.username}}さんの登録タグ</h4>
-	{% for u_tag in user_tags%}
-	{{ u_tag.tag.name }}&nbsp;&nbsp;
-	{% empty %}
-	なし
-	{% endfor %}
-
+<div class="col-md-12" style="background-color: #FFFFFF; border-top: 3px solid #BFBFBF; border-bottom: 7px solid #D24726; border-left: none; border-right: 3px solid #BFBFBF;">
 	<p>
-		&nbsp;
+		こんにちは！{{uname.username}}さん
 	</p>
-</div>
-	<div class="col-md-12" >
-	<div id="hide_0-1" >
-		<p>
-			<input type="button" value="タグを追加する" style="WIDTH:150px; font-weight:bold;"
-			onClick="document.getElementById('hide_0-2').style.display='block';
-			document.getElementById('hide_0-1').style.display='none'">
-		</p>
+	<div class="col-md-8" >
+		<table class="table table-hover">
+			<thead></thead>
+			<tbody>
+				<tr class="info">
+					<td>勤務地</td>
+					<td>{{uprof.work_place}}</td>
+					<td>
+					<div id="hide_1-1" role="button" style="color: blue; font-weight: bold" onClick="document.getElementById('hide_1-2').style.display='block'; document.getElementById('hide_1-1').style.display='none'">
+						<p>
+							設定
+						</p>
+					</div></td>
+				</tr>
+				<tr class="active">
+					<td>勤務ステータス</td>
+					<td>{{uprof.work_status}}</td>
+					<td>
+					<div id="hide_2-1" role="button" style="color: blue; font-weight: bold" onClick="document.getElementById('hide_2-2').style.display='block'; document.getElementById('hide_2-1').style.display='none'">
+						<p>
+							設定
+						</p>
+					</td>
+				</tr>
+				<tr class="info">
+					<td>所属</td>
+					<td>{{uprof.division}}</td>
+					<td>
+					<div id="hide_3-1" role="button" style="color: blue; font-weight: bold" onClick="document.getElementById('hide_3-2').style.display='block'; document.getElementById('hide_3-1').style.display='none'">
+						<p>
+							設定
+						</p>
+					</td>
+				</tr>
+				<tr class="active">
+					<td>受信ステータス</td>
+					<td>{% if uprof.accept_question %}受信{% else %}拒否{% endif %}</td>
+					<td>
+					<div id="hide_4-1" role="button" style="color: blue; font-weight: bold" onClick="document.getElementById('hide_4-2').style.display='block'; document.getElementById('hide_4-1').style.display='none'">
+						<p>
+							設定
+						</p>
+					</td>
+				</tr>
+				<tr class="info">
+					<td>質問数</td>
+					<td>{{uquestion|length }}回</td>
+					<td></td>
+				</tr>
+				<tr class="active">
+					<td>返答数</td>
+					<td>{{ureply|length }}回</td>
+					<td></td>
+				</tr>
+			</tbody>
+		</table>
 	</div>
-	<div id="hide_0-2" style="display:none">
-		<p>
-			<input type="button" value="タグを隠す" style="WIDTH:150px; font-weight:bold;"
-			onClick="document.getElementById('hide_0-2').style.display='none';
-			document.getElementById('hide_0-1').style.display='block'">
-		</p>
-		<p>
-			{% for f in form.tag %}
-			{%if forloop.last%} <label class="checkbox-inline" style="float: none"> {{ form.tag|index:forloop.counter0 }} </label>
-			{% else %}<label class="checkbox-inline" style="float: left"> {{ form.tag|index:forloop.counter0 }} </label>
-			{% endif %}
-			{% endfor%}
-			{{ form.tag_added| bootstrap }}
-		</p>
-	</div>
+	{# 設定フォーム #}
+	<form action="" method="post" class="form", name="profile", id="p_id">
+		{% csrf_token %}
+		<div class="col-md-3" >
+			<div id="hide_1-2" style="display:none">
+				<p>
+					<input type="button" value="勤務地を隠す" style="WIDTH:200px; font-weight:bold;"
+					onClick="document.getElementById('hide_1-2').style.display='none';
+					document.getElementById('hide_1-1').style.display='block'">
+				</p>
+				<p>
+					{{ form.work_place| bootstrap }}
+					<input type="submit" name="done" value="確定" class="btn btn-primary">
+				</p>
+			</div>
+			<!------------------------------>
+			<div id="hide_2-2" style="display:none">
+				<p>
+					<input type="button" value="勤務ステータスを隠す" style="WIDTH:200px; font-weight:bold;"
+					onClick="document.getElementById('hide_2-2').style.display='none'
+					document.getElementById('hide_2-1').style.display='block'">
+				</p>
+				<p>
+					{{ form.work_status| bootstrap }}
+					<input type="submit" name="done" value="確定" class="btn btn-primary">
+				</p>
+			</div>
+			<!--------------------------------------->
+			<div id="hide_3-2" style="display:none">
+				<p>
+					<input type="button" value="所属を隠す" style="WIDTH:200px; font-weight:bold;"
+					onClick="document.getElementById('hide_3-2').style.display='none';
+					document.getElementById('hide_3-1').style.display='block'">
+				</p>
+				<p>
+					{{ form.division | bootstrap}}
+					<input type="submit" name="done" value="確定" class="btn btn-primary">
+				</p>
+			</div>
+			<!--------------------------------------->
+			<div id="hide_4-2" style="display:none">
+				<p>
+					<input type="button" value="受信ステータスを隠す" style="WIDTH:200px; font-weight:bold;"
+					onClick="document.getElementById('hide_4-2').style.display='none';
+					document.getElementById('hide_4-1').style.display='block'">
+				</p>
+				<p>
+					{{ form.accept_question| bootstrap }}
+					<input type="submit" name="done" value="確定" class="btn btn-primary">
+				</p>
+			</div>
+		</div>
+		<div class="col-md-12" >
+			{# ユーザータグ #}
+			<h4>{{uname.username}}さんの登録タグ</h4>
+			{% for u_tag in user_tags%}
+			{{ u_tag.tag.name }}&nbsp;&nbsp;
+			{% empty %}
+			なし
+			{% endfor %}
 
-</form>
+			<p>
+				&nbsp;
+			</p>
+		</div>
+		<div class="col-md-12" >
+			<div id="hide_0-1" >
+				<p>
+					<input type="button" value="タグを追加する" style="WIDTH:150px; font-weight:bold;"
+					onClick="document.getElementById('hide_0-2').style.display='block';
+					document.getElementById('hide_0-1').style.display='none'">
+				</p>
+			</div>
+			<div id="hide_0-2" style="display:none">
+				<p>
+					<input type="button" value="タグを隠す" style="WIDTH:150px; font-weight:bold;"
+					onClick="document.getElementById('hide_0-2').style.display='none';
+					document.getElementById('hide_0-1').style.display='block'">
+				</p>
+				<p>
+					{% for f in form.tag %}
+					{%if forloop.last%} <label class="checkbox-inline" style="float: none"> {{ form.tag|index:forloop.counter0 }} </label>
+					{% else %}<label class="checkbox-inline" style="float: left"> {{ form.tag|index:forloop.counter0 }} </label>
+					{% endif %}
+					{% endfor%}
+					{{ form.tag_added| bootstrap }}
+					<input type="submit" name="done" value="確定" class="btn btn-primary">
+				</p>
+			</div>
+
+	</form>
+</div>
+</div>
+
 <div class="col-md-12" >
 	<iframe width="100%" height="80%" src="{% url 'dotchain:network' %}" scrolling="auto" style="border:none"></iframe>
 </div>
 
-
-	<div>
-				{# 一覧に戻るボタン #}
-		<a class="btn btn-default" href="{% url 'dotchain:top' %}" role="button">戻る</a>
-
-		{% endblock content %}
+{% endblock content %}

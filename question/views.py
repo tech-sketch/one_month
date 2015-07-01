@@ -136,9 +136,9 @@ def reply_edit(request, id=None):
 
     # 指定された質問を取ってくる
     q = get_object_or_404(Question, pk=id)
-    if ReplyList.objects.filter(question=q, answerer=request.user, has_replied=True):
-        msg = 'その質問はすでにパスされています'
-        return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
+    #if ReplyList.objects.filter(question=q, answerer=request.user, has_replied=True):
+    #    msg = 'その質問はすでにパスされています'
+    #    return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
 
     if q.is_closed:
         msg = 'その質問の回答は締め切られました。'
@@ -146,7 +146,9 @@ def reply_edit(request, id=None):
 
     #replylist = ReplyList.objects.filter(question=q)[0]
     # 各質問について、has_replied=Falseの回答済みリストは一つのみのはず
+
     replylist = get_object_or_404(ReplyList, question=q, has_replied=False)
+    print("rep")
 
     r = Reply()
 
@@ -157,12 +159,14 @@ def reply_edit(request, id=None):
         # 完了がおされたら
         if form.is_valid():
             # この質問の自分あての回答リストを取ってきて、回答済みにしておく
-            r_list = get_object_or_404(ReplyList, question=q, answerer=request.user) #has_replied=Falseはいらないと思う
-            if r_list.has_replied:
-                msg = 'その質問は自動的にパスされました'
-                return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
-            r_list.has_replied = True
-            r_list.save()
+            if(q.questioner!=request.user):
+                r_list = get_object_or_404(ReplyList, question=q, answerer=request.user) #has_replied=Falseはいらないと思う
+                if r_list.has_replied:
+                    msg = 'その質問は自動的にパスされました'
+                    return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
+                #r_list.has_replied = True
+                r_list.time_limit_date=None
+                r_list.save()
 
             r = form.save(commit=False)
             r.question = q
@@ -171,8 +175,8 @@ def reply_edit(request, id=None):
             r.save()
 
             #質問を締め切る
-            q.is_closed = True
-            q.save()
+            #q.is_closed = True
+            #q.save()
 
             msg = '返信しました。'
             return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
@@ -193,6 +197,7 @@ def question_list(request):
 
     # 自分の質問を取ってくる
     q_mine = Question.objects.filter(questioner=request.user)
+    print(len(q_mine))
 
     # 自分の質問を時系列に並べる
     q = list()
@@ -202,6 +207,7 @@ def question_list(request):
     # 各質問の状態を調べる
     q_manager = QAManager(request.user)
     qa_list = q_manager.question_state(q)
+    print(len(qa_list))
 
     histories = None
     return render_to_response('question/top_q.html',
@@ -256,7 +262,7 @@ def question_detail(request, id=None):
     # 質問に対する回答を取ってくる
     # まだ回答が来てない場合のためにget_object_or_404は使わずにこちらを使う
     try:
-        r = Reply.objects.get(question=q) # 一つの質問につき返信が複数ある場合はfilterを使うこと
+        r = Reply.objects.filter(question=q) # 一つの質問につき返信が複数ある場合はfilterを使うこと
     except Reply.DoesNotExist:
         r = None
 
@@ -277,7 +283,7 @@ def question_detail(request, id=None):
         return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request)) # TODO　表示できないよページ作る
 
     return render_to_response('question/question_detail.html',
-                              {'question': q, 'q_tags': q_tags, 'reply': [r], 'reply_list': reply_list,
+                              {'question': q, 'q_tags': q_tags, 'reply': r, 'reply_list': reply_list,
                                'uname': request.user.last_name+request.user.first_name},
                               context_instance=RequestContext(request))
 
@@ -390,7 +396,7 @@ def mypage(request):
 
 @login_required(login_url='/accounts/login')
 def network(request):
-    all_user = [[u.username, 'u{}'.format(u.id)] for u in User.objects.all()]
+    all_user = [[u.username, 'u{}'.format(u.id), 5*len(Reply.objects.filter(answerer=u))] for u in User.objects.all()]
     all_tag = [[t.name, 't{}'.format(t.id)] for t in Tag.objects.all()]
     all_reply = [['u{}'.format(r.answerer.id),  'u{}'.format(r.question.questioner.id)] for r in Reply.objects.all()]
     all_reply = set([tuple(sorted(r)) for r in all_reply])

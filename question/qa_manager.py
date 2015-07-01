@@ -38,7 +38,7 @@ class QAManager():
         for q in question_list:
             r = Reply.objects.filter(question=q) # いまの仕様では返信は一つのはず
             if not q.is_closed and len(r): #返信が来たが未解決
-                pass
+                qa_list.append([q, QuestionState.pending.name]) #回答待ち
             elif q.is_closed and len(r): #解決済み
                 qa_list.append([q, QuestionState.solved.name])
             elif q.is_closed and not len(r):

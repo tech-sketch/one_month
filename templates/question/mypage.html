@@ -157,9 +157,43 @@
 					<input type="submit" name="done" value="確定" class="btn btn-primary">
 				</p>
 			</div>
+		</div>
+		<div class="col-md-12" >
+			{# ユーザータグ #}
+			<h4>{{uname.username}}さんの登録タグ</h4>
+			{% for u_tag in user_tags%}
+			{{ u_tag.tag.name }}&nbsp;&nbsp;
+			{% empty %}
+			なし
+			{% endfor %}
+
+			<p>
+				&nbsp;
+			</p>
+		</div>
+		<div class="col-md-12" >
+			<div id="hide_5-1" >
+				<p>
+					<input type="button" value="プロフィール画像を追加する" style="WIDTH:150px; font-weight:bold;"
+					onClick="document.getElementById('hide_5-2').style.display='block';
+					document.getElementById('hide_5-1').style.display='none'">
+				</p>
+			</div>
+			<div id="hide_5-2" style="display:none">
+				<p>
+					<input type="button" value="隠す" style="WIDTH:150px; font-weight:bold;"
+					onClick="document.getElementById('hide_5-2').style.display='none';
+					document.getElementById('hide_5-1').style.display='block'">
+				</p>
+				<p>
+					{{ form.avatar| bootstrap }}
+					<input type="submit" name="done" value="確定" class="btn btn-primary">
+				</p>
+			</div>
+		</div>
 
 	</form>
-</div>
+
 </div>
 
 <div class="col-md-12" >

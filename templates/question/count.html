@@ -67,8 +67,9 @@
 						}, 10);
 					} else {
 						this.elem.innerHTML = this.mes;
-						
-						window.location.href = '{% url 'dotchain:q_pass' id=question.id %}';
+						{% if reply_list　%}
+						window.location.href = '{% url 'dotchain:q_pass' id=reply_list.id %}';
+						{% endif %}
 						return;
 					}
 				},

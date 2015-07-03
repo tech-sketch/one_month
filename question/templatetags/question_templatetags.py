@@ -8,16 +8,19 @@ def index(List, i):
 
 @register.filter
 def pass_check(reply_list, question):
+    if reply_list == None:
+        return ''
+
     if not reply_list.time_limit_date:
-        return 3
+        return 'タイマーは設定されていません。'
 
     if question.is_closed:
-        return 2
+        return '質問は締め切られました。'
 
     if reply_list.has_replied:
-        return 1
+        return 'パス済みです'
 
-    return 0
+    return '<h3>タイムリミットまで残り</h3><div id="countdown" style="z-index: 1000;"></div>'
 
 @register.filter
 def pass_reply_list(reply_list):

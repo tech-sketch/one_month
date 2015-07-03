@@ -6,8 +6,9 @@
 {% block title %}質問ページ{% endblock title %}
 
 {% block head %}
-
+<script src="{% static 'js/btn_open.js' %}"></script>
 {% endblock head %}
+
 
 {% block content %}
 	
@@ -23,15 +24,13 @@
 				<div id="hide_1-1"  style="display:none">
 					<p>
 						<input type="button" value="宛て先を表示する" style="WIDTH:150px"
-						onClick="document.getElementById('hide_1-2').style.display='block';
-						document.getElementById('hide_1-1').style.display='none'">
+						onClick="btn_open('hide_1-2','hide_1-1')">
 					</p>
 				</div>
 				<div id="hide_1-2">
 					<p>
 						<input type="button" value="宛て先を隠す" style="WIDTH:150px"
-						onClick="document.getElementById('hide_1-2').style.display='none';
-						document.getElementById('hide_1-1').style.display='block'">
+						onClick="btn_open('hide_1-1','hide_1-2')">
 					</p>
 					<p>
 						{% for f in form.destination %}
@@ -50,15 +49,13 @@
 				<div id="hide_2-1">
 					<p>
 						<input type="button" value="タグを表示する" style="WIDTH:150px"
-						onClick="document.getElementById('hide_2-2').style.display='block';
-						document.getElementById('hide_2-1').style.display='none'">
+						onClick="btn_open('hide_2-2','hide_2-1')">
 					</p>
 				</div>
 				<div id="hide_2-2" style="display:none">
 					<p>
 						<input type="button" value="タグを隠す" style="WIDTH:150px"
-						onClick="document.getElementById('hide_2-2').style.display='none';
-						document.getElementById('hide_2-1').style.display='block'">
+						onClick="btn_open('hide_2-1','hide_2-2')">
 					</p>
 					<p>
 						{% for t in form.tag %}

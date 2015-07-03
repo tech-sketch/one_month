@@ -32,25 +32,13 @@
         </p>
     </div>
 </div>
-	
-	
-		
-
 		
 </div>
 <div class="col-md-4">
-{% if not question.questioner.id == user.id %}
+
 	<br><br><br>
-	{% if reply_list|pass_check:question == 0 %}
-		<h3>タイムリミットまで残り</h3><div id="countdown" style="z-index: 1000;"></div>
-	{% elif reply_list|pass_check:question == 1 %}
-		<div>パス済みです</div>
-	{% elif reply_list|pass_check:question == 2 %}
-		<div>質問は締め切られました。</div>
-	{% elif reply_list|pass_check:question == 3 %}
-		<div>タイマーは設定されていません。</div>
-	{% endif %}
-{% endif %}
+		<h3>{{reply_list|pass_check:question|safe}}</h3>
+
 </div>
 
 <div class="col-md-12">
@@ -103,7 +91,5 @@
 <div class="col-md-12">
 	<iframe width="100%" height="100%" src="{% url 'dotchain:pass_network' id=question.id %}" scrolling="auto" style="border:none"></iframe>
 </div>
-
-
 
 {% endblock content %}

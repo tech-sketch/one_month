@@ -58,7 +58,7 @@ nodes: [
 edges: [
 {% for edge in all_reply %}
 {% if edge.0 != edge.1 %}
-{ data: { source: '{{edge.0}}', target: '{{edge.1}}', faveColor: '#F5A45D', strength: 10 } },
+{ data: { source: '{{edge.0}}', target: '{{edge.1}}', faveColor: '#F5A45D', strength: {{edge.2}}*10 } },
 {% endif %}
 {% endfor %}
 {% for edge in all_userTag %}

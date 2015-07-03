@@ -517,7 +517,7 @@ def network(request):
     all_user = [[u.username, 'u{}'.format(u.id), 5*len(Reply.objects.filter(answerer=u))] for u in User.objects.all()]
     all_tag = [[t.name, 't{}'.format(t.id)] for t in Tag.objects.all()]
     all_reply = [['u{}'.format(r.answerer.id),  'u{}'.format(r.question.questioner.id)] for r in Reply.objects.all()]
-    all_reply = set([tuple(sorted(r)) for r in all_reply])
+    all_reply = [[s[0], s[1], all_reply.count([s[0], s[1]]) + all_reply.count([s[1], s[0]])]for s in set([tuple(sorted(r)) for r in all_reply])]
     all_userTag = [['u{}'.format(u.user.id),  't{}'.format(u.tag.id)] for u in UserTag.objects.all()]
 
     return render_to_response('question/network.html',

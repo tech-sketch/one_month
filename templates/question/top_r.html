@@ -3,6 +3,8 @@
 {% load staticfiles %}
 
 {% load bootstrap_toolkit %}
+{% load question_templatetags %}
+
 
 {% block title %}トップページ{% endblock title %}
 
@@ -34,8 +36,9 @@
                 </span>
                 <hr>
                 {# 回答待ちの場合返信・パスボタンを表示する #}
+                <span style="font-size: 9pt;">コメント数：({{qa.0|comment_counter}})</span>
                 {% if qa.1 == 'pending' %}
-                    <span>制限時間：(TODO)</span>
+                    <span style="font-size: 9pt;">回答期限:({{qa.0.time_limit_date}})</span>
                     <div style="float:right">
                         <a class="btn btn-success" href="{% url 'dotchain:r_new' id=qa.0.question.id %}" role="button">返信</a>
                         <a class="btn btn-danger" href="{% url 'dotchain:q_pass' id=qa.0.id %}" role="button">パス</a>

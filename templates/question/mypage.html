@@ -2,81 +2,105 @@
 
 {% load bootstrap %}
 {% load question_templatetags %}
+{% load staticfiles %}
 
 {% block title %}マイページ{% endblock title %}
+
+{% block head %}
+<script src="{% static 'js/btn_open.js' %}"></script>
+{% endblock head %}
 
 {% block content %}
 {# 挨拶 #}
 <div class="col-md-12" style="background-color: #FFFFFF; border-top: 3px solid #BFBFBF; border-bottom: 7px solid #D24726; border-left: none; border-right: 3px solid #BFBFBF;">
-	<p>
-		こんにちは！{{uname.username}}さん
-	</p>
-	<div class="col-md-8" >
-		<table class="table table-hover">
-			<thead></thead>
-			<tbody>
-				<tr class="info">
-					<td>勤務地</td>
-					<td>{{uprof.work_place}}</td>
-					<td>
-					<div id="hide_1-1" role="button" style="color: blue; font-weight: bold" onClick="document.getElementById('hide_1-2').style.display='block'; document.getElementById('hide_1-1').style.display='none'">
-						<p>
-							設定
-						</p>
-					</div></td>
-				</tr>
-				<tr class="active">
-					<td>勤務ステータス</td>
-					<td>{{uprof.work_status}}</td>
-					<td>
-					<div id="hide_2-1" role="button" style="color: blue; font-weight: bold" onClick="document.getElementById('hide_2-2').style.display='block'; document.getElementById('hide_2-1').style.display='none'">
-						<p>
-							設定
-						</p>
-					</td>
-				</tr>
-				<tr class="info">
-					<td>所属</td>
-					<td>{{uprof.division}}</td>
-					<td>
-					<div id="hide_3-1" role="button" style="color: blue; font-weight: bold" onClick="document.getElementById('hide_3-2').style.display='block'; document.getElementById('hide_3-1').style.display='none'">
-						<p>
-							設定
-						</p>
-					</td>
-				</tr>
-				<tr class="active">
-					<td>受信ステータス</td>
-					<td>{% if uprof.accept_question %}受信{% else %}拒否{% endif %}</td>
-					<td>
-					<div id="hide_4-1" role="button" style="color: blue; font-weight: bold" onClick="document.getElementById('hide_4-2').style.display='block'; document.getElementById('hide_4-1').style.display='none'">
-						<p>
-							設定
-						</p>
-					</td>
-				</tr>
-				<tr class="info">
-					<td>質問数</td>
-					<td>{{uquestion|length }}回</td>
-					<td></td>
-				</tr>
-				<tr class="active">
-					<td>返答数</td>
-					<td>{{ureply|length }}回</td>
-					<td></td>
-				</tr>
-			</tbody>
-		</table>
-	</div>
 	{# 設定フォーム #}
-	<form action="" method="post" class="form", name="profile", id="p_id">
+	<form enctype="multipart/form-data" action="" method="post" class="form", name="profile", id="p_id">
+		<div class="col-md-3" >
+			<p>
+				こんにちは！{{user.last_name}}{{user.first_name}}さん
+			</p>
+			<img src="/static/{{uprof.avatar}}" align="left" width="100%">
+			<div id="hide_5-1" >
+				<p>
+					<input type="button" value="プロフィール画像を追加する" style="WIDTH:210px; font-weight:bold;"
+					onClick="btn_open('hide_5-2','hide_5-1')">
+				</p>
+			</div>
+			<div id="hide_5-2" style="display:none">
+				<p>
+					<input type="button" value="隠す" style="WIDTH:210px; font-weight:bold;"
+					onClick="btn_open('hide_5-1','hide_5-2')">
+				</p>
+				<p>
+					{{ form.avatar| bootstrap }}
+					<input type="submit" name="done" value="確定" class="btn btn-primary">
+				</p>
+			</div>
+		</div>
+		<div class="col-md-6" >
+			<table class="table table-hover">
+				<thead></thead>
+				<tbody>
+					<tr class="info">
+						<td>勤務地</td>
+						<td>{{uprof.work_place}}</td>
+						<td>
+						<div id="hide_1-1" role="button" style="color: blue; font-weight: bold" onClick="btn_open('hide_1-2','hide_1-1')">
+							<p>
+								設定
+							</p>
+						</div></td>
+					</tr>
+					<tr class="active">
+						<td>勤務ステータス</td>
+						<td>{{uprof.work_status}}</td>
+						<td>
+						<div id="hide_2-1" role="button" style="color: blue; font-weight: bold" onClick="btn_open('hide_2-2','hide_2-1')">
+							<p>
+								設定
+							</p>
+						</td>
+					</tr>
+					<tr class="info">
+						<td>所属</td>
+						<td>{{uprof.division}}</td>
+						<td>
+						<div id="hide_3-1" role="button" style="color: blue; font-weight: bold" onClick="btn_open('hide_3-2','hide_3-1')">
+							<p>
+								設定
+							</p>
+						</td>
+					</tr>
+					<tr class="active">
+						<td>受信ステータス</td>
+						<td>{% if uprof.accept_question %}受信{% else %}拒否{% endif %}</td>
+						<td>
+						<div id="hide_4-1" role="button" style="color: blue; font-weight: bold" onClick="btn_open('hide_4-2','hide_4-1')">
+							<p>
+								設定
+							</p>
+						</td>
+					</tr>
+					<tr class="info">
+						<td>質問数</td>
+						<td>{{uquestion|length }}回</td>
+						<td></td>
+					</tr>
+					<tr class="active">
+						<td>返答数</td>
+						<td>{{ureply|length }}回</td>
+						<td></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
 		{% csrf_token %}
 		<div class="col-md-3" >
 			<div id="hide_1-2" style="display:none">
 				<p>
 					<input type="button" value="勤務地を隠す" style="WIDTH:200px; font-weight:bold;"
-					onClick="document.getElementById('hide_1-2').style.display='none';
-					document.getElementById('hide_1-1').style.display='block'">
+					onClick="btn_open('hide_1-1','hide_1-2')">
 				</p>
 				<p>
 					{{ form.work_place| bootstrap }}
@@ -87,8 +111,7 @@
 			<div id="hide_2-2" style="display:none">
 				<p>
 					<input type="button" value="勤務ステータスを隠す" style="WIDTH:200px; font-weight:bold;"
-					onClick="document.getElementById('hide_2-2').style.display='none'
-					document.getElementById('hide_2-1').style.display='block'">
+					onClick="btn_open('hide_2-1','hide_2-2')">
 				</p>
 				<p>
 					{{ form.work_status| bootstrap }}
@@ -99,8 +122,7 @@
 			<div id="hide_3-2" style="display:none">
 				<p>
 					<input type="button" value="所属を隠す" style="WIDTH:200px; font-weight:bold;"
-					onClick="document.getElementById('hide_3-2').style.display='none';
-					document.getElementById('hide_3-1').style.display='block'">
+					onClick="btn_open('hide_3-1','hide_3-2')">
 				</p>
 				<p>
 					{{ form.division | bootstrap}}
@@ -111,8 +133,7 @@
 			<div id="hide_4-2" style="display:none">
 				<p>
 					<input type="button" value="受信ステータスを隠す" style="WIDTH:200px; font-weight:bold;"
-					onClick="document.getElementById('hide_4-2').style.display='none';
-					document.getElementById('hide_4-1').style.display='block'">
+					onClick="btn_open('hide_4-1','hide_4-2')">
 				</p>
 				<p>
 					{{ form.accept_question| bootstrap }}
@@ -122,7 +143,7 @@
 		</div>
 		<div class="col-md-12" >
 			{# ユーザータグ #}
-			<h4>{{uname.username}}さんの登録タグ</h4>
+			<h4>{{user.last_name}}{{user.first_name}}さんの登録タグ</h4>
 			{% for u_tag in user_tags%}
 			{{ u_tag.tag.name }}&nbsp;&nbsp;
 			{% empty %}
@@ -136,16 +157,14 @@
 		<div class="col-md-12" >
 			<div id="hide_0-1" >
 				<p>
-					<input type="button" value="タグを追加する" style="WIDTH:150px; font-weight:bold;"
-					onClick="document.getElementById('hide_0-2').style.display='block';
-					document.getElementById('hide_0-1').style.display='none'">
+					<input type="button" value="タグを追加する" style="WIDTH:210px; font-weight:bold;"
+					onClick="btn_open('hide_0-2','hide_0-1')">
 				</p>
 			</div>
 			<div id="hide_0-2" style="display:none">
 				<p>
-					<input type="button" value="タグを隠す" style="WIDTH:150px; font-weight:bold;"
-					onClick="document.getElementById('hide_0-2').style.display='none';
-					document.getElementById('hide_0-1').style.display='block'">
+					<input type="button" value="タグを隠す" style="WIDTH:210px; font-weight:bold;"
+					onClick="btn_open('hide_0-1','hide_0-2')">
 				</p>
 				<p>
 					{% for f in form.tag %}
@@ -159,37 +178,7 @@
 			</div>
 		</div>
 		<div class="col-md-12" >
-			{# ユーザータグ #}
-			<h4>{{uname.username}}さんの登録タグ</h4>
-			{% for u_tag in user_tags%}
-			{{ u_tag.tag.name }}&nbsp;&nbsp;
-			{% empty %}
-			なし
-			{% endfor %}
 
-			<p>
-				&nbsp;
-			</p>
-		</div>
-		<div class="col-md-12" >
-			<div id="hide_5-1" >
-				<p>
-					<input type="button" value="プロフィール画像を追加する" style="WIDTH:150px; font-weight:bold;"
-					onClick="document.getElementById('hide_5-2').style.display='block';
-					document.getElementById('hide_5-1').style.display='none'">
-				</p>
-			</div>
-			<div id="hide_5-2" style="display:none">
-				<p>
-					<input type="button" value="隠す" style="WIDTH:150px; font-weight:bold;"
-					onClick="document.getElementById('hide_5-2').style.display='none';
-					document.getElementById('hide_5-1').style.display='block'">
-				</p>
-				<p>
-					{{ form.avatar| bootstrap }}
-					<input type="submit" name="done" value="確定" class="btn btn-primary">
-				</p>
-			</div>
 		</div>
 
 	</form>

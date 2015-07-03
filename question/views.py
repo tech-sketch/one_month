@@ -126,7 +126,6 @@ def top_default(request, msg=None):
     histories = None
     return render_to_response('question/top_all.html',
                               {'histories': histories, 'qa_list':qa_list,
-                               'uname': request.user.last_name+request.user.first_name,
                                'last_login': request.user.last_login, 'msg':msg},
                               context_instance=RequestContext(request))
 
@@ -454,8 +453,7 @@ def mypage(request):
 
         # 完了がおされたら
         if form.is_valid():
-            p.avatar = form.cleaned_data['avatar']
-            p.save()
+
 
             r = form.save(commit=False)
             r.save()
@@ -545,7 +543,7 @@ def pass_network(request, id=None):
     all_reply = set([tuple(sorted(r)) for r in all_reply])
     all_userTag = [['u{}'.format(u.user.id),  't{}'.format(u.tag.id)] for u in UserTag.objects.all()]
 
-    all_pass_temp = ['u{}'.format(r.answerer.id) for r in ReplyList.objects.filter(question=q).order_by('time_limit_date')]
+    all_pass_temp = ['u{}'.format(r.answerer.id) for r in ReplyList.objects.filter(question=q).order_by('id')]
     all_pass_temp.insert(0, 'u{}'.format(q.questioner.id), )
     all_pass = [[all_pass_temp[n-1], all_pass_temp[n]] for n in range(1, len(all_pass_temp))]
     print( request.user)

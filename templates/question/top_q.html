@@ -4,6 +4,8 @@
 
 {% load bootstrap_toolkit %}
 
+{% load question_templatetags %}
+
 {% block title %}トップページ{% endblock title %}
 
 {% block tab %}
@@ -35,7 +37,7 @@
                                         <a href="{% url 'dotchain:q_detail' q.0.id %}">...続きを読む</a>
                                     {% endif %}
                                 </span>
-                                <span style="font-size: 9pt;">コメント数：(TODO)</span>
+                                <span style="font-size: 9pt;">コメント数：({{q.0|comment_counter}})</span>
 
                                 {# 回答待ちのもののみリボンで表示する #}
                                 {% if q.1 == 'pending' %}

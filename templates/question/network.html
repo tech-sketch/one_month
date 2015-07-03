@@ -5,8 +5,10 @@
 
 		<body style="background-color: #f5f5f5;">
 			<div>
-				<input type="button" value="自分のノードを中心にする" style="WIDTH:210px; font-weight:bold;"
-					onClick="cy.center(cy.$('#u{{user.id}}'))"
+				<input type="button" value="center" style="WIDTH:210px; font-weight:bold;"
+					onClick="cy.center(cy.$('#u{{user.id}}'))"/>
+				<input type="button" value="fit" style="WIDTH:210px; font-weight:bold;"
+					onClick="cy.animate({fit: { eles: '#u{{user.id}}' }, zoom: 1}, { duration: 2000 })"/>
 			</div>
 			<div id="cy" style="position: static">
 				<div style="position: absolute; z-index: 0; overflow: hidden; width: 1272px; height: 354px;">

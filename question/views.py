@@ -279,20 +279,12 @@ def question_list(request):
     """
     自分の質問を表示する
     """
-
-    # 自分の質問を取ってくる
-    q_mine = Question.objects.filter(questioner=request.user)
-    print(len(q_mine))
-
-    # 自分の質問を時系列に並べる
-    q = list()
-    q.extend(q_mine)
-    q = sorted(q, reverse=True, key=lambda x: x.date)#OK?
+     # 自分の質問を取ってきて時系列に並べる
+    q = Question.objects.filter(questioner=request.user).order_by('date')
 
     # 各質問の状態を調べる
     q_manager = QAManager(request.user)
     qa_list = q_manager.question_state(q)
-    print(len(qa_list))
 
     # プロフィール
     for qa in qa_list:
@@ -316,29 +308,22 @@ def question_pass(request, id=None):
     次に質問を回す人は、質問者と既にパスした人にはならないようにする。
     また、質問者以外のユーザを質問が回り終わったら、質問者にお知らせする。
     """
+    reply_list = ReplyList.objects.get(id=id)
+    if reply_list.has_replied:
+        msg = 'すでにパスした質問です。'
+        return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
 
-    #if 'replylist_id' in request.POST:
-    if True:
-        #replylist_id = request.POST['replylist_id']
-        replylist = ReplyList.objects.get(id=id)
-        if replylist.has_replied:
-            msg = 'すでにパスした質問です。'
-            return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
-
-        #new_replylist = reply_list_update_random(replylist.answerer, replylist.question)
-        qa_manager = QAManager()
-        print(replylist.question.title)
-        if qa_manager.pass_question(replylist.question, qa_manager.reply_list_update_random_except):
-            msg = '質問をパスしました。'
-            return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
-        else:
-            replylist.question.is_closed = True
-            replylist.question.save()
-            msg = '質問をパスしました。\n'
-            msg += '次の送信先がないため質問は締め切られます。'
-            return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
+    qa_manager = QAManager()
+    if qa_manager.pass_question(reply_list.question, qa_manager.reply_list_update_random_except):
+        msg = '質問をパスしました。'
+        return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
     else:
-        return HttpResponse("不明なエラーです！（question_pass() in views.py）")
+        reply_list.question.is_closed = True
+        reply_list.question.save()
+        msg = '質問をパスしました。\n'
+        msg += '次の送信先がないため質問は締め切られます。'
+        return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
+
 
 @login_required(login_url='/accounts/login')
 def question_detail(request, id=None):

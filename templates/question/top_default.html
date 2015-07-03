@@ -15,65 +15,9 @@
     <script src="{% static 'js/masonry/masonry.min.js' %}"></script>
     <script src="{% static 'js/masonry/set.js' %}"></script>
     <script src="{% static 'js/top.js' %}"></script>
-
-
     <link href='http://fonts.googleapis.com/css?family=Puritan:bold' rel='stylesheet' type='text/css'>
-
+    <link href='{% static 'css/top.css' %}' rel='stylesheet' type='text/css'>
     <script type="text/javascript" language="javascript" src="badge.js"></script>
-
-    <style type="text/css">
-        body {background:#f5f5f5;}
-        #masonry {width:0; text-align:left; margin:0;}
-
-        .item{
-            width:350px;
-            min-height:150px;
-            max-height:350px;
-            overflow:hidden;
-            padding:10px;
-            margin:20px 10px 10px 20px;
-            background:#fff;
-            float:left;
-            text-align:left;
-            position:relative;
-            border-radius:0px;
-            cursor: pointer;
-        }
-
-        .badge
-        {
-            position: absolute;
-            width: 200px;
-            height: 35px;
-            top:20px;
-            left:215px;
-            background:#0E7AC4;
-            font-family: "ＭＳ ゴシック",sans-serif;
-            -webkit-transform-style: preserve-3d;
-            -webkit-transition-property: -webkit-transform;
-            -webkit-transition-duration: 1s;
-            -webkit-transform: rotateZ(45deg);
-        }
-
-        .badge_black
-        {
-            position: absolute;
-            width: 200px;
-            height: 35px;
-            top:20px;
-            left:215px;
-            background:#B7B7B7;
-            font-family: "ＭＳ ゴシック",sans-serif;
-            -webkit-transform-style: preserve-3d;
-            -webkit-transition-property: -webkit-transform;
-            -webkit-transition-duration: 1s;
-            -webkit-transform: rotateZ(45deg);
-        }
-
-        .info {padding-left:80px;}
-
-     </style>
-
 {% endblock head %}
 
 {% block content %}

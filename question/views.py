@@ -425,6 +425,7 @@ def mypage(request):
     except UserProfile.DoesNotExist:
         p = UserProfile()
         p.user = request.user
+        p.accept_question = 1
         p.save()
 
     # ユーザが登録しているタグを取ってくる

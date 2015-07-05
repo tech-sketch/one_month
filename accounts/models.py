@@ -1,3 +1,4 @@
+#-*- coding: utf-8 -*-
 from django.contrib.auth.models import User
 from django.db import models
 
@@ -51,10 +52,10 @@ class UserProfile(models.Model):
 
     user = models.ForeignKey(User)
     avatar = models.ImageField(upload_to='images/icons', null=True, blank=True)
-    work_place = models.ForeignKey(WorkPlace, verbose_name='勤務先', null=True,  default=WorkPlace(name='東京'))
-    work_status = models.ForeignKey(WorkStatus, verbose_name='勤務形態', null=True, default=WorkStatus(name='在席'))# default入れるべき？
-    division = models.ForeignKey(Division, verbose_name='所属コード', null=True, default=Division(code=2, name='人事'))
-    accept_question = models.IntegerField('受信可', default=1) # 0:不可, 1:可
+    work_place = models.ForeignKey(WorkPlace, verbose_name='勤務先', null=True)
+    work_status = models.ForeignKey(WorkStatus, verbose_name='勤務形態', null=True)# default入れるべき？
+    division = models.ForeignKey(Division, verbose_name='所属コード', null=True)
+    accept_question = models.IntegerField(verbose_name='受信可', default=1) # 0:不可, 1:可
 
     def __str__(self):
         return u'%s %sのプロフィール' % (self.user.first_name, self.user.last_name)

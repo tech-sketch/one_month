@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.contrib.auth.models import User
-from accounts.models import UserProfile
+from accounts.models import UserProfile, WorkStatus, WorkPlace, Division
 from question.models import Question, Reply, ReplyList, Tag, UserTag, QuestionTag, QuestionDestination
 from question.forms import QuestionEditForm, ReplyEditForm, UserProfileEditForm, KeywordSearchForm
 from question.qa_manager import QAManager, QuestionState, ReplyState
@@ -420,12 +420,15 @@ def mypage(request):
     """
 
     # ユーザのプロファイルを取ってくる
-    try:
-        p = UserProfile.objects.get(user=request.user)
-    except UserProfile.DoesNotExist:
-        p = UserProfile()
-        p.user = request.user
-        p.save()
+    work_place, created = WorkPlace.objects.get_or_create(name='東京', defaults=dict(name='東京',),)
+    work_status, created = WorkStatus.objects.get_or_create(name='在席', defaults=dict(name='在席',),)
+    division, created = Division.objects.get_or_create(code=2, name='人事', defaults=dict(code=2, name='人事'))
+    p, created = UserProfile.objects.get_or_create(user=request.user,
+                                                   defaults=dict(avatar='images/icons/pepper.png',
+                                                                 work_place=work_place,
+                                                                 work_status=work_status,
+                                                                 division=division,
+                                                                 accept_question=1,),)
 
     # ユーザが登録しているタグを取ってくる
     user_tags = UserTag.objects.filter(user=request.user)

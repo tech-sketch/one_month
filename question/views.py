@@ -159,6 +159,8 @@ def question_edit(request, id=None, msg=None):
             q.save()
 
             div_list = form.cleaned_data['destination']
+            print('divlsitdivlsitdivlsitdivlsitdivlsitdivlsitdivlsit')
+            print(div_list)
             for div in div_list:
                 d = QuestionDestination()
                 d.question = q
@@ -252,6 +254,15 @@ def reply_edit(request, id=None):
                 #r_list.has_replied = True
                 r_list.time_limit_date=None
                 r_list.save()
+
+                tag_list = QuestionTag.objects.filter(question=q)
+                for tag in tag_list:
+                    if not UserTag.objects.filter(user=request.user, tag=tag.tag):
+                        user_tag = UserTag()
+                        user_tag.tag = tag.tag
+                        user_tag.user = request.user
+                        user_tag.save()
+                        print(user_tag)
 
             r = form.save(commit=False)
             r.question = q
@@ -438,7 +449,7 @@ def mypage(request):
 
         # 完了がおされたら
         if form.is_valid():
-
+            print(form)
 
             r = form.save(commit=False)
             r.save()

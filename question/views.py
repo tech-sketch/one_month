@@ -539,30 +539,3 @@ def pass_network(request, id=None):
     return render_to_response('question/pass_network.html',
                               {'user_reply_list': user_reply_list, 'you': [request.user.username, 'u{}'.format(request.user.id)], 'all_user': all_user, 'all_reply': all_reply, 'all_tag': all_tag, 'all_userTag': all_userTag, 'all_pass': all_pass},
                               context_instance=RequestContext(request))
-
-def debug(request):
-    # 自分の質問を取ってくる
-    q_list = Question.objects.filter(questioner=request.user)
-
-    # 自分宛の質問を取ってくる
-    reply_list = ReplyList.objects.filter(answerer=request.user)
-
-    # 自分の質問と自分宛ての質問の状態を調べる
-    qa_manager = QAManager(request.user)
-    q_list = qa_manager.question_state(q_list)
-    r_list = qa_manager.reply_state(reply_list)
-
-    # 自分と自分宛の質問を結合して時系列に並べる
-    qa_list = list()
-    qa_list.extend(q_list)
-    qa_list.extend(r_list)
-    qa_list = sorted(qa_list, reverse=True, key=lambda x: x[0].date if isinstance(x[0],Question) else x[0].question.date)#OK?
-    #print(qa_list)
-
-    # 自分の回答を取ってくる
-    r = Reply.objects.filter(answerer=request.user)
-
-    histories = None
-    return render_to_response('question/top_debug.html',
-                              {'histories': histories, 'qa_list':qa_list, 'uname': request.user.last_name+request.user.first_name, 'last_login': request.user.last_login},
-                              context_instance=RequestContext(request))

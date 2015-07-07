@@ -33,7 +33,7 @@ class QuestionEditForm(ModelForm):
 
     class Meta:
         model = Question
-        fields = ('destination', 'title', 'date', 'time_limit', 'text', 'draft')
+        fields = ('title', 'date', 'time_limit', 'text', 'draft')
         widgets = {
           'title': forms.TextInput(attrs={'size': '100'}),
           'text': forms.Textarea(attrs={'rows':20, 'cols':100}),

@@ -229,7 +229,8 @@ def reply_edit(request, id=None):
 
     if q.is_closed:
         msg = 'その質問の回答は締め切られました。'
-        return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
+        return top_default(request, msg)
+        #return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
 
     #replylist = ReplyList.objects.filter(question=q)[0]
     # 各質問について、has_replied=Falseの回答済みリストは一つのみのはず
@@ -250,7 +251,8 @@ def reply_edit(request, id=None):
                 r_list = get_object_or_404(ReplyList, question=q, answerer=request.user) #has_replied=Falseはいらないと思う
                 if r_list.has_replied:
                     msg = 'その質問は自動的にパスされました'
-                    return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
+                    return top_default(request, msg)
+                    #return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
                 #r_list.has_replied = True
                 r_list.time_limit_date=None
                 r_list.save()
@@ -275,7 +277,8 @@ def reply_edit(request, id=None):
             #q.save()
 
             msg = '返信しました。'
-            return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
+            return top_default(request, msg)
+            #return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
         pass
     # new
     else:
@@ -308,7 +311,6 @@ def question_list(request):
     histories = None
     return render_to_response('question/top_q.html',
                               {'histories': histories, 'qa_list': qa_list,
-                               'uname': request.user.last_name+request.user.first_name,
                                'last_login': request.user.last_login},
                               context_instance=RequestContext(request))
 
@@ -322,18 +324,21 @@ def question_pass(request, id=None):
     reply_list = ReplyList.objects.get(id=id)
     if reply_list.has_replied:
         msg = 'すでにパスした質問です。'
-        return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
+        return top_default(request,msg)
+        #return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
 
     qa_manager = QAManager()
     if qa_manager.pass_question(reply_list.question, qa_manager.reply_list_update_random_except):
         msg = '質問をパスしました。'
-        return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
+        return top_default(request,msg)
+        #return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
     else:
         reply_list.question.is_closed = True
         reply_list.question.save()
         msg = '質問をパスしました。\n'
         msg += '次の送信先がないため質問は締め切られます。'
-        return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
+        return top_default(request,msg)
+        #return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
 
 
 @login_required(login_url='/accounts/login')
@@ -373,7 +378,7 @@ def question_detail(request, id=None):
 
     return render_to_response('question/question_detail.html',
                               {'question': q, 'q_tags': q_tags, 'reply': r, 'reply_list': reply_list,
-                               'uname': request.user.last_name+request.user.first_name},
+                               '': request.user.last_name+request.user.first_name},
                               context_instance=RequestContext(request))
 
 @login_required(login_url='/accounts/login')
@@ -421,7 +426,7 @@ def reply_list(request):
 
     histories = None
     return render_to_response('question/top_r.html',
-                              {'histories': histories, 'qa_list': qa_list, 'uname': request.user.last_name+request.user.first_name, 'last_login': request.user.last_login},
+                              {'histories': histories, 'qa_list': qa_list, 'last_login': request.user.last_login},
                               context_instance=RequestContext(request))
 
 @login_required(login_url='/accounts/login')
@@ -494,7 +499,7 @@ def mypage(request):
     user_question = Question.objects.filter(questioner=request.user)
     user_reply = Reply.objects.filter(answerer=request.user)
     return render_to_response('question/mypage.html',
-                              {'form': form, 'user_tags':user_tags, 'uname': request.user, 'uprof':p, 'uquestion':user_question, 'ureply':user_reply},
+                              {'form': form, 'user_tags':user_tags, 'uprof':p, 'uquestion':user_question, 'ureply':user_reply},
                               context_instance=RequestContext(request))
 
 
@@ -508,7 +513,7 @@ def search(request):
     #  form = KeywordSearchForm(request.POST)
 
     return render_to_response('question/question_search.html',
-                              {'form': form, 'uname': request.user.last_name+request.user.first_name},
+                              {'form': form},
                               context_instance=RequestContext(request))
 
 @login_required(login_url='/accounts/login')
@@ -549,31 +554,4 @@ def pass_network(request, id=None):
 
     return render_to_response('question/pass_network.html',
                               {'user_reply_list': user_reply_list, 'you': [request.user.username, 'u{}'.format(request.user.id)], 'all_user': all_user, 'all_reply': all_reply, 'all_tag': all_tag, 'all_userTag': all_userTag, 'all_pass': all_pass},
-                              context_instance=RequestContext(request))
-
-def debug(request):
-    # 自分の質問を取ってくる
-    q_list = Question.objects.filter(questioner=request.user)
-
-    # 自分宛の質問を取ってくる
-    reply_list = ReplyList.objects.filter(answerer=request.user)
-
-    # 自分の質問と自分宛ての質問の状態を調べる
-    qa_manager = QAManager(request.user)
-    q_list = qa_manager.question_state(q_list)
-    r_list = qa_manager.reply_state(reply_list)
-
-    # 自分と自分宛の質問を結合して時系列に並べる
-    qa_list = list()
-    qa_list.extend(q_list)
-    qa_list.extend(r_list)
-    qa_list = sorted(qa_list, reverse=True, key=lambda x: x[0].date if isinstance(x[0],Question) else x[0].question.date)#OK?
-    #print(qa_list)
-
-    # 自分の回答を取ってくる
-    r = Reply.objects.filter(answerer=request.user)
-
-    histories = None
-    return render_to_response('question/top_debug.html',
-                              {'histories': histories, 'qa_list':qa_list, 'uname': request.user.last_name+request.user.first_name, 'last_login': request.user.last_login},
                               context_instance=RequestContext(request))

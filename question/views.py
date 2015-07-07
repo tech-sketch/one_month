@@ -579,3 +579,24 @@ def debug(request):
     return render_to_response('question/top_debug.html',
                               {'histories': histories, 'qa_list':qa_list, 'uname': request.user.last_name+request.user.first_name, 'last_login': request.user.last_login},
                               context_instance=RequestContext(request))
+
+import random
+
+def network_demo(request):
+    name_list = ['yamada','tanaka', 'satou', 'suzuki', 'takahashi', 'konuma', 'ookubo', 'sakata', 'saitou', 'ueda', 'oda', 'mouri']
+    tag_list = ['Python', 'C++', '英語', 'タイ語', '株式', '新宿', 'AWS', '機械学習', '居酒屋', '規則', '電車', ]
+
+    if User.objects.all().count()<20:
+        for num in range(random.randint(1,3)):
+            User.objects.create(username=name_list[random.randint(0,len(name_list)-1)]+str(User.objects.all().count()))
+
+    for num in range(random.randint(1, 5)):
+        q=Question.objects.create(questioner=User.objects.all()[random.randint(0,int(User.objects.all().count()-1 * random.random()))], title='a', text='a', time_limit='11:11:11')
+        Reply.objects.create(question=q, answerer=User.objects.all()[random.randint(0,int(User.objects.all().count()/3))], text='a')
+
+    tag, created = Tag.objects.get_or_create(name=tag_list[random.randint(0, len(tag_list)-1)])
+    print(tag)
+    u = UserTag.objects.get_or_create(user=User.objects.all()[random.randint(0,User.objects.all().count()-1)], tag=tag)
+
+
+    return network(request)

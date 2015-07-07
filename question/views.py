@@ -227,7 +227,8 @@ def reply_edit(request, id=None):
 
     if q.is_closed:
         msg = 'その質問の回答は締め切られました。'
-        return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
+        return top_default(request, msg)
+        #return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
 
     #replylist = ReplyList.objects.filter(question=q)[0]
     # 各質問について、has_replied=Falseの回答済みリストは一つのみのはず
@@ -248,7 +249,8 @@ def reply_edit(request, id=None):
                 r_list = get_object_or_404(ReplyList, question=q, answerer=request.user) #has_replied=Falseはいらないと思う
                 if r_list.has_replied:
                     msg = 'その質問は自動的にパスされました'
-                    return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
+                    return top_default(request, msg)
+                    #return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
                 #r_list.has_replied = True
                 r_list.time_limit_date=None
                 r_list.save()
@@ -264,7 +266,8 @@ def reply_edit(request, id=None):
             #q.save()
 
             msg = '返信しました。'
-            return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
+            return top_default(request, msg)
+            #return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
         pass
     # new
     else:
@@ -297,7 +300,6 @@ def question_list(request):
     histories = None
     return render_to_response('question/top_q.html',
                               {'histories': histories, 'qa_list': qa_list,
-                               'uname': request.user.last_name+request.user.first_name,
                                'last_login': request.user.last_login},
                               context_instance=RequestContext(request))
 
@@ -311,18 +313,21 @@ def question_pass(request, id=None):
     reply_list = ReplyList.objects.get(id=id)
     if reply_list.has_replied:
         msg = 'すでにパスした質問です。'
-        return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
+        return top_default(request,msg)
+        #return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
 
     qa_manager = QAManager()
     if qa_manager.pass_question(reply_list.question, qa_manager.reply_list_update_random_except):
         msg = '質問をパスしました。'
-        return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
+        return top_default(request,msg)
+        #return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
     else:
         reply_list.question.is_closed = True
         reply_list.question.save()
         msg = '質問をパスしました。\n'
         msg += '次の送信先がないため質問は締め切られます。'
-        return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
+        return top_default(request,msg)
+        #return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
 
 
 @login_required(login_url='/accounts/login')
@@ -362,7 +367,7 @@ def question_detail(request, id=None):
 
     return render_to_response('question/question_detail.html',
                               {'question': q, 'q_tags': q_tags, 'reply': r, 'reply_list': reply_list,
-                               'uname': request.user.last_name+request.user.first_name},
+                               '': request.user.last_name+request.user.first_name},
                               context_instance=RequestContext(request))
 
 @login_required(login_url='/accounts/login')
@@ -410,7 +415,7 @@ def reply_list(request):
 
     histories = None
     return render_to_response('question/top_r.html',
-                              {'histories': histories, 'qa_list': qa_list, 'uname': request.user.last_name+request.user.first_name, 'last_login': request.user.last_login},
+                              {'histories': histories, 'qa_list': qa_list, 'last_login': request.user.last_login},
                               context_instance=RequestContext(request))
 
 @login_required(login_url='/accounts/login')
@@ -483,7 +488,7 @@ def mypage(request):
     user_question = Question.objects.filter(questioner=request.user)
     user_reply = Reply.objects.filter(answerer=request.user)
     return render_to_response('question/mypage.html',
-                              {'form': form, 'user_tags':user_tags, 'uname': request.user, 'uprof':p, 'uquestion':user_question, 'ureply':user_reply},
+                              {'form': form, 'user_tags':user_tags, 'uprof':p, 'uquestion':user_question, 'ureply':user_reply},
                               context_instance=RequestContext(request))
 
 
@@ -497,7 +502,7 @@ def search(request):
     #  form = KeywordSearchForm(request.POST)
 
     return render_to_response('question/question_search.html',
-                              {'form': form, 'uname': request.user.last_name+request.user.first_name},
+                              {'form': form},
                               context_instance=RequestContext(request))
 
 @login_required(login_url='/accounts/login')

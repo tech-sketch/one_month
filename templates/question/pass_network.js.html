@@ -54,7 +54,7 @@ $('#cy').cytoscape({
       {% if node.1 == all_pass.0.0 %}
       	{ data: { id: '{{node.1}}', name: '質問者', weight: 15, faveColor: '#6FB1FC'} },
       {% elif node.1 == you.1 %}
-      	{ data: { id: '{{node.1}}', name: 'you', weight: 15, faveColor: '#6FB1FC'} },
+      	{ data: { id: '{{node.1}}', name: 'あなた', weight: 15, faveColor: '#6FB1FC'} },
       {% else %}
       	{ data: { id: '{{node.1}}', name: '', weight: 15, faveColor: '#6FB1FC'} },
       {% endif %}

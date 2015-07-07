@@ -18,17 +18,17 @@
 <h3>質問</h3>	
 <div class="popover right show" style="position:relative; max-width:100%;">
     <div class="arrow"></div>
-       <h3 class="popover-title" style="background-color: #FFFFFF">
-        	タイトル：{{ question.title }}<br>
+	<h2 class="popover-title" style="background-color: #FFFFFF; font-size:x-large; color: black; font-weight: bold;">
+        	{{ question.title }}<br>
         	{% if q_tags %}タグ：{% for q_tag in q_tags %} {{ q_tag.tag.name }} {% endfor %}{% endif %}
+    </h2>
+    <h3 class="popover-title" style="background-color: #FFFFFF; color: black;">
+        	質問者: {{ question.questioner.last_name }}{{ question.questioner.first_name }}<br>
+			作成日時: {{ question.date }} {% if question.draft %} <font color="#DD0000">下書き</font> {% else %}送信済み{% endif %}
     </h3>
-    <h3 class="popover-title" style="background-color: #FFFFFF">
-        	質問者:{{ question.questioner.last_name }}{{ question.questioner.first_name }}<br>
-			作成日時:{{ question.date }} {% if question.draft %} <font color="#DD0000">下書き</font> {% else %}送信済み{% endif %}
-    </h3>
-    <div class="popover-content">
+    <div class="popover-content" style="background-color: #FFFFFF; font-size:large; color: black;">
         <p>
-            本文：{{ question.text|linebreaksbr }}
+            {{ question.text|linebreaksbr }}
         </p>
     </div>
 </div>
@@ -47,9 +47,9 @@
 	{% for r in reply %}	
 	<div class="popover right show" style="position:relative; max-width:100%;">
 		<div class="arrow"></div>
-		<h3 class="popover-title" style="background-color: #FFFFFF"> 
+		<h3 class="popover-title" style="background-color: #FFFFFF;color: black;">
 			回答者:{{ r.answerer}}　回答日時:{{ r.date }}
-		<div class="popover-content">
+		<div class="popover-content" style="color: black;">
 			<p>
 				{{ r.text|linebreaksbr }}
 			</p>
@@ -66,22 +66,22 @@
 		&nbsp;
 	</p>
 
-	{% if question.questioner.last_name|add:question.questioner.first_name != uname %}
+	{% if question.questioner.username != user.username %}
 		{% if reply_list %}
 			{% if question.is_closed %}
 				<a class="btn btn-default" role="button"  disabled="disabled">締め切りました</a>
 			{% elif reply_list.has_replied %}
 				<a class="btn btn-default" role="button"  disabled="disabled">パス済みです</a>
 			{% else %}
-				<a class="btn btn-default" href="{% url 'dotchain:q_pass' id=reply_list.id %}" role="button">パス</a>
-				<a class="btn btn-default" href="{% url 'dotchain:r_new' id=question.id %}" role="button">返信</a>
+				<a class="btn btn-success" href="{% url 'dotchain:r_new' id=question.id %}" role="button">返信</a><br><br><br>
+				<a class="btn btn-danger" href="{% url 'dotchain:q_pass' id=reply_list.id %}" role="button">パス</a>
 			{% endif %}
 		{% else %}
 			<a class="btn btn-default" href="{% url 'dotchain:q_pass' id=reply_list.id %}" role="button">パス?</a>
 		{% endif%}
 	{% else %}
 		{% if not question.is_closed %}
-			<a class="btn btn-default" href="{% url 'dotchain:r_new' id=question.id %}" role="button">返信</a>
+			<a class="btn btn-success" href="{% url 'dotchain:r_new' id=question.id %}" role="button">返信</a>
 		{% else %}
 			<a class="btn btn-default" role="button"  disabled="disabled">締め切りました</a>
 		{% endif %}

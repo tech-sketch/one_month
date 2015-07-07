@@ -113,7 +113,7 @@ def top_default(request, msg=None):
     qa_list = list()
     qa_list.extend(questions)
     qa_list.extend(reply_lists)
-    qa_list = sorted(qa_list, reverse=True, key=lambda x: x[0].date if isinstance(x[0],Question) else x[0].question.date)#OK?
+    qa_list = sorted(qa_list, reverse=True, key=lambda x: x[0].date if isinstance(x[0],Question) else x[0].question.date)
 
     # プロフィール
     for qa in qa_list:
@@ -159,8 +159,6 @@ def question_edit(request, id=None, msg=None):
             q.save()
 
             div_list = form.cleaned_data['destination']
-            print('divlsitdivlsitdivlsitdivlsitdivlsitdivlsitdivlsit')
-            print(div_list)
             for div in div_list:
                 d = QuestionDestination()
                 d.question = q
@@ -252,7 +250,6 @@ def reply_edit(request, id=None):
                 if r_list.has_replied:
                     msg = 'その質問は自動的にパスされました'
                     return top_default(request, msg)
-                    #return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
                 #r_list.has_replied = True
                 r_list.time_limit_date=None
                 r_list.save()
@@ -278,7 +275,6 @@ def reply_edit(request, id=None):
 
             msg = '返信しました。'
             return top_default(request, msg)
-            #return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
         pass
     # new
     else:
@@ -299,6 +295,9 @@ def question_list(request):
     # 各質問の状態を調べる
     q_manager = QAManager(request.user)
     qa_list = q_manager.question_state(q)
+
+    # 自分の質問を時系列に並べる
+    qa_list = sorted(qa_list, reverse=True, key=lambda x: x[0].date if isinstance(x[0],Question) else x[0].question.date)
 
     # プロフィール
     for qa in qa_list:
@@ -325,21 +324,17 @@ def question_pass(request, id=None):
     if reply_list.has_replied:
         msg = 'すでにパスした質問です。'
         return top_default(request,msg)
-        #return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
 
     qa_manager = QAManager()
     if qa_manager.pass_question(reply_list.question, qa_manager.reply_list_update_random_except):
         msg = '質問をパスしました。'
         return top_default(request,msg)
-        #return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
     else:
         reply_list.question.is_closed = True
         reply_list.question.save()
         msg = '質問をパスしました。\n'
         msg += '次の送信先がないため質問は締め切られます。'
         return top_default(request,msg)
-        #return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
-
 
 @login_required(login_url='/accounts/login')
 def question_detail(request, id=None):
@@ -367,18 +362,13 @@ def question_detail(request, id=None):
         reply_list = None
 
     # user check
-    print(q.questioner)
-    print(request.user)
-    print(reply_list)
     if q.questioner != request.user and reply_list==None:
         # 他人の質問は表示できないようにする
         msg = '他の人の質問は閲覧できません。'
-        msg = '他の人の質問は閲覧できません。'
-        return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request)) # TODO　表示できないよページ作る
+        return top_default(request, msg)
 
     return render_to_response('question/question_detail.html',
-                              {'question': q, 'q_tags': q_tags, 'reply': r, 'reply_list': reply_list,
-                               '': request.user.last_name+request.user.first_name},
+                              {'question': q, 'q_tags': q_tags, 'reply': r, 'reply_list': reply_list},
                               context_instance=RequestContext(request))
 
 @login_required(login_url='/accounts/login')
@@ -410,7 +400,7 @@ def reply_list(request):
     reply_list = ReplyList.objects.filter(answerer=request.user, has_replied=False)
 
     # 自分宛の質問を時系列に並べる
-    reply_list = sorted(reply_list, reverse=True, key=lambda x: x.question.date)#OK?
+    reply_list = sorted(reply_list, reverse=True, key=lambda x: x.question.date)
 
     # 各質問の状態を調べる
     q_manager = QAManager(request.user)

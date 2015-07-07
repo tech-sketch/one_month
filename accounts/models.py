@@ -51,11 +51,11 @@ class WorkStatus(models.Model):
 class UserProfile(models.Model):
 
     user = models.ForeignKey(User)
-    avatar = models.ImageField(upload_to='images/icons', default='images/icons/no_image.png')
+    avatar = models.ImageField(upload_to='images/icons', null=True, blank=True)
     work_place = models.ForeignKey(WorkPlace, verbose_name='勤務先', null=True)
     work_status = models.ForeignKey(WorkStatus, verbose_name='勤務形態', null=True)# default入れるべき？
     division = models.ForeignKey(Division, verbose_name='所属コード', null=True)
-    accept_question = models.IntegerField('受信可', default=1) # 0:不可, 1:可
+    accept_question = models.IntegerField(verbose_name='受信可', default=1) # 0:不可, 1:可
 
     def __str__(self):
         return u'%s %sのプロフィール' % (self.user.first_name, self.user.last_name)

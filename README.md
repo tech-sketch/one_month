@@ -70,10 +70,10 @@
 ![動作フロー](https://github.com/koga-yatsushiro/one_month/wiki/images/action_flow.png)
 
 * コンピュータによる受信者の選択基準  
-![こちら](https://github.com/koga-yatsushiro/one_month/wiki/%E3%82%B3%E3%83%B3%E3%83%94%E3%83%A5%E3%83%BC%E3%82%BF%E3%81%AB%E3%82%88%E3%82%8B%E5%8F%97%E4%BF%A1%E8%80%85%E3%81%AE%E9%81%B8%E6%8A%9E%E5%9F%BA%E6%BA%96)のwikiのページを参照してください
+[こちら](https://github.com/koga-yatsushiro/one_month/wiki/%E3%82%B3%E3%83%B3%E3%83%94%E3%83%A5%E3%83%BC%E3%82%BF%E3%81%AB%E3%82%88%E3%82%8B%E5%8F%97%E4%BF%A1%E8%80%85%E3%81%AE%E9%81%B8%E6%8A%9E%E5%9F%BA%E6%BA%96)のwikiのページを参照してください
 
 * コンピュータによる自動パス機能(非同期処理)  
-![こちら](https://github.com/koga-yatsushiro/one_month/wiki/%E9%9D%9E%E5%90%8C%E6%9C%9F%E5%87%A6%E7%90%86)のwikiのページを参照してください
+[こちら](https://github.com/koga-yatsushiro/one_month/wiki/%E9%9D%9E%E5%90%8C%E6%9C%9F%E5%87%A6%E7%90%86)のwikiのページを参照してください
 
 #デベロッパー向け
 ## アーキテクチャ図
@@ -131,7 +131,7 @@ sudo service supervisor restart
 ```
 
 ## 既知のバグ
-![こちら](https://github.com/koga-yatsushiro/one_month/issues)のwikiのページを参照してください
+[こちら](https://github.com/koga-yatsushiro/one_month/issues)のwikiのページを参照してください
 
 #今後の追加機能
 * 質問だけでなく、依頼や会議など機能拡張の開発

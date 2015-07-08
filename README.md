@@ -59,8 +59,8 @@
 * コンピュータによる受信者の選択基準
 ![こちら](https://github.com/koga-yatsushiro/one_month/wiki/%E3%82%B3%E3%83%B3%E3%83%94%E3%83%A5%E3%83%BC%E3%82%BF%E3%81%AB%E3%82%88%E3%82%8B%E5%8F%97%E4%BF%A1%E8%80%85%E3%81%AE%E9%81%B8%E6%8A%9E%E5%9F%BA%E6%BA%96)のwikiのページを参照してください
 
-* コンピュータによる自動パス機能
-![こちら](https://github.com/koga-yatsushiro/one_month/wiki/%E3%82%B3%E3%83%B3%E3%83%94%E3%83%A5%E3%83%BC%E3%82%BF%E3%81%AB%E3%82%88%E3%82%8B%E5%8F%97%E4%BF%A1%E8%80%85%E3%81%AE%E9%81%B8%E6%8A%9E%E5%9F%BA%E6%BA%96)のwikiのページを参照してください
+* コンピュータによる自動パス機能(非同期処理)
+![こちら](https://github.com/koga-yatsushiro/one_month/wiki/%E9%9D%9E%E5%90%8C%E6%9C%9F%E5%87%A6%E7%90%86)のwikiのページを参照してください
 
 #デベロッパー向け
 ## アーキテクチャ図
@@ -68,12 +68,12 @@
 
 ## ローカル開発環境の構築
 * インストール
-** OS: Windows7
-** 言語: Python3.4
-** DB: PostgreSQL9.4 (windowsインストーラ使用を推奨)
-** psycopg2はネット上のwindowsインストーラを使用して入れてください
-** 以下、Pythonモジュール。以下のコマンドでインストールしてください
-※requirements.txtの中のpsycopg2==2.6.1の行は削除しておいてください
+    * OS: Windows7
+    * 言語: Python3.4
+    * DB: PostgreSQL9.4 (windowsインストーラ使用を推奨)
+    * psycopg2はネット上のwindowsインストーラを使用して入れてください
+    * 以下、Pythonモジュール。以下のコマンドでインストールしてください
+    ※requirements.txtの中のpsycopg2==2.6.1の行は削除しておいてください
 
 ```bash
 pip install -r requirements.txt
@@ -87,23 +87,24 @@ python manage.py celerybeat
 python manage.py celeryd
 ```
 
-その後、http://127.0.0.1:8000/dotchainにアクセスして、トップページが表示されることを確認してください。
+その後、http://127.0.0.1:8000/dotchain      
+にアクセスして、トップページが表示されることを確認してください。
 
 ## デプロイ開発環境の構築
 * インストール
-** OS: Ubuntu14.04 on AWS EC2
-** 言語: Python3.4
+    * OS: Ubuntu14.04 on AWS EC2
+    * 言語: Python3.4
 
-* 以下、sudo apt-get installで入れる
-* apache2
-* apache2-dev
-* libapache2-mod-wsgi-py3
-* postgresql
-* postgresql-server-dev-9.3
-* supervisor
-* python3-pip
+    * 以下、sudo apt-get installで入れる
+    * apache2
+    * apache2-dev
+    * libapache2-mod-wsgi-py3
+    * postgresql
+    * postgresql-server-dev-9.3
+    * supervisor
+    * python3-pip
 
-** 以下、Pythonモジュール。以下のコマンドでインストールしてください。
+    * 以下、Pythonモジュール。以下のコマンドでインストールしてください。
 
 ```bash
 pip3 install -r requirements.txt

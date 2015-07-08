@@ -66,7 +66,7 @@
 		&nbsp;
 	</p>
 
-	{% if question.questioner.username != user.username %}
+	{% if question.questioner.id != user.id %}
 		{% if reply_list %}
 			{% if question.is_closed %}
 				<a class="btn btn-default" role="button"  disabled="disabled">締め切りました</a>
@@ -77,7 +77,7 @@
 				<a class="btn btn-danger" href="{% url 'dotchain:q_pass' id=reply_list.id %}" role="button">パス</a>
 			{% endif %}
 		{% else %}
-			<a class="btn btn-default" href="{% url 'dotchain:q_pass' id=reply_list.id %}" role="button">パス?</a>
+			<p>[Debug] reply_listが空です！</p>
 		{% endif%}
 	{% else %}
 		{% if not question.is_closed %}

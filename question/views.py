@@ -18,15 +18,15 @@ def top_default(request, msg=None):
     """
 
     # added
-    form = None
-    if request.method == 'GET':
-        form = KeywordSearchForm()
-        # 自分の質問を取ってくる
-        questions = Question.objects.filter(questioner=request.user)
-        # 自分宛の質問リストを取ってくる
-        reply_lists = ReplyList.objects.filter(answerer=request.user)
+    #form = None
+    #if request.method == 'GET':
+    form = KeywordSearchForm()
+    # 自分の質問を取ってくる
+    questions = Question.objects.filter(questioner=request.user)
+    # 自分宛の質問リストを取ってくる
+    reply_lists = ReplyList.objects.filter(answerer=request.user)
 
-    elif request.method == 'POST':
+    if request.method == 'POST':
         form = KeywordSearchForm(request.POST)
 
         """

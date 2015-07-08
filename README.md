@@ -1,8 +1,7 @@
 ﻿# .Chain()
 .Chain()は、リモートユーザが気軽に質問ができて、答えが返ってくる、質問サイトです。
-.Chain()を使ってユーザが質問をすれば、コンピュータが自動的に質問の宛先を決めてくれるため、リモートユーザは会社や他の場所で働いている多くの同僚の状態（忙しさ等）を気にせずに気軽に質問ができます。
-一方、質問を受け取った回答者には、現在その人だけに質問が届いています。質問者は現在、あなたのアクションを求めていますので、制限時間に是非回答してあげましょう。もちろんパスも選択可能です。
-忙しくて質問が来ているかチェックできない場合も、自動的にパスになりますので、安心です。
+.Chain()を使ってユーザが質問をすれば、コンピュータが自動的に質問の宛先を決めて送ってくれるため、宛先に頭を悩ませることはありません。また、他の質問サイトとは違い、宛先は一人だけなので、どんな質問でも気軽に質問ができます。
+一方、質問を受け取った回答者にはあなただけに質問が送られてきますので、制限時間に是非回答してあげましょう。もちろんパスも選択可能です。忙しくて質問が来ているかチェックできない場合も、自動的にパスになりますので、安心です。
 
 さっそく使ってみましょう！（公式サイトリンク）
 詳しい使い方はこちら（サイトリンク）
@@ -11,12 +10,26 @@
 * [ユーザー向け](#ユーザー向け)
 * [デベロッパー向け](#デベロッパー向け)
 * [今後の追加機能](#今後の追加機能)
+* [バージョン情報](#バージョン情報)
 * [ライセンス](#ライセンス)
 
 #ユーザー向け
+##背景
+![背景](https://github.com/koga-yatsushiro/one_month/wiki/images/background.png)
+
+##対象ユーザ
+* リモートワークで働いており、同僚に質問がしにくい人
+* 大組織で働いているがほかの部署とのつながりがない人
+
 ##利用シーン
 * 分かる人ならば誰でもいいから答えて欲しいという質問をしたいとき
 顔が見えないリモートワークにおいて、他の同僚の忙しさは気になりますよね。分かる人ならば誰でもいいから答えて欲しいという質問を会社の同僚にメールで送りつけるのは気がひけます。一方で、リモートワークでよく使われているチャットや社内SNSで質問しても誰からも反応なし、という経験はありませんか？.Chain()はあなたの質問の宛先をコンピュータが自動的に決めてくれます。
+* 他の部署を含めた人間関係や専門分野を知りたいとき
+組織が大きくなると、自分の部署の人のことはよくわかるのに他部署の人はわからないことが多いものです。.Chain()はユーザによる質問のやりとりと、質問に付加されるタグによって、各ユーザの興味や人間関係を可視化して見ることができます。この情報により新しい人間関係が生まれるかもしれません。
+
+
+##アプリイメージ
+![アプリイメージ](https://github.com/koga-yatsushiro/one_month/wiki/images/app_image.png)
 
 ##特長
 * コンピュータが自動的に質問の宛先を決めてくれる
@@ -36,33 +49,35 @@
 
 ##はじめてみましょう
 
-公式サイトにアクセスしてください。Googleアカウントのみでログイン可能です。〜
+公式サイトにアクセスしてください。Googleアカウントのみでログイン可能です。
 詳しい使い方はこちらを参考にしてください。
 
 ##仕様詳細
-* 質問者アクションフロー
-* 回答者アクションフロー
+* アクションフロー
+![アクションフロー](https://github.com/koga-yatsushiro/one_month/wiki/images/action_flow.png)
+
 * コンピュータによる受信者の選択基準
+![こちら](https://github.com/koga-yatsushiro/one_month/wiki/%E3%82%B3%E3%83%B3%E3%83%94%E3%83%A5%E3%83%BC%E3%82%BF%E3%81%AB%E3%82%88%E3%82%8B%E5%8F%97%E4%BF%A1%E8%80%85%E3%81%AE%E9%81%B8%E6%8A%9E%E5%9F%BA%E6%BA%96)のwikiのページを参照してください
+
 * コンピュータによる自動パス機能
+![こちら](https://github.com/koga-yatsushiro/one_month/wiki/%E3%82%B3%E3%83%B3%E3%83%94%E3%83%A5%E3%83%BC%E3%82%BF%E3%81%AB%E3%82%88%E3%82%8B%E5%8F%97%E4%BF%A1%E8%80%85%E3%81%AE%E9%81%B8%E6%8A%9E%E5%9F%BA%E6%BA%96)のwikiのページを参照してください
 
 #デベロッパー向け
+## アーキテクチャ図
+![アーキテクチャ図](https://github.com/koga-yatsushiro/one_month/wiki/images/architecture.png)
+
 ## ローカル開発環境の構築
 * インストール
+** OS: Windows7
+** 言語: Python3.4
+** DB: PostgreSQL9.4 (windowsインストーラ使用を推奨)
+** psycopg2はネット上のwindowsインストーラを使用して入れてください
+** 以下、Pythonモジュール。以下のコマンドでインストールしてください
+※requirements.txtの中のpsycopg2==2.6.1の行は削除しておいてください
+
 ```bash
 pip install -r requirements.txt
 ```
-
-* OS: Windows7
-* 言語: Python3.4
-* DB: PostgreSQL9.4 (windowsインストーラ使用を推奨)
-* 以下、Pythonモジュール。pip install で入れる。
-* Django1.8
-* django-allauth
-* django-celery
-* django-bootstrap-toolkit
-* django-bootstrap-form
-* Pillow
-* psycopg2(windowsインストーラ使用を推奨)
 
 * ローカルで起動
 
@@ -76,10 +91,9 @@ python manage.py celeryd
 
 ## デプロイ開発環境の構築
 * インストール
-* OS: Ubuntu14.04 on AWS EC2
-* 言語: Python3.4
-* python3-pipをインストール後、#ローカル開発環境のPythonモジュールをすべて入れる
-** 例）pip3 install django
+** OS: Ubuntu14.04 on AWS EC2
+** 言語: Python3.4
+
 * 以下、sudo apt-get installで入れる
 * apache2
 * apache2-dev
@@ -87,14 +101,30 @@ python manage.py celeryd
 * postgresql
 * postgresql-server-dev-9.3
 * supervisor
+* python3-pip
 
-* デプロイ環境下で起動
+** 以下、Pythonモジュール。以下のコマンドでインストールしてください。
 
-* 設定ファイル変更も入れるべき？
+```bash
+pip3 install -r requirements.txt
+```
+
+* デプロイ環境下で起動（以下プロセスは自動起動です）
+
+```bash
+sudo service apache2 restart
+sudo service supervisor restart
+```
 
 ## 既知のバグ
 
-
 #今後の追加機能
+* 質問だけでなく、依頼や会議など機能拡張
+* ネットワーク図に基づいた受信者選別
+
+#バージョン情報
+* 2015.07.08 v1.0 Release
 
 #ライセンス
+Apache License, Version 2.0
+http://www.apache.org/licenses/LICENSE-2.0

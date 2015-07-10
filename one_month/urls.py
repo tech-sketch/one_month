@@ -22,6 +22,7 @@ from one_month import settings
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^accounts/', include('allauth.urls')),
+    url(r'^/accounts/login/$', 'django.contrib.auth.views.login', {'template_name': 'login.html'}),
 
     # ルート
     #url(r'^', include('question.urls', namespace='question')),

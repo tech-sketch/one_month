@@ -3,8 +3,8 @@ from question.models import Question, Reply, ReplyList, Tag, UserTag, QuestionTa
 
 # Register your models here.
 class QuestionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title', 'text','date')
-    list_display_links = ('id', 'title', 'text','date')
+    list_display = ('id', 'title', 'text', 'date')
+    list_display_links = ('id', 'title', 'text', 'date')
 
 class QuestionDestinationAdmin(admin.ModelAdmin):
     list_display = ('id', 'question', 'tag')

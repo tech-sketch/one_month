@@ -102,7 +102,7 @@ DATABASES = {
         #'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'one_month',
-        'USER': 'postgres',
+        'USER': 'admin',
         'PASSWORD': 'admin',
         'HOST': '127.0.0.1',
         'PORT':5432,
@@ -144,7 +144,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.static',
 
     #'django.contrib.auth.context_processors.auth',
-    #'django.contrib.messages.context_processors.messages',
+    'django.contrib.messages.context_processors.messages',
 
     'django.core.context_processors.request',
     'allauth.account.context_processors.account',

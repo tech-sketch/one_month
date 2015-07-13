@@ -45,14 +45,13 @@
 	{% if reply %}
 	<h3>回答</h3>
 	{% for r in reply %}	
-	<div class="popover right show" style="position:relative; max-width:100%;">
+	<div class="popover right show" style="position:relative; max-width:100%; word-break:break-all;">
 		<div class="arrow"></div>
-		<h3 class="popover-title" style="background-color: #FFFFFF;color: black;">
+		<h3 class="popover-title" style="background-color: #FFFFFF; color: black;">
 			回答者:{{ r.answerer}}　回答日時:{{ r.date }}
-		<div class="popover-content" style="color: black;">
-			<p>
-				{{ r.text|linebreaksbr }}
-			</p>
+		</h3>
+		<div class="popover-content" style="color: black; word-break:break-all;">
+			{{ r.text|urlize|linebreaksbr }}
 		</div>
 	</div>
 	<br>

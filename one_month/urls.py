@@ -17,12 +17,15 @@ Including another URLconf
 from django.conf.urls import include, url, patterns
 from django.contrib import admin
 
+from accounts import views
 from one_month import settings
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^accounts/signup/$', views.signup, name='signup'),
+    url(r'^accounts/login/$', views.signin, name='signin'),
     url(r'^accounts/', include('allauth.urls')),
-    url(r'^/accounts/login/$', 'django.contrib.auth.views.login', {'template_name': 'login.html'}),
+
 
     # ルート
     #url(r'^', include('question.urls', namespace='question')),

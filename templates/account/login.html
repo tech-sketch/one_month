@@ -36,22 +36,36 @@
 				<div class="col-md-4"></div>
 				<div class="col-md-4" style="background-color:rgba(25,25,122,0.8); color: white; text-align: center; border-radius: 10px; -webkit-border-radius: 10px; -moz-border-radius: 10px; ">
 					<br>
-					<b>気軽に質問ができて、答えが返ってくるアプリ</b><h1 style="color: white">.Chain</h1>
-					 <form class="form" role="form" method="post" action="{% url 'django.contrib.auth.views.login' %}"  accept-charset="UTF-8" id="login-nav">
-						  {% csrf_token %}
-							<div class="form-group">
-								 <label class="sr-only" for="username">User name</label>
-								 <input type="text" class="form-control" id="username" name="username" placeholder="User Name" required>
+					<b>気軽に質問ができて、答えが返ってくるアプリ</b><h1 style="color: white;">.Chain()</h1>
+					<div id="message">
+					{% for message in messages %}
+						<p>{{message}}</p><br>
+					{% endfor %}
+					</div>
+					<form class="form" role="form" method="post" action="{% url 'signin' %}"  accept-charset="UTF-8" id="login-nav">
+						 {% csrf_token %}
+						 <div class="form-group" style="margin-bottom: 5pt;">
+							<div class="col-md-12">
+								<label class="sr-only" for="username">User name</label>
+								<input type="text" class="form-control" id="username" name="username" placeholder="User Name" required>
 							</div>
-							<div class="form-group">
+						 </div>
+						 <br>
+						 <br>
+						 <div class="form-group">
+							 <div class="col-md-12">
 								 <label class="sr-only" for="password">Password</label>
 								 <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
-							</div>
-							<div class="form-group">
-								 <button type="submit" class="btn btn-primary btn-block">Sign in</button>
-							</div>
-					 </form>
-					<br>
+							 </div>
+						 </div>
+                         <br>
+                         <br>
+						 <div class="form-group">
+							 <div class="col-md-6"><button type="submit" class="btn btn-primary btn-block" id="signin-btn">Sign in</button></div>
+					　　　　 <div class="col-md-6"><button type="button" class="btn btn-warning btn-block" onclick="location.href='{% url 'signup' %}'">Sign up</button></div>
+						 </div>
+						 <br>
+					</form>
 					<button type="button" class="btn btn-default">
 						<a href="{% provider_login_url "google" %}"><i class="glyphicon glyphicon-log-in" style="color: #404040; font-weight:bold"> Googleアカウントでログイン</i></a>
 					</button>

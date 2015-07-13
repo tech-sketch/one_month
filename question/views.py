@@ -8,6 +8,8 @@ from accounts.models import UserProfile, WorkStatus, WorkPlace, Division
 from question.models import Question, Reply, ReplyList, Tag, UserTag, QuestionTag, QuestionDestination
 from question.forms import QuestionEditForm, ReplyEditForm, UserProfileEditForm, KeywordSearchForm
 from question.qa_manager import QAManager, QuestionState, ReplyState
+import question.robot_reply as robot_reply
+from django.contrib import messages
 import datetime
 
 # Create your views here.
@@ -16,7 +18,6 @@ def top_default(request, msg=None):
     """
     トップページ
     """
-
     # added
     #form = None
     #if request.method == 'GET':
@@ -36,7 +37,8 @@ def top_default(request, msg=None):
        * 自分の回答内容がキーワードと部分一致
        * 自分の投稿に対する相手の回答内容がキーワードと部分一致
        """
-
+        # 自分宛の質問リストを取ってくる（パス含む）
+        reply_lists = ReplyList.objects.filter(answerer=request.user)
         if form.is_valid():
             # すべての質問の中からキーワードに合致する質問のみ取り出す
             questions = list(Question.objects.filter(Q(title__contains=form.clean()['keyword']) |
@@ -44,9 +46,6 @@ def top_default(request, msg=None):
 
             # 回答内容にキーワードが含まれるもののうち自分が答えた質問のみ取り出す
             replies = list(Reply.objects.filter(Q(text__contains=form.clean()['keyword'])))
-
-            # 自分宛の質問リストを取ってくる（パス含む）
-            reply_lists = ReplyList.objects.filter(answerer=request.user)
 
             # キーワードに合致するすべての質問のうち、自分が投稿した質問と、自分に来た質問を取り出す
             q_list_tmp = []
@@ -74,10 +73,10 @@ def top_default(request, msg=None):
 
             # 自分が投稿した質問のタグと一致するもののみ取り出す
             for tag in tags:
-                  q_tags = QuestionTag.objects.filter(tag=tag)#タグ名が合致する質問タグ
-                  q = [q_tag.question for q_tag in q_tags if q_tag.question.questioner == request.user]
-                  q_list_tmp.extend(q)
-                  q_list_tmp = list(set(q_list_tmp))
+                q_tags = QuestionTag.objects.filter(tag=tag)#タグ名が合致する質問タグ
+                q = [q_tag.question for q_tag in q_tags if q_tag.question.questioner == request.user]
+                q_list_tmp.extend(q)
+                q_list_tmp = list(set(q_list_tmp))
             questions = q_list_tmp
 
             # 自分が答えた質問のタグと一致するもののみ取り出す
@@ -122,7 +121,6 @@ def top_default(request, msg=None):
         elif isinstance(qa[0], ReplyList):
             profile = UserProfile.objects.get(user=qa[0].question.questioner)
         qa.append(profile)
-
     histories = None
     return render_to_response('question/top_all.html',
                               {'histories': histories, 'qa_list':qa_list,
@@ -169,13 +167,16 @@ def question_edit(request, id=None, msg=None):
             qa_manager = QAManager()
             r_list = qa_manager.make_reply_list(q, qa_manager.reply_list_update_random_except)
 
-            if r_list == None:
+            if r_list is None:
                 q.delete()
+
                 msg = '宛先ユーザが見つかりませんでした。入力された質問は消去されます。\n'
                 msg += '次の原因が考えられます。\n'
                 msg += '・送信先にユーザがいない\n'
                 msg += '・送信先に1日以内にログインしたユーザがいない\n'
                 msg += '・送信先に受信拒否のユーザしかいない'
+
+
                 return render_to_response('question/question_edit.html',
                               {'form': form, 'id': id, 'msg': msg},
                               context_instance=RequestContext(request))
@@ -245,13 +246,13 @@ def reply_edit(request, id=None):
         # 完了がおされたら
         if form.is_valid():
             # この質問の自分あての回答リストを取ってきて、回答済みにしておく
-            if(q.questioner!=request.user):
+            if q.questioner != request.user:
                 r_list = get_object_or_404(ReplyList, question=q, answerer=request.user) #has_replied=Falseはいらないと思う
                 if r_list.has_replied:
                     msg = 'その質問は自動的にパスされました'
                     return top_default(request, msg)
                 #r_list.has_replied = True
-                r_list.time_limit_date=None
+                r_list.time_limit_date = None
                 r_list.save()
 
                 tag_list = QuestionTag.objects.filter(question=q)
@@ -328,13 +329,23 @@ def question_pass(request, id=None):
     qa_manager = QAManager()
     if qa_manager.pass_question(reply_list.question, qa_manager.reply_list_update_random_except):
         msg = '質問をパスしました。'
-        return top_default(request,msg)
+
+        # 何回目のパスでロボットが返信してくるか
+        if reply_list.question.pass_counter() == 1:
+            reply = Reply()
+            reply.question = reply_list.question
+            reply.text = "以下のページはどうでしょうか？\n\n" + "\n".join(robot_reply.reply(reply_list.question.text))
+            # ロボットのidを指定
+            reply.answerer = User.objects.get(id=1)
+            reply.save()
+        print("パス")
+        return top_default(request, msg)
     else:
         reply_list.question.is_closed = True
         reply_list.question.save()
         msg = '質問をパスしました。\n'
         msg += '次の送信先がないため質問は締め切られます。'
-        return top_default(request,msg)
+        return top_default(request, msg)
 
 @login_required(login_url='/accounts/login')
 def question_detail(request, id=None):

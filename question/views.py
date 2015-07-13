@@ -338,7 +338,6 @@ def question_pass(request, id=None):
             # ロボットのidを指定
             reply.answerer = User.objects.get(id=1)
             reply.save()
-        print("パス")
         return top_default(request, msg)
     else:
         reply_list.question.is_closed = True

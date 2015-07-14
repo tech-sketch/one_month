@@ -18,6 +18,8 @@ def top_default(request, msg=None):
     """
     トップページ
     """
+    #result = robot_reply.request_keyword_extraction("まず、BaseXにつなげるためTomcat7を使いサーバーを始動させると問題なく作動しますが、")
+    #print(result)
     # added
     #form = None
     #if request.method == 'GET':
@@ -334,7 +336,11 @@ def question_pass(request, id=None):
         if reply_list.question.pass_counter() == 1:
             reply = Reply()
             reply.question = reply_list.question
-            reply.text = "以下のページはどうでしょうか？\n\n" + "\n".join(robot_reply.reply(reply_list.question.text))
+            reply_text = robot_reply.reply(reply_list.question)
+            if len(reply_text) == 0:
+                reply.text = "難問です。答えられたらすごいです。"
+            else:
+                reply.text = "以下のページはどうでしょうか？\n\n" + "\n".join(reply_text)
             # ロボットのidを指定
             reply.answerer = User.objects.get(id=1)
             reply.save()

@@ -448,7 +448,7 @@ def mypage(request):
     work_status, created = WorkStatus.objects.get_or_create(name='在席', defaults=dict(name='在席',),)
     division, created = Division.objects.get_or_create(code=2, name='人事', defaults=dict(code=2, name='人事'))
     p, created = UserProfile.objects.get_or_create(user=request.user,
-                                                   defaults=dict(avatar='images/icons/pepper.png',
+                                                   defaults=dict(avatar='pepper.png',
                                                                  work_place=work_place,
                                                                  work_status=work_status,
                                                                  division=division,
@@ -483,7 +483,7 @@ def mypage(request):
             # 追加されたタグ名から、新規にTagとQuestionTagを生成して保存
             tag_added_name = form.cleaned_data['tag_added']
             tags = Tag.objects.all()
-            tag_name =[t.name for t in tags]
+            tag_name = [t.name for t in tags]
             if tag_added_name != "" and tag_added_name not in tag_name: # 新規に追加されたタグだったら保存
                 t = Tag()
                 t.name = tag_added_name

@@ -526,7 +526,7 @@ def network(request):
                               context_instance=RequestContext(request))
 
 @login_required(login_url='/accounts/login')
-def pass_network(request, id=None):
+def (request, id=None):
     q = get_object_or_404(Question, pk=id)
 
     user_reply_list =ReplyList.objects.filter(question=q).order_by('time_limit_date')[0]

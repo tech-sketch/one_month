@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {% load staticfiles %}
-<link href="{% static 'css/login.css' %}" rel="stylesheet">
+
 {% block content %}
 <h1>ユーザー登録</h1>
 <p>すでにアカウントをお持ちであれば、こちらから <a href="/accounts/login/">ログイン</a> してください。</p>
 <div class="col-md-1"></div>
-<div class="col-md-10">
+<div class="col-md-10" style="background-color: #FFFFFF; border-top: 3px solid #BFBFBF; border-bottom: 7px solid #D24726; border-left: none; border-right: 3px solid #BFBFBF;">
 <form class="signup" id="signup_form" method="post" action="/accounts/signup/" enctype="multipart/form-data">
     {% csrf_token %}
     <table class="table table-hover">
@@ -38,8 +38,12 @@
             </tr>
         </tbody>
     </table>
-    <button class="btn btn-signup">登録</button>
+    <div align="right">
+        <button class="btn btn-signup">登録</button>
+    </div>
 </form>
 </div>
 <div class="col-md-1"></div>
+
+<link href="{% static 'css/login.css' %}" rel="stylesheet">
 {% endblock content%}

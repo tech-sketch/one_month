@@ -1,8 +1,8 @@
-b, h1 {
+.contents b, .contents h1 {
     color: #e6e6e6;
 }
 
-hr {
+.contents hr {
     color: #e6e6e6;
 }
 

@@ -131,11 +131,11 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
 
-STATIC_ROOT = '/var/www/one_month/static_web'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static_web')
 
 MEDIA_URL = '/media/'
 
-MEDIA_ROOT = '/var/www/one_month/media'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'static')
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.debug',

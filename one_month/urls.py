@@ -22,10 +22,10 @@ from one_month import settings
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^accounts/signup/$', views.signup, name='signup'),
-    url(r'^accounts/login/$', views.signin, name='signin'),
-    url(r'^accounts/', include('allauth.urls')),
 
+    url(r'^accounts/login/$', views.login, name='login'),
+    url(r'^accounts/signup/$', views.signup, name='signup'),
+    url(r'^accounts/', include('allauth.urls')),
 
     # ルート
     #url(r'^', include('question.urls', namespace='question')),

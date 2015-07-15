@@ -1,0 +1,35 @@
+b, h1 {
+    color: #e6e6e6;
+}
+
+hr {
+    color: #e6e6e6;
+}
+
+input:-webkit-autofill {
+    box-shadow: 0 0 0 100px #fff inset;
+}
+
+.btn-signin, .btn-signin:hover {
+    color:  #e6e6e6;
+    background-color: #187a49;
+    border-color:   #187a49;
+    padding: 6pt 2pt;
+}
+
+.btn-signup, .btn-signup:hover {
+    color: #e6e6e6;
+    background-color: #3333ff;
+    border-color:   #3333ff;
+}
+
+.btn-google, .btn-google:hover {
+    color: #ddd;
+    background-color: #1f1f99;
+    border-color:   #1f1f99;
+}
+
+#message {
+    height: 25pt;
+    color: red;
+}

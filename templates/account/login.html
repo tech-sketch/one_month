@@ -5,13 +5,13 @@
 <html>
 	<head>
 		<title>ログイン</title>
-		
-		<link href="{% static 'css/bootstrap.css' %}" rel="stylesheet">
-		<script src="{% static 'js/bootstrap.min.js' %}"></script>
-
 		<script src="{% static 'js/jquery.js' %}"></script>
 		<script src="{% static 'js/jquery.pagepiling.min.js' %}"></script>
 		<link href="{% static 'css/jquery.pagepiling.css' %}" rel="stylesheet">
+		<link href="{% static 'css/bootstrap.css' %}" rel="stylesheet">
+		<script src="{% static 'js/bootstrap.min.js' %}"></script>
+		<link href="{% static 'css/login.css' %}" rel="stylesheet">
+
 		<script type="text/javascript">
 			$(document).ready(function() {
 				$('#pagepiling').pagepiling({
@@ -36,16 +36,16 @@
 				<div class="col-md-4"></div>
 				<div class="col-md-4" style="background-color:rgba(25,25,122,0.8); color: white; text-align: center; border-radius: 10px; -webkit-border-radius: 10px; -moz-border-radius: 10px; ">
 					<br>
-					<b>気軽に質問ができて、答えが返ってくるアプリ</b><h1 style="color: white;">.Chain()</h1>
+					<b>気軽に質問ができて、答えが返ってくるアプリ</b><h1>.Chain()</h1>
 					<div id="message">
 					{% for message in messages %}
-						<p>{{message}}</p><br>
+						<p>{{message}}</p>
 					{% endfor %}
 					</div>
-					<form class="form" role="form" method="post" action="{% url 'signin' %}"  accept-charset="UTF-8" id="login-nav">
+					<form class="form" role="form" method="post" action="{% url 'login' %}"  accept-charset="UTF-8" id="login-nav">
 						 {% csrf_token %}
 						 <div class="form-group" style="margin-bottom: 5pt;">
-							<div class="col-md-12">
+							<div class="col-md-9">
 								<label class="sr-only" for="username">User name</label>
 								<input type="text" class="form-control" id="username" name="username" placeholder="User Name" required>
 							</div>
@@ -53,22 +53,27 @@
 						 <br>
 						 <br>
 						 <div class="form-group">
-							 <div class="col-md-12">
+							 <div class="col-md-9">
 								 <label class="sr-only" for="password">Password</label>
 								 <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
 							 </div>
+							 <div class="col-md-3" style="display: inline; padding: 0 10pt 0 0;"><button type="submit" class="btn btn-signin btn-block" id="signin-btn">ログイン</button></div>
 						 </div>
                          <br>
-                         <br>
-						 <div class="form-group">
-							 <div class="col-md-6"><button type="submit" class="btn btn-primary btn-block" id="signin-btn">Sign in</button></div>
-					　　　　 <div class="col-md-6"><button type="button" class="btn btn-warning btn-block" onclick="location.href='{% url 'signup' %}'">Sign up</button></div>
+						 <div class="form-group" style="margin-top: 10pt;">
+							<div class="col-md-12">
+								<button type="button" class="btn btn-signup btn-block" onclick="location.href='{% url 'account_signup' %}'">Sign up</button>
+							</div>
 						 </div>
-						 <br>
 					</form>
-					<button type="button" class="btn btn-default">
-						<a href="{% provider_login_url "google" %}"><i class="glyphicon glyphicon-log-in" style="color: #404040; font-weight:bold"> Googleアカウントでログイン</i></a>
-					</button>
+					<br>
+					<br>
+					<hr>
+					<div class="col-md-12" style="margin-top: 0pt; margin-bottom: 15pt;">
+						<button type="button" class="btn btn-google btn-block" onclick="location.href='{% provider_login_url "google" %}'">
+							<i class="glyphicon glyphicon-log-in" style="font-weight:bold"> Googleアカウントでログイン</i>
+						</button>
+					</div>
 					<br>
 					<br>
 				</div>
@@ -79,7 +84,7 @@
 				<div class="col-md-1"></div>
 				<div class="col-md-4" style="background-color:rgba(25,25,122,0.8); color: white; text-align: center; border-radius: 10px; -webkit-border-radius: 10px; -moz-border-radius: 10px; ">
 					<br>
-					<h1 style="color: white">まずは質問してみましょう</h1>
+					<h1>まずは質問してみましょう</h1>
 					<br>
 					<br>
 					<b>あなたは質問に送信範囲と制限時間を設定できます。
@@ -93,6 +98,12 @@
 					</b>
 					<br>
 					<br>
+					<div class="col-md-12">
+						<button type="button" class="btn btn-signup btn-block" onclick="location.href='{% url 'signup' %}'">Sign up</button>
+					</div>
+					<br>
+					<br>
+					<br>
 				</div>
 				<div class="col-md-7"></div>
 			</div>
@@ -100,7 +111,7 @@
 				<div class="col-md-7"></div>
 				<div class="col-md-4" style="background-color:rgba(25,25,122,0.8); color: white; text-align: center; border-radius: 10px; -webkit-border-radius: 10px; -moz-border-radius: 10px; ">
 					<br>
-					<h1 style="color: white">プロフィールを設定しましょう。</h1>
+					<h1>プロフィールを設定しましょう。</h1>
 					<br>
 					<br>
 					<b>プロフィールを設定しましょう。
@@ -111,14 +122,20 @@
 					</b>
 					<br>
 					<br>
+					<div class="col-md-12">
+						<button type="button" class="btn btn-signup btn-block" onclick="location.href='{% url 'signup' %}'">Sign up</button>
+					</div>
+					<br>
+					<br>
+					<br>
 				</div>
 				<div class="col-md-1"></div>
 			</div>
-			<div class="contents" id="section4"　 style="background-image: url('/static/images/bg/building.jpg'); background-size:cover;">
+			<div class="contents" id="section4"  style="background-image: url('/static/images/bg/building.jpg'); background-size:cover;">
 				<div class="col-md-1"></div>
 				<div class="col-md-4" style="background-color:rgba(25,25,122,0.8); color: white; text-align: center; border-radius: 10px; -webkit-border-radius: 10px; -moz-border-radius: 10px; ">
 					<br>
-					<h1 style="color: white">ネットワークを成長させましょう</h1>
+					<h1>ネットワークを成長させましょう</h1>
 					<br>
 					<br>
 					<b> あなたが質問に答えるとその質問者とのつながりが強くなります。
@@ -126,6 +143,12 @@
 					また質問にタグが設定されている場合、そのタグとのつながりが強くなります。
 					<br>
 					</b>
+					<br>
+					<br>
+					<div class="col-md-12">
+						<button type="button" class="btn btn-signup btn-block" onclick="location.href='{% url 'signup' %}'">Sign up</button>
+					</div>
+					<br>
 					<br>
 					<br>
 				</div>

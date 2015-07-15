@@ -20,6 +20,8 @@ class Question(models.Model):
     def get_tags_name(self):
         return [x.tag.name for x in QuestionTag.objects.filter(question=self)]
 
+    def has_reply(self):
+        return len(Reply.objects.filter(question=self)) != 0
     """
     def __str__(self):
         return u'%sから%sへ「%s」についての質問' % (self.questioner, self.destination_div, self.title)

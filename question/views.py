@@ -1,15 +1,13 @@
 from django.shortcuts import render_to_response, redirect, get_object_or_404
 from django.template import RequestContext
-from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.contrib.auth.models import User
 from accounts.models import UserProfile, WorkStatus, WorkPlace, Division
 from question.models import Question, Reply, ReplyList, Tag, UserTag, QuestionTag, QuestionDestination
 from question.forms import QuestionEditForm, ReplyEditForm, UserProfileEditForm, KeywordSearchForm
-from question.qa_manager import QAManager, QuestionState, ReplyState
+from question.qa_manager import QAManager
 import question.robot_reply as robot_reply
-from django.contrib import messages
 import datetime
 
 # Create your views here.
@@ -18,11 +16,9 @@ def top_default(request, msg=None):
     """
     トップページ
     """
-    #result = robot_reply.request_keyword_extraction("まず、BaseXにつなげるためTomcat7を使いサーバーを始動させると問題なく作動しますが、")
-    #print(result)
     # added
-    #form = None
-    #if request.method == 'GET':
+    # form = None
+    # if request.method == 'GET':
     form = KeywordSearchForm()
     # 自分の質問を取ってくる
     questions = Question.objects.filter(questioner=request.user)
@@ -44,7 +40,7 @@ def top_default(request, msg=None):
         if form.is_valid():
             # すべての質問の中からキーワードに合致する質問のみ取り出す
             questions = list(Question.objects.filter(Q(title__contains=form.clean()['keyword']) |
-                                                  Q(text__contains=form.clean()['keyword'])))
+                                                     Q(text__contains=form.clean()['keyword'])))
 
             # 回答内容にキーワードが含まれるもののうち自分が答えた質問のみ取り出す
             replies = list(Reply.objects.filter(Q(text__contains=form.clean()['keyword'])))
@@ -71,11 +67,11 @@ def top_default(request, msg=None):
             reply_lists = r_list_tmp
 
             # キーワードに合致するすべてのタグを取り出す
-            tags = list(Tag.objects.filter(Q(name__contains=form.clean()['keyword']))) #キーワードが含まれるタグ（複数）
+            tags = list(Tag.objects.filter(Q(name__contains=form.clean()['keyword'])))  # キーワードが含まれるタグ（複数）
 
             # 自分が投稿した質問のタグと一致するもののみ取り出す
             for tag in tags:
-                q_tags = QuestionTag.objects.filter(tag=tag)#タグ名が合致する質問タグ
+                q_tags = QuestionTag.objects.filter(tag=tag)  # タグ名が合致する質問タグ
                 q = [q_tag.question for q_tag in q_tags if q_tag.question.questioner == request.user]
                 q_list_tmp.extend(q)
                 q_list_tmp = list(set(q_list_tmp))
@@ -85,8 +81,9 @@ def top_default(request, msg=None):
             replies = list(Reply.objects.filter(answerer=request.user))
             for r in replies:
                 for tag in tags:
-                    q_tags = QuestionTag.objects.filter(tag=tag)#タグ名が合致する質問タグ
-                    q = [q_tag.question for q_tag in q_tags if r.question.id == q_tag.question.id and r.answerer == request.user]
+                    q_tags = QuestionTag.objects.filter(tag=tag)  # タグ名が合致する質問タグ
+                    q = [q_tag.question for q_tag in q_tags if
+                         r.question.id == q_tag.question.id and r.answerer == request.user]
                     q_list_tmp.extend(q)
                     q_list_tmp = list(set(q_list_tmp))
 
@@ -94,8 +91,8 @@ def top_default(request, msg=None):
             b = []
             r_list_tmp = ReplyList.objects.filter(answerer=request.user)
             for tag in tags:
-                q_tags = QuestionTag.objects.filter(tag=tag)#タグ名が合致する質問タグ
-                for rl in r_list_tmp:#自分に来た質問
+                q_tags = QuestionTag.objects.filter(tag=tag)  # タグ名が合致する質問タグ
+                for rl in r_list_tmp:  # 自分に来た質問
                     for q_tag in q_tags:
                         if rl.question.id == q_tag.question.id:
                             a.append(rl)
@@ -103,7 +100,6 @@ def top_default(request, msg=None):
                             reply_lists.extend(b)
 
             reply_lists = list(set(reply_lists))
-
 
     # 自分の質問と自分宛ての質問の状態を調べる
     qa_manager = QAManager(request.user)
@@ -114,7 +110,8 @@ def top_default(request, msg=None):
     qa_list = list()
     qa_list.extend(questions)
     qa_list.extend(reply_lists)
-    qa_list = sorted(qa_list, reverse=True, key=lambda x: x[0].date if isinstance(x[0],Question) else x[0].question.date)
+    qa_list = sorted(qa_list, reverse=True,
+                     key=lambda x: x[0].date if isinstance(x[0], Question) else x[0].question.date)
 
     # プロフィール
     for qa in qa_list:
@@ -125,9 +122,10 @@ def top_default(request, msg=None):
         qa.append(profile)
     histories = None
     return render_to_response('question/top_all.html',
-                              {'histories': histories, 'qa_list':qa_list,
-                               'last_login': request.user.last_login, 'msg':msg},
+                              {'histories': histories, 'qa_list': qa_list,
+                               'last_login': request.user.last_login, 'msg': msg},
                               context_instance=RequestContext(request))
+
 
 @login_required(login_url='/accounts/login')
 def question_edit(request, id=None, msg=None):
@@ -178,10 +176,9 @@ def question_edit(request, id=None, msg=None):
                 msg += '・送信先に1日以内にログインしたユーザがいない\n'
                 msg += '・送信先に受信拒否のユーザしかいない'
 
-
                 return render_to_response('question/question_edit.html',
-                              {'form': form, 'id': id, 'msg': msg},
-                              context_instance=RequestContext(request))
+                                          {'form': form, 'id': id, 'msg': msg},
+                                          context_instance=RequestContext(request))
             else:
                 r_list.save()
 
@@ -197,7 +194,7 @@ def question_edit(request, id=None, msg=None):
             tag_added_name = form.cleaned_data['tag_added']
             tags = Tag.objects.all()
             tag_name = [t.name for t in tags]
-            if tag_added_name != "" and tag_added_name not in tag_name: # 新規に追加されたタグだったら保存
+            if tag_added_name != "" and tag_added_name not in tag_name:  # 新規に追加されたタグだったら保存
                 t = Tag()
                 t.name = tag_added_name
                 t.save()
@@ -216,6 +213,7 @@ def question_edit(request, id=None, msg=None):
                               {'form': form, 'id': id},
                               context_instance=RequestContext(request))
 
+
 @login_required(login_url='/accounts/login')
 def reply_edit(request, id=None):
     """
@@ -224,16 +222,16 @@ def reply_edit(request, id=None):
 
     # 指定された質問を取ってくる
     q = get_object_or_404(Question, pk=id)
-    #if ReplyList.objects.filter(question=q, answerer=request.user, has_replied=True):
+    # if ReplyList.objects.filter(question=q, answerer=request.user, has_replied=True):
     #    msg = 'その質問はすでにパスされています'
     #    return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
 
     if q.is_closed:
         msg = 'その質問の回答は締め切られました。'
         return top_default(request, msg)
-        #return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
+        # return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
 
-    #replylist = ReplyList.objects.filter(question=q)[0]
+    # replylist = ReplyList.objects.filter(question=q)[0]
     # 各質問について、has_replied=Falseの回答済みリストは一つのみのはず
 
     replylist = get_object_or_404(ReplyList, question=q, has_replied=False)
@@ -249,11 +247,12 @@ def reply_edit(request, id=None):
         if form.is_valid():
             # この質問の自分あての回答リストを取ってきて、回答済みにしておく
             if q.questioner != request.user:
-                r_list = get_object_or_404(ReplyList, question=q, answerer=request.user) #has_replied=Falseはいらないと思う
+                r_list = get_object_or_404(ReplyList, question=q, answerer=request.user)
+                # has_replied=Falseはいらないと思う
                 if r_list.has_replied:
                     msg = 'その質問は自動的にパスされました'
                     return top_default(request, msg)
-                #r_list.has_replied = True
+                # r_list.has_replied = True
                 r_list.time_limit_date = None
                 r_list.save()
 
@@ -272,9 +271,9 @@ def reply_edit(request, id=None):
             r.draft = form.cleaned_data['draft']
             r.save()
 
-            #質問を締め切る
-            #q.is_closed = True
-            #q.save()
+            # 質問を締め切る
+            # q.is_closed = True
+            # q.save()
 
             msg = '返信しました。'
             return top_default(request, msg)
@@ -284,15 +283,16 @@ def reply_edit(request, id=None):
         form = ReplyEditForm(instance=r)
 
     return render_to_response('question/reply_edit.html',
-                                  {'form': form, 'question': q, 'id': id, 'replylist':replylist},
-                                  context_instance=RequestContext(request))
+                              {'form': form, 'question': q, 'id': id, 'replylist': replylist},
+                              context_instance=RequestContext(request))
+
 
 @login_required(login_url='/accounts/login')
 def question_list(request):
     """
     自分の質問を表示する
     """
-     # 自分の質問を取ってきて時系列に並べる
+    # 自分の質問を取ってきて時系列に並べる
     q = Question.objects.filter(questioner=request.user).order_by('date')
 
     # 各質問の状態を調べる
@@ -300,7 +300,8 @@ def question_list(request):
     qa_list = q_manager.question_state(q)
 
     # 自分の質問を時系列に並べる
-    qa_list = sorted(qa_list, reverse=True, key=lambda x: x[0].date if isinstance(x[0],Question) else x[0].question.date)
+    qa_list = sorted(qa_list, reverse=True,
+                     key=lambda x: x[0].date if isinstance(x[0], Question) else x[0].question.date)
 
     # プロフィール
     for qa in qa_list:
@@ -316,6 +317,7 @@ def question_list(request):
                                'last_login': request.user.last_login},
                               context_instance=RequestContext(request))
 
+
 @login_required(login_url='/accounts/login')
 def question_pass(request, id=None):
     """
@@ -326,14 +328,14 @@ def question_pass(request, id=None):
     reply_list = ReplyList.objects.get(id=id)
     if reply_list.has_replied:
         msg = 'すでにパスした質問です。'
-        return top_default(request,msg)
+        return top_default(request, msg)
 
     qa_manager = QAManager()
     if qa_manager.pass_question(reply_list.question, qa_manager.reply_list_update_random_except):
         msg = '質問をパスしました。'
 
         # 何回目のパスでロボットが返信してくるか
-        if reply_list.question.pass_counter() == 1:
+        if reply_list.question.pass_counter() == 1 and not reply_list.question.has_reply():
             reply = Reply()
             reply.question = reply_list.question
             reply_data = robot_reply.reply(reply_list.question)
@@ -354,6 +356,7 @@ def question_pass(request, id=None):
         msg += '次の送信先がないため質問は締め切られます。'
         return top_default(request, msg)
 
+
 @login_required(login_url='/accounts/login')
 def question_detail(request, id=None):
     """
@@ -369,7 +372,7 @@ def question_detail(request, id=None):
     # 質問に対する回答を取ってくる
     # まだ回答が来てない場合のためにget_object_or_404は使わずにこちらを使う
     try:
-        r = Reply.objects.filter(question=q) # 一つの質問につき返信が複数ある場合はfilterを使うこと
+        r = Reply.objects.filter(question=q)  # 一つの質問につき返信が複数ある場合はfilterを使うこと
     except Reply.DoesNotExist:
         r = None
 
@@ -380,7 +383,7 @@ def question_detail(request, id=None):
         reply_list = None
 
     # user check
-    if q.questioner != request.user and reply_list==None:
+    if q.questioner != request.user and reply_list == None:
         # 他人の質問は表示できないようにする
         msg = '他の人の質問は閲覧できません。'
         return top_default(request, msg)
@@ -388,6 +391,7 @@ def question_detail(request, id=None):
     return render_to_response('question/question_detail.html',
                               {'question': q, 'q_tags': q_tags, 'reply': r, 'reply_list': reply_list},
                               context_instance=RequestContext(request))
+
 
 @login_required(login_url='/accounts/login')
 def reply_list(request):
@@ -407,10 +411,10 @@ def reply_list(request):
 
     # 06/09 返信リストの中から自分あて、かつ返信済みでない質問を取ってくる
     # 返信期限がまだ来てないもの、かつ返信期限が早いものから順に表示
-    #replylist = ReplyList.objects.filter(answerer=request.user, has_replied=False,time_limit_date__gte=datetime.datetime.now(pytz.utc)).order_by('time_limit_date')[:]
-    #questions = [r.question for r in replylist]
+    # replylist = ReplyList.objects.filter(answerer=request.user, has_replied=False,time_limit_date__gte=datetime.datetime.now(pytz.utc)).order_by('time_limit_date')[:]
+    # questions = [r.question for r in replylist]
 
-    #return render_to_response('question/reply_list.html',
+    # return render_to_response('question/reply_list.html',
     #                            {'questions':questions,},
     #                           context_instance=RequestContext(request))
 
@@ -437,6 +441,7 @@ def reply_list(request):
                               {'histories': histories, 'qa_list': qa_list, 'last_login': request.user.last_login},
                               context_instance=RequestContext(request))
 
+
 @login_required(login_url='/accounts/login')
 def mypage(request):
     """
@@ -444,19 +449,19 @@ def mypage(request):
     """
 
     # ユーザのプロファイルを取ってくる
-    work_place, created = WorkPlace.objects.get_or_create(name='東京', defaults=dict(name='東京',),)
-    work_status, created = WorkStatus.objects.get_or_create(name='在席', defaults=dict(name='在席',),)
+    work_place, created = WorkPlace.objects.get_or_create(name='東京', defaults=dict(name='東京', ), )
+    work_status, created = WorkStatus.objects.get_or_create(name='在席', defaults=dict(name='在席', ), )
     division, created = Division.objects.get_or_create(code=2, name='人事', defaults=dict(code=2, name='人事'))
     p, created = UserProfile.objects.get_or_create(user=request.user,
                                                    defaults=dict(avatar='images/icons/pepper.png',
                                                                  work_place=work_place,
                                                                  work_status=work_status,
                                                                  division=division,
-                                                                 accept_question=1,),)
+                                                                 accept_question=1, ), )
 
     # ユーザが登録しているタグを取ってくる
     user_tags = UserTag.objects.filter(user=request.user)
-    #user_tags = [user_tag.tag for user_tag in user_tags]
+    # user_tags = [user_tag.tag for user_tag in user_tags]
 
     # edit
     if request.method == 'POST':
@@ -472,9 +477,9 @@ def mypage(request):
 
             # 選択されたタグから、新規にQuestionTagを生成して保存
             tags = form.cleaned_data['tag']
-            u_tag_names =[t.tag.name for t in user_tags]
+            u_tag_names = [t.tag.name for t in user_tags]
             for q_tag in tags:
-                if q_tag.name not in u_tag_names: # ユーザに新規に追加されたタグだったら保存
+                if q_tag.name not in u_tag_names:  # ユーザに新規に追加されたタグだったら保存
                     qt = UserTag()
                     qt.tag = q_tag
                     qt.user = request.user
@@ -483,8 +488,8 @@ def mypage(request):
             # 追加されたタグ名から、新規にTagとQuestionTagを生成して保存
             tag_added_name = form.cleaned_data['tag_added']
             tags = Tag.objects.all()
-            tag_name =[t.name for t in tags]
-            if tag_added_name != "" and tag_added_name not in tag_name: # 新規に追加されたタグだったら保存
+            tag_name = [t.name for t in tags]
+            if tag_added_name != "" and tag_added_name not in tag_name:  # 新規に追加されたタグだったら保存
                 t = Tag()
                 t.name = tag_added_name
                 t.save()
@@ -501,93 +506,103 @@ def mypage(request):
     # new
     else:
         form = UserProfileEditForm(instance=p)
-        #tag_form = UserTagEditForm(instance=t)
+        # tag_form = UserTagEditForm(instance=t)
         # TODO マイページにユーザが登録済みのタグを表示しつつ、追加・編集できるようにしたい
 
     user_question = Question.objects.filter(questioner=request.user)
     user_reply = Reply.objects.filter(answerer=request.user)
     return render_to_response('question/mypage.html',
-                              {'form': form, 'user_tags':user_tags, 'uprof':p, 'uquestion':user_question, 'ureply':user_reply},
+                              {'form': form, 'user_tags': user_tags, 'uprof': p, 'uquestion': user_question,
+                               'ureply': user_reply},
                               context_instance=RequestContext(request))
 
 
 @login_required(login_url='/accounts/login')
 def search(request):
-
     if request.method == 'GET':
         form = KeywordSearchForm()
 
-    #elif request.method == 'POST':
+    # elif request.method == 'POST':
     #  form = KeywordSearchForm(request.POST)
 
     return render_to_response('question/question_search.html',
                               {'form': form},
                               context_instance=RequestContext(request))
 
+
 @login_required(login_url='/accounts/login')
 def network(request):
-    all_user = [[u.username, 'u{}'.format(u.id), 5*len(Reply.objects.filter(answerer=u))] for u in User.objects.all()]
+    all_user = [[u.username, 'u{}'.format(u.id), 5 * len(Reply.objects.filter(answerer=u))] for u in User.objects.all()]
     all_tag = [[t.name, 't{}'.format(t.id)] for t in Tag.objects.all()]
-    all_reply = [['u{}'.format(r.answerer.id),  'u{}'.format(r.question.questioner.id)] for r in Reply.objects.all()]
-    all_reply = [[s[0], s[1], all_reply.count([s[0], s[1]]) + all_reply.count([s[1], s[0]])]for s in set([tuple(sorted(r)) for r in all_reply])]
-    all_userTag = [['u{}'.format(u.user.id),  't{}'.format(u.tag.id)] for u in UserTag.objects.all()]
+    all_reply = [['u{}'.format(r.answerer.id), 'u{}'.format(r.question.questioner.id)] for r in Reply.objects.all()]
+    all_reply = [[s[0], s[1], all_reply.count([s[0], s[1]]) + all_reply.count([s[1], s[0]])] for s in
+                 set([tuple(sorted(r)) for r in all_reply])]
+    all_userTag = [['u{}'.format(u.user.id), 't{}'.format(u.tag.id)] for u in UserTag.objects.all()]
 
     return render_to_response('question/network.html',
-                              {'all_user': all_user, 'all_reply': all_reply, 'all_tag': all_tag, 'all_userTag': all_userTag },
+                              {'all_user': all_user, 'all_reply': all_reply, 'all_tag': all_tag,
+                               'all_userTag': all_userTag},
                               context_instance=RequestContext(request))
+
 
 @login_required(login_url='/accounts/login')
 def pass_network(request, id=None):
     q = get_object_or_404(Question, pk=id)
 
-    user_reply_list =ReplyList.objects.filter(question=q).order_by('time_limit_date')[0]
+    user_reply_list = ReplyList.objects.filter(question=q).order_by('time_limit_date')[0]
     if ReplyList.objects.filter(question=q, answerer=request.user):
         user_reply_list = ReplyList.objects.get(question=q, answerer=request.user)
     # user check
     if q.questioner != request.user:
         pass
         # 他人の質問は表示できないようにする
-        #return HttpResponse("他の人の質問は表示できません！") # TODO　表示できないよページ作る
+        # return HttpResponse("他の人の質問は表示できません！") # TODO　表示できないよページ作る
 
     all_user = [[u.username, 'u{}'.format(u.id)] for u in User.objects.all()]
     all_tag = [[t.name, 't{}'.format(t.id)] for t in Tag.objects.all()]
-    all_reply = [['u{}'.format(r.answerer.id),  'u{}'.format(r.question.questioner.id)] for r in Reply.objects.all()]
+    all_reply = [['u{}'.format(r.answerer.id), 'u{}'.format(r.question.questioner.id)] for r in Reply.objects.all()]
     all_reply = set([tuple(sorted(r)) for r in all_reply])
-    all_userTag = [['u{}'.format(u.user.id),  't{}'.format(u.tag.id)] for u in UserTag.objects.all()]
+    all_userTag = [['u{}'.format(u.user.id), 't{}'.format(u.tag.id)] for u in UserTag.objects.all()]
 
     all_pass_temp = ['u{}'.format(r.answerer.id) for r in ReplyList.objects.filter(question=q).order_by('id')]
     all_pass_temp.insert(0, 'u{}'.format(q.questioner.id), )
-    all_pass = [[all_pass_temp[n-1], all_pass_temp[n]] for n in range(1, len(all_pass_temp))]
-    print( request.user)
+    all_pass = [[all_pass_temp[n - 1], all_pass_temp[n]] for n in range(1, len(all_pass_temp))]
+    print(request.user)
 
     return render_to_response('question/pass_network.html',
-                              {'user_reply_list': user_reply_list, 'you': [request.user.username, 'u{}'.format(request.user.id)], 'all_user': all_user, 'all_reply': all_reply, 'all_tag': all_tag, 'all_userTag': all_userTag, 'all_pass': all_pass},
+                              {'user_reply_list': user_reply_list,
+                               'you': [request.user.username, 'u{}'.format(request.user.id)], 'all_user': all_user,
+                               'all_reply': all_reply, 'all_tag': all_tag, 'all_userTag': all_userTag,
+                               'all_pass': all_pass},
                               context_instance=RequestContext(request))
 
 
 import random
+
+
 @login_required(login_url='/accounts/login')
 def network_demo(request, id=None):
-    name_list = ['yamada','tanaka', 'satou', 'suzuki', 'takahashi', 'konuma', 'ookubo', 'sakata', 'saitou', 'ueda', 'oda', 'mouri']
-    tag_list = ['Python', 'C++', '英語', 'AWS', '機械学習',  '規則', '電車', ]
+    name_list = ['yamada', 'tanaka', 'satou', 'suzuki', 'takahashi', 'konuma', 'ookubo', 'sakata', 'saitou', 'ueda',
+                 'oda', 'mouri']
+    tag_list = ['Python', 'C++', '英語', 'AWS', '機械学習', '規則', '電車', ]
 
-    if id=='1':
-        User.objects.create(username=name_list[random.randint(0,len(name_list)-1)]+str(User.objects.all().count()))
-        User.objects.create(username=name_list[random.randint(0,len(name_list)-1)]+str(User.objects.all().count()))
-        User.objects.create(username=name_list[random.randint(0,len(name_list)-1)]+str(User.objects.all().count()))
-        User.objects.create(username=name_list[random.randint(0,len(name_list)-1)]+str(User.objects.all().count()))
-        User.objects.create(username=name_list[random.randint(0,len(name_list)-1)]+str(User.objects.all().count()))
-        User.objects.create(username=name_list[random.randint(0,len(name_list)-1)]+str(User.objects.all().count()))
+    if id == '1':
+        User.objects.create(username=name_list[random.randint(0, len(name_list) - 1)] + str(User.objects.all().count()))
+        User.objects.create(username=name_list[random.randint(0, len(name_list) - 1)] + str(User.objects.all().count()))
+        User.objects.create(username=name_list[random.randint(0, len(name_list) - 1)] + str(User.objects.all().count()))
+        User.objects.create(username=name_list[random.randint(0, len(name_list) - 1)] + str(User.objects.all().count()))
+        User.objects.create(username=name_list[random.randint(0, len(name_list) - 1)] + str(User.objects.all().count()))
+        User.objects.create(username=name_list[random.randint(0, len(name_list) - 1)] + str(User.objects.all().count()))
 
-    if id=='2':
+    if id == '2':
         tag, created = Tag.objects.get_or_create(name='Python')
         tag, created = Tag.objects.get_or_create(name='機械学習')
         tag, created = Tag.objects.get_or_create(name='AWS')
-        User.objects.create(username=name_list[random.randint(0,len(name_list)-1)]+str(User.objects.all().count()))
-        User.objects.create(username=name_list[random.randint(0,len(name_list)-1)]+str(User.objects.all().count()))
-        User.objects.create(username=name_list[random.randint(0,len(name_list)-1)]+str(User.objects.all().count()))
+        User.objects.create(username=name_list[random.randint(0, len(name_list) - 1)] + str(User.objects.all().count()))
+        User.objects.create(username=name_list[random.randint(0, len(name_list) - 1)] + str(User.objects.all().count()))
+        User.objects.create(username=name_list[random.randint(0, len(name_list) - 1)] + str(User.objects.all().count()))
 
-    if id =='3':
+    if id == '3':
         q = Question.objects.create(questioner=User.objects.all()[1], title='a', text='a', time_limit='11:11:11')
         Reply.objects.create(question=q, answerer=User.objects.all()[0], text='a')
         q = Question.objects.create(questioner=User.objects.all()[2], title='a', text='a', time_limit='11:11:11')
@@ -597,7 +612,7 @@ def network_demo(request, id=None):
         q = Question.objects.create(questioner=User.objects.all()[3], title='a', text='a', time_limit='11:11:11')
         Reply.objects.create(question=q, answerer=User.objects.all()[5], text='a')
 
-    if id =='4':
+    if id == '4':
         q = Question.objects.create(questioner=User.objects.all()[6], title='a', text='a', time_limit='11:11:11')
         Reply.objects.create(question=q, answerer=User.objects.all()[7], text='a')
         q = Question.objects.create(questioner=User.objects.all()[4], title='a', text='a', time_limit='11:11:11')
@@ -612,7 +627,7 @@ def network_demo(request, id=None):
         tag, created = Tag.objects.get_or_create(name='AWS')
         u = UserTag.objects.get_or_create(user=User.objects.all()[7], tag=tag)
 
-    if id =='5':
+    if id == '5':
         q = Question.objects.create(questioner=User.objects.all()[6], title='a', text='a', time_limit='11:11:11')
         Reply.objects.create(question=q, answerer=User.objects.all()[0], text='a')
         q = Question.objects.create(questioner=User.objects.all()[4], title='a', text='a', time_limit='11:11:11')
@@ -626,37 +641,39 @@ def network_demo(request, id=None):
         q = Question.objects.create(questioner=User.objects.all()[3], title='a', text='a', time_limit='11:11:11')
         Reply.objects.create(question=q, answerer=User.objects.all()[0], text='a')
 
-    if id =='777':
-        if random.randint(0,2) < 1:
-            User.objects.create(username=name_list[random.randint(0,len(name_list)-1)]+str(User.objects.all().count()))
+    if id == '777':
+        if random.randint(0, 2) < 1:
+            User.objects.create(
+                username=name_list[random.randint(0, len(name_list) - 1)] + str(User.objects.all().count()))
 
-        if random.randint(0,2) < 1:
-            qu = User.objects.all()[random.randint(0,int(User.objects.all().count()-1))]
-            au = User.objects.all()[random.randint(0,int(User.objects.all().count()-1))]
+        if random.randint(0, 2) < 1:
+            qu = User.objects.all()[random.randint(0, int(User.objects.all().count() - 1))]
+            au = User.objects.all()[random.randint(0, int(User.objects.all().count() - 1))]
             q = Question.objects.create(questioner=qu, title='a', text='a', time_limit='11:11:11')
             Reply.objects.create(question=q, answerer=au, text='a')
 
-        if random.randint(0,5) < 1:
-            tag, created = Tag.objects.get_or_create(name=tag_list[random.randint(0, len(tag_list)-1)])
-            u = UserTag.objects.get_or_create(user=User.objects.all()[random.randint(0,User.objects.all().count()-1)], tag=tag)
+        if random.randint(0, 5) < 1:
+            tag, created = Tag.objects.get_or_create(name=tag_list[random.randint(0, len(tag_list) - 1)])
+            u = UserTag.objects.get_or_create(
+                user=User.objects.all()[random.randint(0, User.objects.all().count() - 1)], tag=tag)
 
-    if id =='999':
+    if id == '999':
         Question.objects.all().delete()
         Reply.objects.all().delete()
         Tag.objects.all().delete()
         User.objects.filter(~Q(username='admin')).delete()
 
-
-    all_user = [[u.username, 'u{}'.format(u.id), 5*len(Reply.objects.filter(answerer=u))] for u in User.objects.all()]
+    all_user = [[u.username, 'u{}'.format(u.id), 5 * len(Reply.objects.filter(answerer=u))] for u in User.objects.all()]
     all_tag = [[t.name, 't{}'.format(t.id)] for t in Tag.objects.all()]
-    all_reply = [['u{}'.format(r.answerer.id),  'u{}'.format(r.question.questioner.id)] for r in Reply.objects.all()]
-    all_reply = [[s[0], s[1], all_reply.count([s[0], s[1]]) + all_reply.count([s[1], s[0]])]for s in set([tuple(sorted(r)) for r in all_reply])]
-    all_userTag = [['u{}'.format(u.user.id),  't{}'.format(u.tag.id)] for u in UserTag.objects.all()]
+    all_reply = [['u{}'.format(r.answerer.id), 'u{}'.format(r.question.questioner.id)] for r in Reply.objects.all()]
+    all_reply = [[s[0], s[1], all_reply.count([s[0], s[1]]) + all_reply.count([s[1], s[0]])] for s in
+                 set([tuple(sorted(r)) for r in all_reply])]
+    all_userTag = [['u{}'.format(u.user.id), 't{}'.format(u.tag.id)] for u in UserTag.objects.all()]
 
     return render_to_response('question/demo_network.html',
-                              {'all_user': all_user, 'all_reply': all_reply, 'all_tag': all_tag, 'all_userTag': all_userTag },
+                              {'all_user': all_user, 'all_reply': all_reply, 'all_tag': all_tag,
+                               'all_userTag': all_userTag},
                               context_instance=RequestContext(request))
-
 
     """
     if User.objects.all().count()<20:
@@ -683,6 +700,5 @@ def network_demo(request, id=None):
         print(tag)
         u = UserTag.objects.get_or_create(user=User.objects.all()[random.randint(0,User.objects.all().count()-1)], tag=tag)
     """
-
 
     return network(request)

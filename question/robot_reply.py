@@ -39,4 +39,4 @@ def reply(question):
         key_word_json = request_keyword_extraction(question.text)
         word_list = [k for k, v in sorted(key_word_json.items(), key=lambda x: x[1], reverse=True)]
         reply_list = [item['title'] + "\n" + item['link'] for item in request_stack_over_flow(word_list[:3])['items']]
-    return reply_list[:3]
+    return {"reply_list": reply_list[:3], "word_list": word_list[:3]}

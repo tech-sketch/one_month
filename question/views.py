@@ -336,11 +336,13 @@ def question_pass(request, id=None):
         if reply_list.question.pass_counter() == 1:
             reply = Reply()
             reply.question = reply_list.question
-            reply_text = robot_reply.reply(reply_list.question)
-            if len(reply_text) == 0:
+            reply_data = robot_reply.reply(reply_list.question)
+            if len(reply_data['reply_list']) == 0:
                 reply.text = "難問です。答えられたらすごいです。"
             else:
-                reply.text = "以下のページはどうでしょうか？\n\n" + "\n".join(reply_text)
+                reply.text = "以下のページはどうでしょうか？\n\n" + "\n".join(reply_data['reply_list'])
+            if len(reply_data['word_list']) != 0:
+                reply.text += "\n\n抽出結果：" + "、".join(reply_data['word_list'])
             # ロボットのidを指定
             reply.answerer = User.objects.get(id=1)
             reply.save()

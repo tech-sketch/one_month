@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 from django.contrib.auth.models import User
-from .models import UserProfile
+from .models import UserProfile, WorkPlace, Division
 from django import forms
 
 class User_form(forms.ModelForm):
-    username = forms.CharField(widget=forms.TextInput(attrs={'required': 'true'}))
-    password = forms.CharField(widget=forms.PasswordInput(attrs={'required': 'true'}))
+    username = forms.CharField(widget=forms.TextInput(attrs={'required': 'true', 'class': 'form-control'}))
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'required': 'true', 'class': 'form-control'}))
 
     class Meta:
         model = User
@@ -20,6 +20,8 @@ class User_form(forms.ModelForm):
         return user
 
 class UserProfile_form(forms.ModelForm):
+    work_place = forms.ChoiceField(widget=forms.Select(choices=WorkPlace.objects.all(), attrs={'class': 'form-control'}))
+    division = forms.ChoiceField(widget=forms.Select(choices=Division.objects.all(), attrs={'class': 'form-control'}))
     class Meta:
         model = UserProfile
         fields = ['avatar', 'work_place', 'division']

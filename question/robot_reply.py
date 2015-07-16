@@ -1,10 +1,15 @@
 import requests
 import re
+
+def remove_source_code(message):
+    return re.sub(r'[^亜-熙ぁ-んァ-ヶ]{30,}', "", message)
+
 def request_keyword_extraction(message):
     api_key = "dj0zaiZpPVkzR3VJbFlBUERxTyZzPWNvbnN1bWVyc2VjcmV0Jng9MjM-"
     url = "http://jlp.yahooapis.jp/KeyphraseService/V1/extract?appid=" + api_key
+    print(remove_source_code(message))
     param = {
-        "sentence": message,
+        "sentence": remove_source_code(message),
         "output": "json"
     }
     result = requests.post(url, data=param)
@@ -15,8 +20,9 @@ def request_keyword_extraction(message):
 def request_stack_over_flow(key_word_list):
     re_key_word_list = [re.sub(r'\.|#|&|\?|:|=', "", key_word) for key_word in key_word_list]
     keyword_join = " ".join(re_key_word_list)
-    print("keyword_join" + keyword_join)
-    url = "https://api.stackexchange.com/2.2/search/advanced?order=desc&sort=votes&body={0}&site=ja.stackoverflow".format(keyword_join)
+    print(keyword_join)
+    url = "https://api.stackexchange.com/2.2/search/advanced?order=desc&sort=votes&body={0}&site=ja.stackoverflow".format(
+        keyword_join)
     result_json = requests.get(url).json()
     # 検索結果が０件だった場合
     if len(result_json['items']) == 0:
@@ -26,9 +32,7 @@ def request_stack_over_flow(key_word_list):
             result_json = requests.get(new_url).json()
             if len(result_json['items']) != 0:
                 break
-
     return result_json
-
 
 def reply(question):
     tags_name = question.get_tags_name()

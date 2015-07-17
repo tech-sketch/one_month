@@ -20,8 +20,13 @@ class User_form(forms.ModelForm):
         return user
 
 class UserProfile_form(forms.ModelForm):
-    work_place = forms.ChoiceField(widget=forms.Select(choices=WorkPlace.objects.all(), attrs={'class': 'form-control'}))
-    division = forms.ChoiceField(widget=forms.Select(choices=Division.objects.all(), attrs={'class': 'form-control'}))
+    default_work_place = WorkPlace.objects.get_or_create(name='東京')
+    default_division = Division.objects.get_or_create(code=2, name='人事')
+    work_place = forms.ModelChoiceField(widget=forms.Select(attrs={'class': 'form-control'}),
+                                        queryset=WorkPlace.objects.all(), initial=default_work_place)
+    division = forms.ModelChoiceField(widget=forms.Select(attrs={'class': 'form-control'}),
+                                      queryset=Division.objects.all(), initial=default_division)
+
     class Meta:
         model = UserProfile
         fields = ['avatar', 'work_place', 'division']

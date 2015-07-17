@@ -1,18 +1,107 @@
-{% extends "base.html" %}
-
 {% load account %}
+{% load socialaccount %}
 
-{% block title %}ログイン{% endblock %}
+{% load staticfiles %}
+<html>
+	<head>
+		<title>ログイン</title>
+		
+		<link href="{% static 'css/bootstrap.css' %}" rel="stylesheet">
+		<script src="{% static 'js/bootstrap.min.js' %}"></script>
 
-{% block content %}
+		<script src="{% static 'js/jquery.js' %}"></script>
+		<script src="{% static 'js/jquery.pagepiling.min.js' %}"></script>
+		<link href="{% static 'css/jquery.pagepiling.css' %}" rel="stylesheet">
+		<script type="text/javascript">
+			$(document).ready(function() {
+				$('#pagepiling').pagepiling({
+					direction : 'horizontal',
+					menu : '#menu',
+					anchors : ['page1', 'page2', 'page3', 'page4'],
+					navigation : {
+						'position' : 'right',
+						'tooltips' : ['section1', 'section2', 'section3', 'section4']
+					},
+					scrollingSpeed : 1000,
+					sectionSelector : '.contents'
+				});
+			});
+		</script>
+	</head>
 
-<h1>ログイン</h1>
+	<body style="background-color: #f5f5f5; ">
 
-{% if socialaccount.providers %}
-<div class="socialaccount_ballot">
-  <ul class="socialaccount_providers">
-    {% include "socialaccount/snippets/provider_list.html" with process="login" %}
-  </ul>
-</div>
-{% endif %}
-{% endblock %}
+		<div id="pagepiling" style="width:100%;">
+			<div class="contents" id="section1" style="background-image: url('/static/images/bg/mbp.jpg'); background-size:cover;">
+				<div class="col-md-4"></div>
+				<div class="col-md-4" style="background-color:rgba(25,25,122,0.8); color: white; text-align: center; border-radius: 10px; -webkit-border-radius: 10px; -moz-border-radius: 10px; ">
+					<br>
+					<b>気軽に質問ができて、答えが返ってくるアプリ</b><h1 style="color: white">.Chain</h1>
+					<button type="button" class="btn btn-default">
+						<a href="{% provider_login_url "google" %}"><i class="glyphicon glyphicon-log-in" style="color: #404040; font-weight:bold"> Googleアカウントでログイン</i></a>
+					</button>
+					<br>
+					<br>
+				</div>
+				<div class="col-md-4"></div>
+
+			</div>
+			<div class="contents" id="section2" style="background-image: url('/static/images/bg/live.jpg'); background-size:cover;">
+				<div class="col-md-1"></div>
+				<div class="col-md-4" style="background-color:rgba(25,25,122,0.8); color: white; text-align: center; border-radius: 10px; -webkit-border-radius: 10px; -moz-border-radius: 10px; ">
+					<br>
+					<h1 style="color: white">まずは質問してみましょう</h1>
+					<br>
+					<br>
+					<b>あなたは質問に送信範囲と制限時間を設定できます。
+					<br>
+					質問は送信範囲内のだれか一人に送信されます。
+					<br>
+					受信者は制限時間内に返信かパスを選択します。
+					<br>
+					パスされた場合、「.Chain」が次の回答者を探します。
+					<br>
+					</b>
+					<br>
+					<br>
+				</div>
+				<div class="col-md-7"></div>
+			</div>
+			<div class="contents" id="section3" style="background-image: url('/static/images/bg/kumo.jpg'); background-size:cover;">
+				<div class="col-md-7"></div>
+				<div class="col-md-4" style="background-color:rgba(25,25,122,0.8); color: white; text-align: center; border-radius: 10px; -webkit-border-radius: 10px; -moz-border-radius: 10px; ">
+					<br>
+					<h1 style="color: white">プロフィールを設定しましょう。</h1>
+					<br>
+					<br>
+					<b>プロフィールを設定しましょう。
+					<br>
+					「.Chain」はあなたのプロフィール情報をもとに質問を送信します。
+					プロフィールを設定して、質問を受信しましょう。
+					<br>
+					</b>
+					<br>
+					<br>
+				</div>
+				<div class="col-md-1"></div>
+			</div>
+			<div class="contents" id="section4"　 style="background-image: url('/static/images/bg/building.jpg'); background-size:cover;">
+				<div class="col-md-1"></div>
+				<div class="col-md-4" style="background-color:rgba(25,25,122,0.8); color: white; text-align: center; border-radius: 10px; -webkit-border-radius: 10px; -moz-border-radius: 10px; ">
+					<br>
+					<h1 style="color: white">ネットワークを成長させましょう</h1>
+					<br>
+					<br>
+					<b> あなたが質問に答えるとその質問者とのつながりが強くなります。
+					<br>
+					また質問にタグが設定されている場合、そのタグとのつながりが強くなります。
+					<br>
+					</b>
+					<br>
+					<br>
+				</div>
+				<div class="col-md-7"></div>
+			</div>
+		</div>
+	</body>
+</html>

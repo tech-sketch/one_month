@@ -16,14 +16,13 @@
     <script src="{% static 'js/masonry/set.js' %}"></script>
     <script src="{% static 'js/top.js' %}"></script>
     <link href='http://fonts.googleapis.com/css?family=Puritan:bold' rel='stylesheet' type='text/css'>
-    <link href='{% static 'css/top.css' %}' rel='stylesheet' type='text/css'>
-    <script type="text/javascript" language="javascript" src="badge.js"></script>
+    <link href="{% static 'css/top.css' %}" rel="stylesheet" type="text/css">
 {% endblock head %}
 
 {% block content %}
 
     {# 挨拶 #}
-    <p>こんにちは！{{uname}}さん</p>
+    <p>こんにちは！{{user.username}}さん</p>
     <p>最終ログイン {{last_login}} </p>
 
     <nav>

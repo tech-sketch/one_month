@@ -7,7 +7,7 @@ from accounts.models import UserProfile, WorkStatus, WorkPlace, Division
 from question.models import Question, Reply, ReplyList, Tag, UserTag, QuestionTag, QuestionDestination
 from question.forms import QuestionEditForm, ReplyEditForm, UserProfileEditForm, KeywordSearchForm
 from question.qa_manager import QAManager
-import question.robot_reply as robot_reply
+from question.robot_reply import ReplyRobot
 import datetime
 
 # Create your views here.
@@ -338,13 +338,14 @@ def question_pass(request, id=None):
         if reply_list.question.pass_counter() == 1 and not reply_list.question.has_reply():
             reply = Reply()
             reply.question = reply_list.question
-            reply_data = robot_reply.reply(reply_list.question)
+            reply_data = ReplyRobot().reply(reply_list.question)
             if len(reply_data['reply_list']) == 0:
                 reply.text = "難問です。答えられたらすごいです。"
             else:
                 reply.text = "以下のページはどうでしょうか？\n\n" + "\n".join(reply_data['reply_list'])
             if len(reply_data['word_list']) != 0:
                 reply.text += "\n\n抽出結果：" + "、".join(reply_data['word_list'])
+            reply.text += "\n推定ジャンル：" + reply_data['genre']
             # ロボットのidを指定
             reply.answerer = User.objects.get(id=1)
             reply.save()

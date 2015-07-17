@@ -18,7 +18,7 @@
                         {% with qa.0|classname as modelclass %}
                         {% if modelclass == "Question" %}
                             <!--div id={{qa.0.id}} class="item" style="position: absolute; border-top: 3px solid #BFBFBF; border-bottom: 7px solid #FDC44F; border-left: none; border-right: 3px solid #BFBFBF;"-->
-                            <div id={{qa.0.id}} class="item" style="position: absolute; border-top: 3px solid #BFBFBF; border-bottom: 10px solid #FDC44F; border-left: none; border-right: 3px solid #BFBFBF;">
+                            <div id={{qa.0.id}} class="item item-my-question">
                                 {% if qa.2.avatar %}
                                     <img src="/media/{{qa.2.avatar}}" align="left" width="50" height="50">
                                 {% else %}
@@ -27,12 +27,12 @@
                                 &nbsp;質問者：{{qa.0.questioner}}<br>
                                 &nbsp;質問日時：{{qa.0.date}}
                                 <!--&nbsp;残り時間：-->
-                                <hr>
+                                <hr class="hr-upper">
                                 <span style="font-size: medium;font-weight: bold;">
                                     {{qa.0.title| truncatechars:"22"}}
                                 </span>
+                                <br>
                                 <span style="font-size: 9pt;">
-                                    <p>&nbsp;</p>
                                     {% if qa.0.text|count_line:26 > 3 %}
                                         {{qa.0.text | truncatechars:"60" | linebreaksbr }}
                                         <a href="{% url 'dotchain:q_detail' qa.0.id %}">...続きを読む</a>
@@ -40,7 +40,7 @@
                                         {{qa.0.text | truncatechars:"80" | linebreaksbr }}
                                     {% endif %}
                                 </span>
-                                <hr>
+                                <hr class="hr-lower">
                                 <span style="font-size: 9pt;">コメント数：({{qa.0|comment_counter}})</span>&nbsp;&nbsp;
                                 <span style="font-size: 9pt;">パス数：({{qa.0|pass_counter}})</span>&nbsp;&nbsp;
                                 {# 回答待ちのもののみリボンで表示する #}
@@ -56,7 +56,7 @@
                             </div>
                         {% else%}
                             {% if qa.1 == 'passed' %}
-                            <div id={{qa.0.question.id}} class="item" style="background-color:rgba(0, 0, 0, 0.05); position: absolute; border-top: 3px solid #BFBFBF; border-bottom: 10px solid #8DCF3F; border-left: none; border-right: 3px solid #BFBFBF;">
+                            <div id={{qa.0.question.id}} class="item item-passed">
                                 {% if qa.2.avatar %}
                                     <img src="/media/{{qa.2.avatar}}" align="left" width="50" height="50">
                                 {% else %}
@@ -65,7 +65,7 @@
                                 &nbsp;質問者：{{qa.0.question.questioner}}<br>
                                 &nbsp;質問日時：{{qa.0.question.date}}
                                 <!--&nbsp;残り時間：-->
-                                <hr>
+                                <hr class="hr-upper">
                                 <span style="font-size: medium;font-weight: bold;">
                                     {{qa.0.question.title| truncatechars:"22"}}
                                 </span>
@@ -74,7 +74,7 @@
                                     <div class="front face" style="font-size:x-large;">　　 パス済</div>
                                 </div>
                             {% else %}
-                            <div id={{qa.0.question.id}} class="item" style="position: absolute; border-top: 3px solid #BFBFBF; border-bottom: 10px solid #8DCF3F; border-left: none; border-right: 3px solid #BFBFBF;">
+                            <div id={{qa.0.question.id}} class="item item-others-question">
                                 {% if qa.2.avatar %}
                                     <img src="/media/{{qa.2.avatar}}" align="left" width="50" height="50">
                                 {% else %}
@@ -83,12 +83,12 @@
                                 &nbsp;質問者：{{qa.0.question.questioner}}<br>
                                 &nbsp;質問日時：{{qa.0.question.date}}
                                 <!--&nbsp;残り時間：-->
-                                <hr>
+                                <hr class="hr-upper">
                                 <span style="font-size: medium;font-weight: bold;">
                                     {{qa.0.question.title| truncatechars:"22"}}
                                 </span>
+                                <br>
                                 <span style="font-size: 9pt;">
-                                    <p>&nbsp;</p>
                                     {% if qa.0.question.text|count_line:26 > 3 %}
                                         {{qa.0.question.text | truncatechars:"60" | linebreaksbr }}
                                         <a href="{% url 'dotchain:q_detail' id=qa.0.question.id %}">...続きを読む</a>
@@ -96,7 +96,7 @@
                                         {{qa.0.question.text | truncatechars:"80"| linebreaksbr }}
                                     {% endif %}
                                 </span>
-                                <hr>
+                                <hr class="hr-lower">
                                 <span style="font-size: 9pt;">コメント数：({{qa.0|comment_counter}})</span>&nbsp;&nbsp;
                                 <span style="font-size: 9pt;">パス数：({{qa.0|pass_counter}})</span>&nbsp;&nbsp;
                                 {# 回答待ちの場合返信・パスボタンを表示する #}

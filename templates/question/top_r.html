@@ -13,7 +13,7 @@
     <div class="activities">
         <div id="masonry" style="position: relative; width: 660px; height: 729px;">
             {% for qa in qa_list %}
-            <div id={{qa.0.question.id}} class="item" style="position: absolute; border-top: 3px solid #BFBFBF; border-bottom: 10px solid #8DCF3F; border-left: none; border-right: 3px solid #BFBFBF;">
+            <div id={{qa.0.question.id}} class="item item-others-question">
                 <div>
                     {% if qa.2.avatar %}
                         <img src="/media/{{qa.2.avatar}}" align="left" width="50" height="50">
@@ -24,10 +24,11 @@
                     &nbsp;質問日時：{{qa.0.question.date}}
                     <!--&nbsp;残り時間：-->
                 </div>
-                <hr>
+                <hr class="hr-upper">
                 <span style="font-size: medium;font-weight: bold;">
                     {{qa.0.question.title| truncatechars:"22"}}
                 </span>
+                <br>
                 <span style="font-size: 9pt;">
                     {{qa.0.question.text | truncatechars:"80" | linebreaksbr }}
                     {% if qa.0.question.text|count_line:26 > 3 %}
@@ -36,7 +37,7 @@
                         {{qa.0.question.text | truncatechars:"80" | linebreaksbr }}
                     {% endif %}
                 </span>
-                <hr>
+                <hr class="hr-lower">
                 {# 回答待ちの場合返信・パスボタンを表示する #}
                 <span style="font-size: 9pt;">コメント数：({{qa.0|comment_counter}})</span>&nbsp;&nbsp;
                 <span style="font-size: 9pt;">パス数：({{qa.0|pass_counter}})</span>&nbsp;&nbsp;

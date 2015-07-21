@@ -18,7 +18,7 @@
 <h3>質問</h3>	
 <div class="popover right show" style="position:relative; max-width:100%;">
     <div class="arrow"></div>
-	<h2 class="popover-title" style="background-color: #FFFFFF; font-size:x-large; color: black; font-weight: bold;">
+	<h2 class="popover-title breack_word" style="background-color: #FFFFFF; font-size:x-large; color: black; font-weight: bold;">
         	{{ question.title }}<br>
         	{% if q_tags %}タグ：{% for q_tag in q_tags %} {{ q_tag.tag.name }} {% endfor %}{% endif %}
     </h2>
@@ -26,7 +26,7 @@
         	質問者: {{ question.questioner.last_name }}{{ question.questioner.first_name }}<br>
 			作成日時: {{ question.date }} {% if question.draft %} <font color="#DD0000">下書き</font> {% else %}送信済み{% endif %}
     </h3>
-    <div class="popover-content" style="background-color: #FFFFFF; font-size:large; color: black;">
+    <div class="popover-content breack_word" style="background-color: #FFFFFF; font-size:large; color: black;">
         <p>
             {{ question.text|linebreaksbr }}
         </p>

@@ -4,20 +4,16 @@
 		<title>{% block title %}ベースのページ{% endblock %}</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<link href="{% static 'css/bootstrap.css' %}" rel="stylesheet">
-		<!--link href="{% static 'css/bootstrap-theme.css' %}" rel="stylesheet"-->
+		<link href='http://fonts.googleapis.com/css?family=Judson:700' rel='stylesheet' type='text/css'>
 		<script src="{% static 'js/jquery.js' %}"></script>
 		<script src="{% static 'js/bootstrap.min.js' %}"></script>
 		{% block head %}
 		{% endblock %}
-		<!--link href="{% static 'css/my.css' %}" rel="stylesheet"-->
-
-		<!--アイコン関係：http://fortawesome.github.io/Font-Awesome/examples/-->
-		<!-- http://fortawesome.github.io/Font-Awesome/cheatsheet/ -->
-		<!--link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet"-->
+		<link href="{% static 'css/main.css' %}" rel="stylesheet">
 	</head>
 
-	<body style="background-color: #f2f2ff; ">
-		<div class="navbar navbar-default navbar-static-top" style="background-image: linear-gradient(#3d297e, #19197a 60%, #071178);">
+	<body>
+		<div class="navbar navbar-default navbar-static-top " style="background-image: linear-gradient(#3d297e, #19197a 60%, #071178);">
 			<div class="container">
 				<div class="navbar-header">
 					<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -25,7 +21,7 @@
 						<span class="icon-bar"></span>
 						<span class="icon-bar"></span>
 					</button>
-					<a class="navbar-brand" href="{% url 'dotchain:top' %}">.Chain()</a>
+					<a class="navbar-brand app_name " href="{% url 'dotchain:top' %}">.Chain()</a>
 				</div>
 				{%if user.is_authenticated%}
 				<div class="collapse navbar-collapse">

@@ -4,8 +4,8 @@ from question.text_classification import NaiveBayes
 
 class ReplyRobot:
     def __init__(self):
-        self.word_list = None
-        self.question_genre = None
+        self.word_list = []
+        self.question_genre = 'etc'
         self.question_tags_name = None
         self.api_key = "dj0zaiZpPVkzR3VJbFlBUERxTyZzPWNvbnN1bWVyc2VjcmV0Jng9MjM-"
 
@@ -56,7 +56,8 @@ class ReplyRobot:
     def reply(self, question):
         self.question_tags_name = question.get_tags_name()
         key_word_json = self.request_keyword_extraction(question.text)
-        self.word_list = [k for k, v in sorted(key_word_json.items(), key=lambda x: x[1], reverse=True)]
-        self.question_genre = NaiveBayes().start(self.word_list)
+        if len(key_word_json) != 0:
+            self.word_list = [k for k, v in sorted(key_word_json.items(), key=lambda x: x[1], reverse=True)]
+            self.question_genre = NaiveBayes().start(self.word_list)
         return self.get_answer()
 

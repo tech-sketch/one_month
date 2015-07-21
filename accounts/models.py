@@ -28,7 +28,7 @@ class Division(models.Model):
         (2, '人事'),
         (3, '開発'),
         (4, '研究'),
-        (5, 'ロボット'),
+        (99, 'ロボット'),
     )
     # ロボットは code がもっとも大きな値で設定する。
     name = models.CharField('所属部署名', blank=True, max_length=512)

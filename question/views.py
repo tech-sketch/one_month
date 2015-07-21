@@ -324,6 +324,8 @@ def question_pass(request, id=None):
     来た質問をパスする。
     次に質問を回す人は、質問者と既にパスした人にはならないようにする。
     また、質問者以外のユーザを質問が回り終わったら、質問者にお知らせする。
+
+    v1.1新機能：ロボット(AI)による自動返信。ある回数だけパスされたら質問から抽出されたキーワードを使って検索URLを返信する。
     """
     reply_list = ReplyList.objects.get(id=id)
     if reply_list.has_replied:
@@ -334,8 +336,15 @@ def question_pass(request, id=None):
     if qa_manager.pass_question(reply_list.question, qa_manager.reply_list_update_random_except):
         msg = '質問をパスしました。'
 
+        # 宛先にロボットが含まれるかどうか調べる
+        try:
+            to_robot = QuestionDestination.objects.filter(question=reply_list.question)
+            to_robot = [i for i in to_robot if i.tag.code == 99]
+        except QuestionDestination.DoesNotExist:
+            to_robot = []
+
         # 何回目のパスでロボットが返信してくるか
-        if reply_list.question.pass_counter() == 1 and not reply_list.question.has_reply():
+        if len(to_robot) and reply_list.question.pass_counter() == 1 and not reply_list.question.has_reply():
             reply = Reply()
             reply.question = reply_list.question
             reply_data = ReplyRobot().reply(reply_list.question)
@@ -346,8 +355,13 @@ def question_pass(request, id=None):
             if len(reply_data['word_list']) != 0:
                 reply.text += "\n\n抽出結果：" + "、".join(reply_data['word_list'])
             reply.text += "\n推定ジャンル：" + reply_data['genre']
-            # ロボットのidを指定
-            reply.answerer = User.objects.get(id=1)
+
+            robot, created = User.objects.get_or_create(username='__robot__@dotChain')
+            if created:
+                robot.first_name = '太郎'
+                robot.last_name = 'ロボット'
+                robot.save()
+            reply.answerer = robot
             reply.save()
         return top_default(request, msg)
     else:

@@ -1,9 +1,15 @@
 #coding:utf-8
 import math
 import sys
+import os
 from collections import defaultdict
 
+from one_month import settings
+
 class NaiveBayes:
+
+    TRAINMODEL_DIR = os.path.join(settings.BASE_DIR, 'question/train_model/')
+
     def __init__(self):
         self.categories = set()
         self.vocabularies = set()
@@ -52,7 +58,7 @@ class NaiveBayes:
 
     def start(self, doc):
         train_data = []
-        for line in open('./question/train_model/category_model.csv', mode='r', encoding='utf-8'):
+        for line in open(NaiveBayes.TRAINMODEL_DIR+'category_model.csv', mode='r', encoding='utf-8'):
             train_data.append(line.split(","))
         self.train(train_data)
         genre = self.classify(doc)

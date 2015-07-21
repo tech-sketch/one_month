@@ -125,7 +125,11 @@
 					onClick="btn_open('hide_3-1','hide_3-2')">
 				</p>
 				<p>
-					{{ form.division | bootstrap}}
+					{% for f in form.division %}
+					{%if forloop.last%} <!-- 所属の表示からロボットを除く-->
+					{% else %}<label class="checkbox-inline" style="float: none"> {{ form.division|index:forloop.counter0 }} </label> <br>
+					{% endif %}
+					{% endfor%}
 					<input type="submit" name="done" value="確定" class="btn btn-primary">
 				</p>
 			</div>

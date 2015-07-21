@@ -16,4 +16,20 @@ body {
 	word-wrap:break-word;
 }
 
+.card_form{
+	background-color: #FFFFFF;
+	border-top: 3px solid #BFBFBF;
+	border-bottom: 7px solid #D24726; 
+	border-left: none; 
+	border-right: 3px solid #BFBFBF;
+}
+
+.hide_div{
+	display:none;
+}
+
+.clear{
+	clear: both;
+}
+
 

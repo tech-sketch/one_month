@@ -4,9 +4,12 @@
 		<title>{% block title %}ベースのページ{% endblock %}</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<link href="{% static 'css/bootstrap.css' %}" rel="stylesheet">
+		<!--link href="{% static 'css/material.min.css' %}" rel="stylesheet"-->
+		<link href="{% static 'css/flipper.css' %}" rel="stylesheet">
 		<link href='http://fonts.googleapis.com/css?family=Judson:700' rel='stylesheet' type='text/css'>
 		<script src="{% static 'js/jquery.js' %}"></script>
 		<script src="{% static 'js/bootstrap.min.js' %}"></script>
+
 		{% block head %}
 		{% endblock %}
 		<link href="{% static 'css/main.css' %}" rel="stylesheet">
@@ -37,7 +40,7 @@
 							<a href="{% url 'dotchain:mypage' %}"><i class="glyphicon glyphicon-user"> マイページ</i></a>
 						</li>
 						<li>
-							<a href="/accounts/logout"><i class="glyphicon glyphicon-off"> ログアウト</i></a>
+							<a href="/accounts/logout"><i class="glyphicon glyphicon-log-out"> ログアウト</i></a>
 						</li>
 					</ul>
 				</div><!--/.nav-collapse -->

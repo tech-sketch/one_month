@@ -11,52 +11,50 @@
 {% block tab %}
 
           <div class="activities">
-                <div id="masonry" style="position: relative; width: 660px; height: 729px;">
-                    {% for q in qa_list %}
-                            {# 自分がした質問 #}
-                            <div id={{q.0.id}} class="item item-my-question">
-                                <div>
-                                    {% if q.2.avatar %}
-                                        <img src="/media/{{q.2.avatar}}" align="left" width="50" height="50">
+                {% for qa in qa_list %}
+                        <div class="my-card">
+                                <div class="well" style="margin-bottom: 0px; padding: 10px; background-color: #071178;color: white;">
+                                    {% if qa.2.avatar %}
+                                    <img src="/media/{{qa.2.avatar}}" align="left" width="70" height="70">
                                     {% else %}
-                                        <img src="/media/images/icons/no_image.png" align="left" width="50" height="50">
-                                    {% endif%}
-                                    <span style="font-size: 10pt;">
-                                        &nbsp;質問者：&nbsp;&nbsp;{{q.0.questioner}}<br>
-                                        &nbsp;質問日時：&nbsp;&nbsp;{{q.0.date}}
+                                        <img src="/media/images/icons/no_image.png" align="left" width="70" height="70">
+                                    {% endif %}
+                                    <span style="font-size: medium;font-weight: bold;">
+                                    &nbsp;{{qa.0.title| truncatechars:"12"}}
+                                    </span><br>
+                                    <span style="font-size: x-small">
+                                    &nbsp;質問者：  {{qa.0.questioner}}<br>
+                                    &nbsp;質問日時：  {{qa.0.date}}<br>
+                                    &nbsp;タイムリミット：  {{qa.0.time_limit}}
                                     </span>
                                 </div>
-                                <hr class="hr-upper">
-                                <span style="font-size: medium;font-weight: bold;">
-                                    {{q.0.title| truncatechars:"22"}}
-                                </span>
-                                <br>
-                                <span style="font-size: 9pt;">
-                                    {% if q.0.text|count_line:26 > 3 %}
-                                        {{q.0.text | truncatechars:"60" | linebreaksbr }}
-                                        <a href="{% url 'dotchain:q_detail' id=q.0.id %}">...続きを読む</a>
-                                    {% else %}
-                                        {{q.0.text | linebreaksbr }}
+                                <div id={{qa.0.id}} class="well" style="background-color: #FFFFFF; margin-bottom: 0px; height: 200px;">
+                                    <span style="font-size: small;">
+                                        {% if qa.0.text|count_line:26 > 3 %}
+                                            {{qa.0.text | truncatechars:"60" | linebreaksbr }}
+                                            <a href="{% url 'dotchain:q_detail' qa.0.id %}">...続きを読む</a>
+                                        {% else %}
+                                            {{qa.0.text | truncatechars:"80" | linebreaksbr }}
+                                        {% endif %}
+                                    </span>
+                                </div>
+                                <div style="background-color: #FFFFFF; width:260px; height: 60px; padding:0 10 0 10; position: relative; bottom: 90px; left: 5px;">
+                                    <hr class="hr-lower">
+                                    <span class="glyphicon glyphicon-comment" aria-hidden="true">  {{qa.0|comment_counter}}</span>&nbsp;&nbsp;
+                                    <span class="glyphicon glyphicon-share-alt" aria-hidden="true">  {{qa.0|pass_counter}}</span>&nbsp;&nbsp;
+                                    {# 回答待ちのもののみリボンで表示する #}
+                                    {% if qa.1 == 'pending' %}
+                                        <span style="font-size: 12pt;font-weight: bold;color: red; position: relative; right: -80px;">質問中</span>
+                                    {% elif qa.1 == 'unsolved' %}
+                                        <span style="font-size: 12pt;font-weight: bold;color: red; position: relative; right: -80px;">未解決</span>
+                                    {% elif qa.1 == 'solved' %}
+                                        <span style="font-size: 12pt;font-weight: bold;color: red;"></span>
                                     {% endif %}
-                                </span>
-                                <hr class="hr-lower">
-                                <span style="font-size: 9pt;">コメント数：({{q.0|comment_counter}})</span>&nbsp;&nbsp;
-                                <span style="font-size: 9pt;">パス数：({{q.0|pass_counter}})</span>&nbsp;&nbsp;
-                                {# 回答待ちのもののみリボンで表示する #}
-                                {% if q.1 == 'pending' %}
-                                    <div class="badge">
-                                        <div class="front face" style="font-size:x-large;">質問中</div>
-                                    </div>
-                                {% elif q.1 == 'unsolved' %}
-                                    <span style="font-size: 9pt;font-weight: bold;color: red;">未解決</span>
-                                {% elif q.1 == 'solved' %}
-                                    <span style="font-size: 9pt;font-weight: bold;color: red;"></span>
-                                {% endif %}
+                                </div>
                             </div>
-                    {% empty %}
+                {% empty %}
                         <h4>自分が投稿した質問はありません。</h4>
-                    {% endfor %}
-                </div>
+                {% endfor %}
           </div>
 
 {% endblock tab %}

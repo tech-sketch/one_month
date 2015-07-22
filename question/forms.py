@@ -23,20 +23,18 @@ class QuestionEditForm(ModelForm):
     """
     質問フォーム
     """
-    # タグを一つのみ選ばせる場合
-    #tag = CustomChoiceField(label='タグ', queryset=Tag.objects.all(), required=False,
-    #                             to_field_name='name')
-    # タグを複数選ばせる場合
-    destination = CustomMultipleChoiceField(label='あて先', queryset=Division.objects.all().order_by('code'), widget=forms.CheckboxSelectMultiple, initial=Division.objects.all())
-    tag = CustomMultipleChoiceField(label='タグ', queryset=Tag.objects.all(), widget=forms.CheckboxSelectMultiple, required=False)
+    destination = CustomMultipleChoiceField(label='あて先', queryset=Division.objects.all().order_by('code'),
+                                            widget=forms.CheckboxSelectMultiple, initial=Division.objects.all())
+    tag = CustomMultipleChoiceField(label='タグ', queryset=Tag.objects.all(), widget=forms.CheckboxSelectMultiple,
+                                    required=False)
     tag_added = forms.CharField(label='追加タグ', max_length=512, required=False)
 
     class Meta:
         model = Question
         fields = ('title', 'date', 'time_limit', 'text', 'draft')
         widgets = {
-          'title': forms.TextInput(attrs={'size': '100'}),
-          'text': forms.Textarea(attrs={'rows':20, 'cols':100}),
+            'title': forms.TextInput(attrs={'size': '100'}),
+            'text': forms.Textarea(attrs={'rows': 20, 'cols': 100}),
         }
 
 class ReplyEditForm(ModelForm):
@@ -47,19 +45,15 @@ class ReplyEditForm(ModelForm):
         model = Reply
         fields = ('date', 'text', 'draft')
         widgets = {
-          'text': forms.Textarea(attrs={'rows':20, 'cols':100}),
+            'text': forms.Textarea(attrs={'rows': 20, 'cols': 100}),
         }
 
 class UserProfileEditForm(ModelForm):
     """
     ユーザプロファイル編集フォーム
     """
-
-    # タグを一つのみ選ばせる場合
-    #tag = CustomChoiceField(label='タグ', queryset=Tag.objects.all(), required=False,
-    #                             to_field_name='name')
-    # タグを複数選ばせる場合
-    tag = CustomMultipleChoiceField(label='タグ', queryset=Tag.objects.all(), widget=forms.CheckboxSelectMultiple, required=False)
+    tag = CustomMultipleChoiceField(label='タグ', queryset=Tag.objects.all(),
+                                    widget=forms.CheckboxSelectMultiple, required=False)
     tag_added = forms.CharField(label='新規追加タグを入力する', max_length=512, required=False)
 
     class Meta:

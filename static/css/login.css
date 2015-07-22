@@ -33,3 +33,11 @@ input:-webkit-autofill {
     height: 25pt;
     color: red;
 }
+
+.blue_frame{
+	background-color:rgba(25,25,122,0.8); 
+	color: white; text-align: center; 
+	border-radius: 10px; 
+	-webkit-border-radius: 10px; 
+	-moz-border-radius: 10px;
+}

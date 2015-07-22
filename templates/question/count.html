@@ -66,7 +66,6 @@
 							me.countDown();
 						}, 10);
 					} else {
-						this.elem.innerHTML = this.mes;
 						{% if reply_list　%}
 						window.location.href = '{% url 'dotchain:q_pass' id=reply_list.id %}';
 						{% endif %}
@@ -81,8 +80,8 @@
 				var tl = new Date('{{reply_list.time_limit_date|date:'Y/m/d H:i:s'}}');
 				
 				//この上の部分で終了時間を設定するYO！
-				{% if reply_list|pass_check:question == 3　%}
-				var timer = new CountdownTimer('countdown', tl, 'タイマーは設定されていません');
+				{% if reply_list|pass_check:question == ''　%}
+				var timer = new CountdownTimer('countdown', tl, '');
 				{% else %}
 				var timer = new CountdownTimer('countdown', tl, '終了しました');
 				{% endif %}

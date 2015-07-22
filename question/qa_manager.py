@@ -1,4 +1,4 @@
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 from enum import Enum
 from django.contrib.auth.models import User
@@ -21,11 +21,11 @@ class ReplyState(Enum):
     replied = 1
     passed = 2
 
-class QAManager():
+class QAManager:
     def __init__(self, user=None):
         self.user = user
 
-    #その質問のQuestionStateを調べるメソッド
+    # その質問のQuestionStateを調べるメソッド
     def question_state(self, question_list):
 
         if isinstance(question_list, Question):
@@ -34,20 +34,20 @@ class QAManager():
             return None
 
         qa_list = list()
-        #自分の質問が解決済みかどうか調べる
+        # 自分の質問が解決済みかどうか調べる
         for q in question_list:
-            r = Reply.objects.filter(question=q) # いまの仕様では返信は一つのはず
-            if not q.is_closed and len(r): #返信が来たが未解決
-                qa_list.append([q, QuestionState.pending.name]) #回答待ち
-            elif q.is_closed and len(r): #解決済み
+            r = Reply.objects.filter(question=q)  # いまの仕様では返信は一つのはず
+            if not q.is_closed and len(r):  # 返信が来たが未解決
+                qa_list.append([q, QuestionState.pending.name])  # 回答待ち
+            elif q.is_closed and len(r):  # 解決済み
                 qa_list.append([q, QuestionState.solved.name])
             elif q.is_closed and not len(r):
-                qa_list.append([q, QuestionState.unsolved.name]) #未解決
+                qa_list.append([q, QuestionState.unsolved.name])  # 未解決
             else:
-                qa_list.append([q, QuestionState.pending.name]) #回答待ち
+                qa_list.append([q, QuestionState.pending.name])  # 回答待ち
         return qa_list
 
-    #その質問のReplyStateを調べるメソッド
+    # その質問のReplyStateを調べるメソッド
     def reply_state(self, reply_list):
 
         if isinstance(reply_list, ReplyList):
@@ -69,7 +69,7 @@ class QAManager():
 
         return qa_list
 
-    #全ユーザーの中からランダムに返信ユーザーを決定する。（u:User 対象としたくないユーザー, q:Question）
+    # 全ユーザーの中からランダムに返信ユーザーを決定する。（u:User 対象としたくないユーザー, q:Question）
     def reply_list_update_random(self, u, q):
 
         candidate_users = User.objects.filter(~Q(username=u)).filter(~Q(username=q.questioner))
@@ -78,7 +78,9 @@ class QAManager():
             r_list = ReplyList()
             r_list.answerer = random.choice(candidate_users)
             r_list.question = q
-            r_list.time_limit_date = datetime.datetime.now() + datetime.timedelta(hours=q.time_limit.hour, minutes=q.time_limit.minute, seconds=q.time_limit.second)
+            r_list.time_limit_date = datetime.datetime.now() + datetime.timedelta(hours=q.time_limit.hour,
+                                                                                  minutes=q.time_limit.minute,
+                                                                                  seconds=q.time_limit.second)
             return r_list
         except IndexError:
             return None
@@ -93,13 +95,15 @@ class QAManager():
         r_list = ReplyList()
         r_list.answerer = random.choice(users)
         r_list.question = question
-        r_list.time_limit_date = datetime.datetime.now() + datetime.timedelta(
-                                    hours=question.time_limit.hour,
-                                    minutes=question.time_limit.minute,
-                                    seconds=question.time_limit.second)
+        r_list.time_limit_date = datetime.datetime.now() + datetime.timedelta(hours=question.time_limit.hour,
+                                                                              minutes=question.time_limit.minute,
+                                                                              seconds=question.time_limit.second)
         return r_list
 
     def pass_question(self, passed_question, reply_list_update):
+        """
+        指定された質問の返信リストを指定した返信リスト更新関数で更新する
+        """
         if passed_question.is_closed:
             return
 
@@ -111,10 +115,13 @@ class QAManager():
             reply_user_list = []
 
             for qd in QuestionDestination.objects.filter(question=passed_question):
-                reply_user_list.extend([up.user for up in UserProfile.objects.filter(accept_question=1).filter(division=qd.tag)])#質問の送信範囲のユーザ
-            passed_user_list = [rl.answerer for rl in ReplyList.objects.filter(question=passed_question, has_replied=True)]#質問にすでにパスしたユーザ
-            passed_user_list.append(passed_question.questioner)#質問者
-            no_login_users = User.objects.exclude(last_login__gte=(datetime.datetime.now() - datetime.timedelta(hours=23, minutes=59, seconds=59)))#ログインしていないユーザ
+                reply_user_list.extend([up.user for up in UserProfile.objects.filter(accept_question=1)
+                                       .filter(division=qd.tag)])  # 質問の送信範囲のユーザ
+            passed_user_list = [rl.answerer for rl in ReplyList.objects.filter(
+                question=passed_question, has_replied=True)]  # 質問にすでにパスしたユーザ
+            passed_user_list.append(passed_question.questioner)  # 質問者
+            no_login_users = User.objects.exclude(last_login__gte=(datetime.datetime.now() - datetime.timedelta(
+                hours=23, minutes=59, seconds=59)))  # ログインしていないユーザ
 
             reply_user_list = list((set(reply_user_list) - set(passed_user_list)) - set(no_login_users))
 
@@ -138,9 +145,11 @@ class QAManager():
         reply_user_list = []
 
         for qd in QuestionDestination.objects.filter(question=question):
-            reply_user_list.extend([up.user for up in UserProfile.objects.filter(accept_question=1).filter(division=qd.tag)])#質問の送信範囲のユーザ
+            reply_user_list.extend([up.user for up in UserProfile.objects.filter(accept_question=1).filter(
+                division=qd.tag)])  # 質問の送信範囲のユーザ
         if question.questioner in reply_user_list: reply_user_list.remove(question.questioner)
-        no_login_users = User.objects.exclude(last_login__gte=(datetime.datetime.now() - datetime.timedelta(hours=23, minutes=59, seconds=59)))#ログインしていないユーザ
+        no_login_users = User.objects.exclude(last_login__gte=(datetime.datetime.now() - datetime.timedelta(
+            hours=23, minutes=59, seconds=59)))  # ログインしていないユーザ
 
         reply_user_list = list(set(reply_user_list) - set(no_login_users))
 

@@ -17,13 +17,16 @@
     <script src="{% static 'js/top.js' %}"></script>
     <link href='http://fonts.googleapis.com/css?family=Puritan:bold' rel='stylesheet' type='text/css'>
     <link href="{% static 'css/top.css' %}" rel="stylesheet" type="text/css">
-    <script type="text/javascript" language="javascript" src="badge.js"></script>
 {% endblock head %}
 
 {% block content %}
 
     {# 挨拶 #}
+<<<<<<< HEAD
     <p>こんにちは！{{user.last_name}}{{user.first_name}}さん</p>
+=======
+    <p>こんにちは！{{user.username}}さん</p>
+>>>>>>> 60e640937fb8e1c1cfd941abbd18be8d98a05393
     <p>最終ログイン {{last_login}} </p>
 
     <nav>

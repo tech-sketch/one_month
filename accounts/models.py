@@ -57,5 +57,6 @@ class UserProfile(models.Model):
     division = models.ForeignKey(Division, verbose_name='所属コード', null=True)
     accept_question = models.IntegerField(verbose_name='受信可', default=1) # 0:不可, 1:可
 
+
     def __str__(self):
         return u'%s %sのプロフィール' % (self.user.first_name, self.user.last_name)

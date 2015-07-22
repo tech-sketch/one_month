@@ -1,5 +1,5 @@
 from django import template
-from ..models import Reply, Question
+from ..models import Reply, Question, ReplyList
 register = template.Library()
 
 @register.filter
@@ -35,3 +35,27 @@ def comment_counter(q):
         return Reply.objects.filter(question=q).count()
     else:
         return Reply.objects.filter(question=q.question).count()
+
+@register.filter
+def pass_counter(q):
+
+    if type(q) is Question:
+        return ReplyList.objects.filter(question=q, has_replied=True).count()
+    else:
+        return ReplyList.objects.filter(question=q.question, has_replied=True).count()
+
+@register.filter
+def count_line(text, num):
+    """
+    トップ画面で使う。カードの本文の行数を数える。改行＋折り返しで行数を判定する。
+    :param text: 本文
+    :param num: カード一行あたりの文字数
+    :return: 本文の行数
+    """
+
+    br_split = text.partition('¥n')
+    l = len(br_split)
+    for line in br_split:
+        if len(line) > num:
+            l += len(line)/num-1
+    return l

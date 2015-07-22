@@ -17,33 +17,39 @@
                             <div id={{q.0.id}} class="item" style="position: absolute; border-top: 3px solid #BFBFBF; border-bottom: 10px solid #FDC44F; border-left: none; border-right: 3px solid #BFBFBF; ">
                                 <div>
                                     {% if q.2.avatar %}
-                                        <img src="/static/{{q.2.avatar}}" align="left" width="50" height="50">
+                                        <img src="/media/{{q.2.avatar}}" align="left" width="50" height="50">
                                     {% else %}
-                                        <img src="/static/images/icons/no_image.png" align="left" width="50" height="50">
+                                        <img src="/media/images/icons/no_image.png" align="left" width="50" height="50">
                                     {% endif%}
                                     <span style="font-size: 10pt;">
                                         &nbsp;質問者：&nbsp;&nbsp;{{q.0.questioner}}<br>
                                         &nbsp;質問日時：&nbsp;&nbsp;{{q.0.date}}
-                                        <!--&nbsp;残り時間：-->
                                     </span>
                                 </div>
                                 <hr>
                                 <span style="font-size: medium;font-weight: bold;">
-                                    {{q.0.title}}<p>&nbsp;</p>
+                                    {{q.0.title| truncatechars:"22"}}
                                 </span>
                                 <span style="font-size: 9pt;">
-                                    {{q.0.text | truncatechars:"80" |linebreaksbr }}
-                                    {% if q.0.text|length > 80 %}
-                                        <a href="{% url 'dotchain:q_detail' q.0.id %}">...続きを読む</a>
+                                    {% if q.0.text|count_line:26 > 3 %}
+                                        {{q.0.text | truncatechars:"60" | linebreaksbr }}
+                                        <a href="{% url 'dotchain:q_detail' id=q.0.id %}">...続きを読む</a>
+                                    {% else %}
+                                        {{q.0.text | linebreaksbr }}
                                     {% endif %}
                                 </span>
-                                <span style="font-size: 9pt;">コメント数：({{q.0|comment_counter}})</span>
-
+                                <hr>
+                                <span style="font-size: 9pt;">コメント数：({{q.0|comment_counter}})</span>&nbsp;&nbsp;
+                                <span style="font-size: 9pt;">パス数：({{q.0|pass_counter}})</span>&nbsp;&nbsp;
                                 {# 回答待ちのもののみリボンで表示する #}
                                 {% if q.1 == 'pending' %}
-                                    <div class="badge" onmouseover="flip(event)" onmouseout="flip(event)">
+                                    <div class="badge">
                                         <div class="front face" style="font-size:x-large;">質問中</div>
                                     </div>
+                                {% elif q.1 == 'unsolved' %}
+                                    <span style="font-size: 9pt;font-weight: bold;color: red;">未解決</span>
+                                {% elif q.1 == 'solved' %}
+                                    <span style="font-size: 9pt;font-weight: bold;color: red;"></span>
                                 {% endif %}
                             </div>
                     {% empty %}

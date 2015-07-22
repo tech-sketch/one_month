@@ -133,6 +133,8 @@ STATICFILES_DIRS = (
 
 STATIC_ROOT = '/var/www/one_month/static_web'
 
+MEDIA_URL = '/media/'
+
 MEDIA_ROOT = '/var/www/one_month/media'
 
 TEMPLATE_CONTEXT_PROCESSORS = (

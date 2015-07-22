@@ -75,5 +75,3 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return u'%s %sのプロフィール' % (self.user.first_name, self.user.last_name)
-
-

@@ -14,7 +14,7 @@
                 <div id="masonry" style="position: relative; width: 660px; height: 729px;">
                     {% for q in qa_list %}
                             {# 自分がした質問 #}
-                            <div id={{q.0.id}} class="item" style="position: absolute; border-top: 3px solid #BFBFBF; border-bottom: 10px solid #FDC44F; border-left: none; border-right: 3px solid #BFBFBF; ">
+                            <div id={{q.0.id}} class="item item-my-question">
                                 <div>
                                     {% if q.2.avatar %}
                                         <img src="/media/{{q.2.avatar}}" align="left" width="50" height="50">
@@ -26,10 +26,11 @@
                                         &nbsp;質問日時：&nbsp;&nbsp;{{q.0.date}}
                                     </span>
                                 </div>
-                                <hr>
+                                <hr class="hr-upper">
                                 <span style="font-size: medium;font-weight: bold;">
                                     {{q.0.title| truncatechars:"22"}}
                                 </span>
+                                <br>
                                 <span style="font-size: 9pt;">
                                     {% if q.0.text|count_line:26 > 3 %}
                                         {{q.0.text | truncatechars:"60" | linebreaksbr }}
@@ -38,7 +39,7 @@
                                         {{q.0.text | linebreaksbr }}
                                     {% endif %}
                                 </span>
-                                <hr>
+                                <hr class="hr-lower">
                                 <span style="font-size: 9pt;">コメント数：({{q.0|comment_counter}})</span>&nbsp;&nbsp;
                                 <span style="font-size: 9pt;">パス数：({{q.0|pass_counter}})</span>&nbsp;&nbsp;
                                 {# 回答待ちのもののみリボンで表示する #}

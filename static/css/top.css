@@ -17,10 +17,34 @@ body {
 	background: #fff;
 	float: left;
 	text-align: left;
-	position: relative;
+	position: absolute;
 	border-radius: 0px;
 	cursor: pointer;
+	border-top: 3px solid #BFBFBF;
+	border-right: 3px solid #BFBFBF;
+	border-left: none;
 }
+
+.item-my-question {
+	border-bottom: 10px solid #19197A;
+}
+.item-others-question {
+	border-bottom: 10px solid #187a18;
+}
+
+.item-passed {
+	background-color: #e6e6e6;
+	border-bottom: 10px solid #187a18;
+}
+
+.item .hr-upper {
+	margin-bottom: 8pt;
+}
+
+.item .hr-lower{
+	 margin: 5pt 0;
+}
+
 
 .badge {
 	position: absolute;
@@ -28,7 +52,7 @@ body {
 	height: 35px;
 	top: 20px;
 	left: 215px;
-	background: #0E7AC4;
+	background: #7a7a18;
 	font-family: "ＭＳ ゴシック", sans-serif;
 	-webkit-transform-style: preserve-3d;
 	-webkit-transition-property: -webkit-transform;

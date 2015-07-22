@@ -148,3 +148,4 @@ sudo service supervisor restart
 #ライセンス
 Apache License, Version 2.0
 http://www.apache.org/licenses/LICENSE-2.0
+>>>>>>> 167834ecffc5a76220642050211acd9aba174310

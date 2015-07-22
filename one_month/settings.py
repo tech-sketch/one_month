@@ -131,11 +131,11 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
 
-STATIC_ROOT = '/var/www/one_month/static_web'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static_web')
 
 MEDIA_URL = '/media/'
 
-MEDIA_ROOT = '/var/www/one_month/media'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'static')
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.debug',
@@ -144,7 +144,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.static',
 
     #'django.contrib.auth.context_processors.auth',
-    #'django.contrib.messages.context_processors.messages',
+    'django.contrib.messages.context_processors.messages',
 
     'django.core.context_processors.request',
     'allauth.account.context_processors.account',

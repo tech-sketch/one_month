@@ -14,6 +14,14 @@ class Question(models.Model):
     draft = models.BooleanField('下書き', default=False)
     is_closed = models.BooleanField('募集終了', default=False)
 
+    def pass_counter(self):
+        return ReplyList.objects.filter(question=self, has_replied=True).count()
+
+    def get_tags_name(self):
+        return [x.tag.name for x in QuestionTag.objects.filter(question=self)]
+
+    def has_reply(self):
+        return len(Reply.objects.filter(question=self)) != 0
     """
     def __str__(self):
         return u'%sから%sへ「%s」についての質問' % (self.questioner, self.destination_div, self.title)

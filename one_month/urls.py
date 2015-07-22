@@ -17,10 +17,14 @@ Including another URLconf
 from django.conf.urls import include, url, patterns
 from django.contrib import admin
 
+from accounts import views
 from one_month import settings
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
+
+    url(r'^accounts/login/$', views.login, name='login'),
+    url(r'^accounts/signup/$', views.signup, name='signup'),
     url(r'^accounts/', include('allauth.urls')),
 
     # ルート

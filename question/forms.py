@@ -27,7 +27,7 @@ class QuestionEditForm(ModelForm):
     #tag = CustomChoiceField(label='タグ', queryset=Tag.objects.all(), required=False,
     #                             to_field_name='name')
     # タグを複数選ばせる場合
-    destination = CustomMultipleChoiceField(label='あて先', queryset=Division.objects.all(), widget=forms.CheckboxSelectMultiple, initial=Division.objects.all())
+    destination = CustomMultipleChoiceField(label='あて先', queryset=Division.objects.all().order_by('code'), widget=forms.CheckboxSelectMultiple, initial=Division.objects.all())
     tag = CustomMultipleChoiceField(label='タグ', queryset=Tag.objects.all(), widget=forms.CheckboxSelectMultiple, required=False)
     tag_added = forms.CharField(label='追加タグ', max_length=512, required=False)
 

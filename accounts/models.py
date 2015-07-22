@@ -28,12 +28,16 @@ class Division(models.Model):
         (2, '人事'),
         (3, '開発'),
         (4, '研究'),
+        (99, 'ロボット'),
     )
+    # ロボットは code がもっとも大きな値で設定する。
     name = models.CharField('所属部署名', blank=True, max_length=512)
     code = models.IntegerField('所属コード', choices=CODE_CHOICES, default=3)
 
     def __str__(self):
         return u'%s' % (self.name)
+    class Meta:
+        ordering = ["code"]
 
 # 勤務形態マスタ
 class WorkStatus(models.Model):
@@ -49,14 +53,12 @@ class WorkStatus(models.Model):
         return u'%s' % (self.name)
 
 class UserProfile(models.Model):
-
     user = models.ForeignKey(User)
     avatar = models.ImageField(upload_to='images/icons', null=True, blank=True)
     work_place = models.ForeignKey(WorkPlace, verbose_name='勤務先', null=True)
     work_status = models.ForeignKey(WorkStatus, verbose_name='勤務形態', null=True)# default入れるべき？
     division = models.ForeignKey(Division, verbose_name='所属コード', null=True)
     accept_question = models.IntegerField(verbose_name='受信可', default=1) # 0:不可, 1:可
-
 
     def __str__(self):
         return u'%s %sのプロフィール' % (self.user.first_name, self.user.last_name)

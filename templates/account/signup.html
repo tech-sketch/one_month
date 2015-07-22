@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block content %}
+<h1 style="color: #19197a;">ユーザー登録</h1>
+<p>すでにアカウントをお持ちであれば、こちらから <a href="/accounts/login/">ログイン</a> してください。</p>
+<div class="col-md-1"></div>
+<div class="col-md-10" >
+<form class="signup" id="signup_form" method="post" action="/accounts/signup/" enctype="multipart/form-data">
+    {% csrf_token %}
+    <table class="table table-hover">
+        <thead></thead>
+        <tbody>
+            <tr bgcolor="#e6e6e6">
+                <td style="color: #19197a;">ユーザー名</td>
+                <td>{{user_form.username}}</td>
+                <td style="color: red;">{{user_form.username.errors}}</td>
+            </tr>
+            <tr bgcolor="white">
+                <td style="color: #19197a;">パスワード</td>
+                <td>{{user_form.password}}</td>
+                <td style="color: red;">{{user_form.password.errors}}</td>
+            </tr>
+            <tr bgcolor="#e6e6e6">
+                <td  style="color: #19197a;">プロフィール画像</td>
+                <td>{{userprofile_form.avatar}}</td>
+                <td style="color: red;">{{userprofile_form.avatar.errors}}</td>
+            </tr>
+            <tr bgcolor="white">
+                <td  style="color: #19197a;">勤務地</td>
+                <td>{{userprofile_form.work_place}}</td>
+                <td style="color: red;">{{userprofile_form.work_place.errors}}</td>
+            </tr>
+            <tr bgcolor="#e6e6e6">
+                <td  style="color: #19197a;">所属</td>
+                <td>{{userprofile_form.division}}</td>
+                <td style="color: red;">{{userprofile_form.division.errors}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <div align="right">
+        <button class="btn btn-signup">登録</button>
+    </div>
+</form>
+</div>
+<div class="col-md-1"></div>
+
+<link href="{% static 'css/login.css' %}" rel="stylesheet">
+{% endblock content%}

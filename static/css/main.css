@@ -1,0 +1,19 @@
+body {
+	background: #f2f2ff;
+}
+
+.app_name{
+	font-family: 'Judson', serif;
+	font-size: 25px;
+}
+
+.app_name h1{
+	font-family: 'Judson', serif;
+	font-size: 40px;
+}
+
+.breack_word{
+	word-wrap:break-word;
+}
+
+

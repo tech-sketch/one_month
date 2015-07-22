@@ -12,7 +12,7 @@
 
           <div class="activities">
                 {% for qa in qa_list %}
-                        <div class="my-card">
+                        <div class="my-card" id={{qa.0.id}}>
                                 <div class="well" style="margin-bottom: 0px; padding: 10px; background-color: #071178;color: white;">
                                     {% if qa.2.avatar %}
                                     <img src="/media/{{qa.2.avatar}}" align="left" width="70" height="70">
@@ -28,7 +28,7 @@
                                     &nbsp;タイムリミット：  {{qa.0.time_limit}}
                                     </span>
                                 </div>
-                                <div id={{qa.0.id}} class="well" style="background-color: #FFFFFF; margin-bottom: 0px; height: 200px;">
+                                <div class="well" style="background-color: #FFFFFF; margin-bottom: 0px; height: 200px;">
                                     <span style="font-size: small;">
                                         {% if qa.0.text|count_line:26 > 3 %}
                                             {{qa.0.text | truncatechars:"60" | linebreaksbr }}

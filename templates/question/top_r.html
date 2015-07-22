@@ -12,7 +12,7 @@
 
     <div class="activities">
         {% for qa in qa_list %}
-            <div class="my-card">
+            <div class="my-card" id={{qa.0.question.id}}>
                 {% if qa.1 == 'passed' %}
                 <div class="well" style="margin-bottom: 0px; padding: 10px; background-color: rgba(0, 0, 0, 0.1);color: gray;">
                     {% if qa.2.avatar %}
@@ -29,7 +29,7 @@
                         &nbsp;回答期限：  {{qa.0.time_limit_date}}
                     </span>
                 </div>
-                <div id={{qa.0.question.id}} class="well" style="background-color: #FFFFFF; margin-bottom: 0px; height: 200px; color: gray;">
+                <div class="well" style="background-color: #FFFFFF; margin-bottom: 0px; height: 200px; color: gray;">
                     <span style="font-size: small;">
                         {% if qa.0.question.text|count_line:26 > 3 %}
                         {{qa.0.question.text | truncatechars:"60" | linebreaksbr }}
@@ -65,7 +65,7 @@
                         &nbsp;回答期限：  {{qa.0.time_limit_date}}
                     </span>
                 </div>
-                <div id={{qa.0.question.id}} class="well" style="background-color: #FFFFFF; margin-bottom: 0px; height: 200px;">
+                <div class="well" style="background-color: #FFFFFF; margin-bottom: 0px; height: 200px;">
                     <span style="font-size: small;">
                         {% if qa.0.question.text|count_line:26 > 3 %}
                         {{qa.0.question.text | truncatechars:"60" | linebreaksbr }}

@@ -1,6 +1,6 @@
 ���ǉ�
 .idea/
-#one_month/settings.py
+one_month/settings.py
 db.sqlite3
 */migrations
 */__pycache__

@@ -1,0 +1,35 @@
+body {
+	background: #f2f2ff;
+}
+
+.app_name{
+	font-family: 'Judson', serif;
+	font-size: 25px;
+}
+
+.app_name h1{
+	font-family: 'Judson', serif;
+	font-size: 40px;
+}
+
+.breack_word{
+	word-wrap:break-word;
+}
+
+.card_form{
+	background-color: #FFFFFF;
+	border-top: 3px solid #BFBFBF;
+	border-bottom: 7px solid #D24726; 
+	border-left: none; 
+	border-right: 3px solid #BFBFBF;
+}
+
+.hide_div{
+	display:none;
+}
+
+.clear{
+	clear: both;
+}
+
+

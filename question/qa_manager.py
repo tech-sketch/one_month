@@ -28,11 +28,6 @@ class QAManager():
     #その質問のQuestionStateを調べるメソッド
     def question_state(self, question_list):
 
-        if isinstance(question_list, Question):
-            print('[qa_manager:question_state] Warning: the arg is not a type Question!')
-            print('[qa_manager:question_state] Returns None')
-            return None
-
         qa_list = list()
         #自分の質問が解決済みかどうか調べる
         for q in question_list:
@@ -49,11 +44,6 @@ class QAManager():
 
     #その質問のReplyStateを調べるメソッド
     def reply_state(self, reply_list):
-
-        if isinstance(reply_list, ReplyList):
-            print('[qa_manager:reply_state] Warning: the arg is not a type ReplyList!')
-            print('[qa_manager:reply_state] Returns None')
-            return None
 
         qa_list = list()
 

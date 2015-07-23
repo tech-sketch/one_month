@@ -1,14 +1,19 @@
+import datetime
+
 from django.shortcuts import render_to_response, redirect, get_object_or_404
 from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.contrib.auth.models import User
+
 from accounts.models import UserProfile, WorkStatus, WorkPlace, Division
 from question.models import Question, Reply, ReplyList, Tag, UserTag, QuestionTag, QuestionDestination
 from question.forms import QuestionEditForm, ReplyEditForm, UserProfileEditForm, KeywordSearchForm
 from question.qa_manager import QAManager
 from question.robot_reply import ReplyRobot
-import datetime
+from question import message_definition as m
+
+
 
 # Create your views here.
 @login_required(login_url='/accounts/login')
@@ -16,9 +21,7 @@ def top_default(request, msg=None):
     """
     トップページ
     """
-    # added
-    # form = None
-    # if request.method == 'GET':
+
     form = KeywordSearchForm()
     # 自分の質問を取ってくる
     questions = Question.objects.filter(questioner=request.user)
@@ -65,6 +68,8 @@ def top_default(request, msg=None):
                     r_list_tmp.extend(rl)
 
             reply_lists = r_list_tmp
+
+            # -----------------------------------------------------------------------------------
 
             # キーワードに合致するすべてのタグを取り出す
             tags = list(Tag.objects.filter(Q(name__contains=form.clean()['keyword'])))  # キーワードが含まれるタグ（複数）
@@ -120,9 +125,9 @@ def top_default(request, msg=None):
         elif isinstance(qa[0], ReplyList):
             profile = UserProfile.objects.get(user=qa[0].question.questioner)
         qa.append(profile)
-    histories = None
+
     return render_to_response('question/top_all.html',
-                              {'histories': histories, 'qa_list': qa_list,
+                              {'qa_list': qa_list,
                                'last_login': request.user.last_login, 'msg': msg},
                               context_instance=RequestContext(request))
 
@@ -134,15 +139,17 @@ def question_edit(request, id=None, msg=None):
     """
 
     # edit
+    """
+　　#質問の編集機能は今は使っていない
     if id:
         q = get_object_or_404(Question, pk=id)
         # user check
         if q.questioner != request.user:
-            print("不正なアクセスです！")
-            return redirect('dotchain:top')
+            return top_default(request, msg=m.INFO_INVALID_ACCESS)
     # new
     else:
-        q = Question()
+   """
+    q = Question()
 
     # edit
     if request.method == 'POST':
@@ -169,13 +176,7 @@ def question_edit(request, id=None, msg=None):
 
             if r_list is None:
                 q.delete()
-
-                msg = '宛先ユーザが見つかりませんでした。入力された質問は消去されます。\n'
-                msg += '次の原因が考えられます。\n'
-                msg += '・送信先にユーザがいない\n'
-                msg += '・送信先に1日以内にログインしたユーザがいない\n'
-                msg += '・送信先に受信拒否のユーザしかいない'
-
+                msg = m.INFO_NO_DESTINATION
                 return render_to_response('question/question_edit.html',
                                           {'form': form, 'id': id, 'msg': msg},
                                           context_instance=RequestContext(request))
@@ -203,7 +204,7 @@ def question_edit(request, id=None, msg=None):
                 qt.question = q
                 qt.save()
 
-            return redirect('dotchain:top')
+            return top_default(request, msg=m.INFO_QUESTION_SEND_OK)
         pass
     # new
     else:
@@ -222,20 +223,11 @@ def reply_edit(request, id=None):
 
     # 指定された質問を取ってくる
     q = get_object_or_404(Question, pk=id)
-    # if ReplyList.objects.filter(question=q, answerer=request.user, has_replied=True):
-    #    msg = 'その質問はすでにパスされています'
-    #    return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
 
     if q.is_closed:
-        msg = 'その質問の回答は締め切られました。'
-        return top_default(request, msg)
-        # return render_to_response('question/top_default.html',{'msg':msg},context_instance=RequestContext(request))
-
-    # replylist = ReplyList.objects.filter(question=q)[0]
-    # 各質問について、has_replied=Falseの回答済みリストは一つのみのはず
+        return top_default(request, msg=m.INFO_REPLY_ALREADY_FINISH)
 
     replylist = get_object_or_404(ReplyList, question=q, has_replied=False)
-    print("rep")
 
     r = Reply()
 
@@ -248,11 +240,8 @@ def reply_edit(request, id=None):
             # この質問の自分あての回答リストを取ってきて、回答済みにしておく
             if q.questioner != request.user:
                 r_list = get_object_or_404(ReplyList, question=q, answerer=request.user)
-                # has_replied=Falseはいらないと思う
                 if r_list.has_replied:
-                    msg = 'その質問は自動的にパスされました'
-                    return top_default(request, msg)
-                # r_list.has_replied = True
+                    return top_default(request, msg=m.INFO_QUESTION_ALREADY_AUTO_PASS)
                 r_list.time_limit_date = None
                 r_list.save()
 
@@ -263,7 +252,6 @@ def reply_edit(request, id=None):
                         user_tag.tag = tag.tag
                         user_tag.user = request.user
                         user_tag.save()
-                        print(user_tag)
 
             r = form.save(commit=False)
             r.question = q
@@ -271,12 +259,7 @@ def reply_edit(request, id=None):
             r.draft = form.cleaned_data['draft']
             r.save()
 
-            # 質問を締め切る
-            # q.is_closed = True
-            # q.save()
-
-            msg = '返信しました。'
-            return top_default(request, msg)
+            return top_default(request, msg=m.INFO_REPLY_SEND_OK)
         pass
     # new
     else:
@@ -311,9 +294,8 @@ def question_list(request):
             profile = UserProfile.objects.get(user=qa[0].question.questioner)
         qa.append(profile)
 
-    histories = None
     return render_to_response('question/top_q.html',
-                              {'histories': histories, 'qa_list': qa_list,
+                              {'qa_list': qa_list,
                                'last_login': request.user.last_login},
                               context_instance=RequestContext(request))
 
@@ -329,12 +311,10 @@ def question_pass(request, id=None):
     """
     reply_list = ReplyList.objects.get(id=id)
     if reply_list.has_replied:
-        msg = 'すでにパスした質問です。'
-        return top_default(request, msg)
+        return top_default(request, msg=m.INFO_QUESTION_ALREADY_AUTO_PASS)
 
     qa_manager = QAManager()
     if qa_manager.pass_question(reply_list.question, qa_manager.reply_list_update_random_except):
-        msg = '質問をパスしました。'
 
         # 宛先にロボットが含まれるかどうか調べる
         try:
@@ -343,7 +323,7 @@ def question_pass(request, id=None):
         except QuestionDestination.DoesNotExist:
             to_robot = []
 
-        # 何回目のパスでロボットが返信してくるか
+        # 何回目のパスでロボットが返信してくるか。現在は１に固定
         if len(to_robot) and reply_list.question.pass_counter() == 1 and not reply_list.question.has_reply():
             reply = Reply()
             reply.question = reply_list.question
@@ -363,13 +343,11 @@ def question_pass(request, id=None):
                 robot.save()
             reply.answerer = robot
             reply.save()
-        return top_default(request, msg)
+        return top_default(request, msg=m.INFO_QUESTION_PASS)
     else:
         reply_list.question.is_closed = True
         reply_list.question.save()
-        msg = '質問をパスしました。\n'
-        msg += '次の送信先がないため質問は締め切られます。'
-        return top_default(request, msg)
+        return top_default(request, msg='{0}\n{1}'.format(m.INFO_QUESTION_PASS, m.INFO_PASS_FINISH))
 
 
 @login_required(login_url='/accounts/login')
@@ -399,9 +377,7 @@ def question_detail(request, id=None):
 
     # user check
     if q.questioner != request.user and reply_list == None:
-        # 他人の質問は表示できないようにする
-        msg = '他の人の質問は閲覧できません。'
-        return top_default(request, msg)
+        return top_default(request, msg=m.INFO_QUESTION_INVALID_ACCESS)
 
     return render_to_response('question/question_detail.html',
                               {'question': q, 'q_tags': q_tags, 'reply': r, 'reply_list': reply_list},
@@ -414,29 +390,8 @@ def reply_list(request):
     自分に来た質問一覧を表示する
     """
 
-    r = Reply()
-
-    """
-    # ランダムに質問取ってくる
-    #下書きにチェックがはいっていないもののみ最新のものから順に表示
-    question_tmp = Question.objects.filter(~Q(questioner=request.user))#.order_by('-date')[:]
-    question = list(filter(lambda x: x.draft==False, question_tmp))
-    question = random.choice(question) #ランダムに質問を取ってくる
-    """
-
-    # 06/09 返信リストの中から自分あて、かつ返信済みでない質問を取ってくる
-    # 返信期限がまだ来てないもの、かつ返信期限が早いものから順に表示
-    # replylist = ReplyList.objects.filter(answerer=request.user, has_replied=False,time_limit_date__gte=datetime.datetime.now(pytz.utc)).order_by('time_limit_date')[:]
-    # questions = [r.question for r in replylist]
-
-    # return render_to_response('question/reply_list.html',
-    #                            {'questions':questions,},
-    #                           context_instance=RequestContext(request))
-
-    # 自分宛の質問のうち、自分の回答待ちになっている質問を取ってくる
+    # 自分宛の質問のうち、自分の回答待ちになっている質問を取ってきて時系列に並べる
     reply_list = ReplyList.objects.filter(answerer=request.user, has_replied=False)
-
-    # 自分宛の質問を時系列に並べる
     reply_list = sorted(reply_list, reverse=True, key=lambda x: x.question.date)
 
     # 各質問の状態を調べる
@@ -451,9 +406,8 @@ def reply_list(request):
             profile = UserProfile.objects.get(user=qa[0].question.questioner)
         qa.append(profile)
 
-    histories = None
     return render_to_response('question/top_r.html',
-                              {'histories': histories, 'qa_list': qa_list, 'last_login': request.user.last_login},
+                              {'qa_list': qa_list, 'last_login': request.user.last_login},
                               context_instance=RequestContext(request))
 
 
@@ -464,7 +418,6 @@ def mypage(request):
     """
 
     # ユーザのプロファイルを取ってくる
-
     work_place, created = WorkPlace.objects.get_or_create(name='東京', defaults=dict(name='東京', ), )
     work_status, created = WorkStatus.objects.get_or_create(name='在席', defaults=dict(name='在席', ), )
     division, created = Division.objects.get_or_create(code=2, name='人事', defaults=dict(code=2, name='人事'))
@@ -475,10 +428,8 @@ def mypage(request):
                                                                  division=division,
                                                                  accept_question=1, ), )
 
-
     # ユーザが登録しているタグを取ってくる
     user_tags = UserTag.objects.filter(user=request.user)
-    # user_tags = [user_tag.tag for user_tag in user_tags]
 
     # edit
     if request.method == 'POST':
@@ -487,8 +438,6 @@ def mypage(request):
 
         # 完了がおされたら
         if form.is_valid():
-            print(form)
-
             r = form.save(commit=False)
             r.save()
 
@@ -514,17 +463,11 @@ def mypage(request):
                 qt.tag = t
                 qt.user = request.user
                 qt.save()
-            else:
-                print("tag_added")
-                print(tag_added_name)
-
             return redirect('dotchain:mypage')
         pass
     # new
     else:
         form = UserProfileEditForm(instance=p)
-        # tag_form = UserTagEditForm(instance=t)
-        # TODO マイページにユーザが登録済みのタグを表示しつつ、追加・編集できるようにしたい
 
     user_question = Question.objects.filter(questioner=request.user)
     user_reply = Reply.objects.filter(answerer=request.user)
@@ -538,9 +481,6 @@ def mypage(request):
 def search(request):
     if request.method == 'GET':
         form = KeywordSearchForm()
-
-    # elif request.method == 'POST':
-    #  form = KeywordSearchForm(request.POST)
 
     return render_to_response('question/question_search.html',
                               {'form': form},

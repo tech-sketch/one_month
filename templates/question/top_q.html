@@ -12,46 +12,46 @@
 
           <div class="activities">
                 {% for qa in qa_list %}
-                        <div class="my-card" id={{qa.0.id}}>
-                                <div class="well" style="margin-bottom: 0px; padding: 10px; background-color: #071178;color: white;">
-                                    {% if qa.2.avatar %}
-                                    <img src="/media/{{qa.2.avatar}}" align="left" width="70" height="70">
-                                    {% else %}
-                                        <img src="/media/images/icons/no_image.png" align="left" width="70" height="70">
-                                    {% endif %}
-                                    <span style="font-size: medium;font-weight: bold;">
+                    <div class="my-card" id={{qa.0.id}}>
+                        <div class="well" style="margin-bottom: 0px; padding: 10px; background-color: #071178;color: white;">
+                            {% if qa.2.avatar %}
+                                <img src="/media/{{qa.2.avatar}}" align="left" width="70" height="70">
+                            {% else %}
+                                <img src="/media/images/icons/no_image.png" align="left" width="70" height="70">
+                            {% endif %}
+                                <span style="font-size: medium;font-weight: bold;">
                                     &nbsp;{{qa.0.title| truncatechars:"12"}}
-                                    </span><br>
-                                    <span style="font-size: x-small">
+                                </span><br>
+                                <span style="font-size: x-small">
                                     &nbsp;質問者：  {{qa.0.questioner}}<br>
                                     &nbsp;質問日時：  {{qa.0.date}}<br>
                                     &nbsp;タイムリミット：  {{qa.0.time_limit}}
-                                    </span>
-                                </div>
-                                <div class="well" style="background-color: #FFFFFF; margin-bottom: 0px; height: 200px;">
-                                    <span style="font-size: small;">
-                                        {% if qa.0.text|count_line:26 > 3 %}
-                                            {{qa.0.text | truncatechars:"60" | linebreaksbr }}
-                                            <a href="{% url 'dotchain:q_detail' qa.0.id %}">...続きを読む</a>
-                                        {% else %}
-                                            {{qa.0.text | truncatechars:"80" | linebreaksbr }}
-                                        {% endif %}
-                                    </span>
-                                </div>
-                                <div style="background-color: #FFFFFF; width:260px; height: 60px; padding:0 10 0 10; position: relative; bottom: 90px; left: 5px;">
-                                    <hr class="hr-lower">
-                                    <span class="glyphicon glyphicon-comment" aria-hidden="true">  {{qa.0|comment_counter}}</span>&nbsp;&nbsp;
-                                    <span class="glyphicon glyphicon-share-alt" aria-hidden="true">  {{qa.0|pass_counter}}</span>&nbsp;&nbsp;
-                                    {# 回答待ちのもののみリボンで表示する #}
-                                    {% if qa.1 == 'pending' %}
-                                        <span style="font-size: 12pt;font-weight: bold;color: red; position: relative; right: -80px;">質問中</span>
-                                    {% elif qa.1 == 'unsolved' %}
-                                        <span style="font-size: 12pt;font-weight: bold;color: red; position: relative; right: -80px;">未解決</span>
-                                    {% elif qa.1 == 'solved' %}
-                                        <span style="font-size: 12pt;font-weight: bold;color: red;"></span>
-                                    {% endif %}
-                                </div>
-                            </div>
+                                </span>
+                        </div>
+                        <div class="well" style="background-color: #FFFFFF; margin-bottom: 0px; height: 200px;">
+                            <span style="font-size: small;">
+                                {% if qa.0.text|count_line:26 > 3 %}
+                                    {{qa.0.text | truncatechars:"60" | linebreaksbr }}
+                                    <a href="{% url 'dotchain:q_detail' qa.0.id %}">...続きを読む</a>
+                                {% else %}
+                                    {{qa.0.text | truncatechars:"80" | linebreaksbr }}
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div style="background-color: #FFFFFF; width:260px; height: 60px; padding:0 10 0 10; position: relative; bottom: 90px; left: 5px;">
+                            <hr class="hr-lower">
+                            <span class="glyphicon glyphicon-comment" aria-hidden="true">  {{qa.0|comment_counter}}</span>&nbsp;&nbsp;
+                            <span class="glyphicon glyphicon-share-alt" aria-hidden="true">  {{qa.0|pass_counter}}</span>&nbsp;&nbsp;
+                            {# 質問の状態を表示する #}
+                            {% if qa.1 == 'pending' %}
+                                <span style="font-size: 12pt;font-weight: bold;color: red; float:right;">質問中</span>
+                            {% elif qa.1 == 'unsolved' %}
+                                <span style="font-size: 12pt;font-weight: bold;color: red; float:right;">未解決</span>
+                            {% elif qa.1 == 'solved' %}
+                                <span style="font-size: 12pt;font-weight: bold;color: red; float:right;">質問終了</span>
+                            {% endif %}
+                        </div>
+                    </div>
                 {% empty %}
                         <h4>自分が投稿した質問はありません。</h4>
                 {% endfor %}

@@ -108,7 +108,7 @@
 		</div>
 		<div class="col-md-12" >
 			{# ユーザータグ #}
-			<h4>{{user.last_name}}{{user.first_name}}さんの登録タグ</h4>
+			<h4>{{user.username}}さんの登録タグ</h4>
 			{% for u_tag in user_tags%}
 			{{ u_tag.tag.name }}&nbsp;&nbsp;
 			{% empty %}

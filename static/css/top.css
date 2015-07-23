@@ -7,6 +7,20 @@ body {
 	margin: 0;
 }
 
+.my-card {
+	height: 300px;
+	float: left;
+	text-align: left;
+	padding: 5px;
+	margin: 5px 2px 5px 2px;
+}
+
+.my-card:hover {
+    animation: soften 0.2s;
+    opacity: 0.8;
+    cursor: pointer;
+}
+
 .item {
 	width: 350px;
 	min-height: 150px;

@@ -15,7 +15,7 @@
 {# 内容表示 #}
 <div class="col-md-8">
 
-<h3>質問</h3>	
+<h2>質問</h2>
 <div class="popover right show" style="position:relative; max-width:100%;">
     <div class="arrow"></div>
 	<h2 class="popover-title breack_word" style="background-color: #FFFFFF; font-size:x-large; color: black; font-weight: bold;">
@@ -33,7 +33,12 @@
         </p>
     </div>
 </div>
-		
+
+<p>&nbsp;</p>
+
+{% if question.draft %}
+	<a class="btn btn-primary" href="{% url 'dotchain:q_edit' id=question.id %}" role="button">編集</a>
+{% else %}
 </div>
 <div class="col-md-4">
 
@@ -44,7 +49,7 @@
 
 <div class="col-md-12">
 	{% if reply %}
-	<h3>回答</h3>
+	<h2>回答</h2>
 	{% for r in reply %}	
 	<div class="popover right show" style="position:relative; max-width:100%; word-break:break-all;">
 		<div class="arrow"></div>
@@ -62,9 +67,7 @@
 	<h2>回答なし</h2>
 	{% endif %}
 
-	<p>
-		&nbsp;
-	</p>
+	<p>&nbsp;</p>
 
 	{% if question.questioner.id != user.id %}
 		{% if reply_list %}
@@ -91,5 +94,6 @@
 <div class="col-md-12">
 	<iframe width="100%" height="100%" src="{% url 'dotchain:pass_network' id=question.id %}" scrolling="auto" style="border:none"></iframe>
 </div>
+{% endif %}
 
 {% endblock content %}

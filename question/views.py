@@ -139,8 +139,7 @@ def question_edit(request, id=None, msg=None):
     """
 
     # edit
-    """
-　　#質問の編集機能は今は使っていない
+    #質問の編集機能は今は使っていない
     if id:
         q = get_object_or_404(Question, pk=id)
         # user check
@@ -148,8 +147,7 @@ def question_edit(request, id=None, msg=None):
             return top_default(request, msg=m.INFO_INVALID_ACCESS)
     # new
     else:
-   """
-    q = Question()
+        q = Question()
 
     # edit
     if request.method == 'POST':
@@ -160,6 +158,8 @@ def question_edit(request, id=None, msg=None):
             # 質問を保存
             q = form.save(commit=False)
             q.update(questioner=request.user, draft=form.cleaned_data['draft'])
+            if q.draft:
+                return top_default(request, msg=m.INFO_QUESTION_SAVE_OK)
 
             div_list = form.cleaned_data['destination']
             for div in div_list:

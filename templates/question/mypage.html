@@ -11,21 +11,21 @@
 {# 挨拶 #}
 <div class="col-md-12 card_form">
 	{# 設定フォーム #}
+	<h2>{{user.username}}さんのプロフィール</h2>
 	<form enctype="multipart/form-data" action="" method="post" class="form", name="profile", id="p_id">
 		<div class="col-md-3" >
-			<p>こんにちは！{{user.username}}さん</p>
-			<img src="/media/{{uprof.avatar}}" align="left" width="100%">
+			<img src="/media/{{uprof.avatar}}" align="left" width="100%"><br>
 			<div id="hide_5-1" >
-				<input type="button" value="プロフィール画像を追加する" class="btn btn-info" font-weight:bold;" onClick="btn_open('hide_5-2','hide_5-1')">
+				<input type="button" value="プロフィール画像を変更する" class="btn btn-info" onClick="btn_open('hide_5-2','hide_5-1')">
 			</div>
 			<div id="hide_5-2" style="display:none">
-				<input type="button" value="隠す" class="btn btn-info" font-weight:bold;" onClick="btn_open('hide_5-1','hide_5-2')">
+				<input type="button" value="隠す" class="btn btn-info" onClick="btn_open('hide_5-1','hide_5-2')">
 				{{ form.avatar| bootstrap }}
 				<input type="submit" name="done" value="確定" class="btn btn-primary">
 			</div>
+			<p>&nbsp;</p>
 		</div>
 		<div class="col-md-6" >
-			<br><br>
 			<table class="table table-hover">
 				<tbody>
 					<tr class="info">
@@ -101,26 +101,30 @@
 			</div>
 			<!--------------------------------------->
 			<div id="hide_4-2" style="display:none">
-				<input type="button" value="受信ステータスを隠す" class="btn btn-info" font-weight:bold;" onClick="btn_open('hide_4-1','hide_4-2')">
+				<input type="button" value="受信ステータスを隠す" class="btn btn-info" onClick="btn_open('hide_4-1','hide_4-2')">
 				{{ form.accept_question }}
 				<input type="submit" name="done" value="確定" class="btn btn-primary">
 			</div>
 		</div>
+
 		<div class="col-md-12" >
 			{# ユーザータグ #}
-			<h4>{{user.username}}さんの登録タグ</h4>
-			{% for u_tag in user_tags%}
-			{{ u_tag.tag.name }}&nbsp;&nbsp;
-			{% empty %}
-			なし
-			{% endfor %}
-		</div>
-		<div class="col-md-12" >
+
+			<h2>登録タグ</h2>
 			<div id="hide_0-1" >
-				<input type="button" value="タグを追加する" class="btn btn-info" font-weight:bold;" onClick="btn_open('hide_0-2','hide_0-1')">
+				{% for u_tag in user_tags%}
+				<div class="well" style="display:inline; padding:10px; margin-bottom: 0px;">
+					<span style="font-size: medium; font-weight: bold;">{{ u_tag.tag.name }}</span>
+				</div>
+				&nbsp;
+				{% empty %}
+					<p>なし</p>
+				{% endfor %}
+				<input type="button" value="タグを追加する" class="btn btn-info" onClick="btn_open('hide_0-2','hide_0-1')">
 			</div>
+
 			<div id="hide_0-2" style="display:none">
-				<input type="button" value="タグを隠す" class="btn btn-info" font-weight:bold;" onClick="btn_open('hide_0-1','hide_0-2')"><br>
+				<input type="button" value="タグを隠す" class="btn btn-info" onClick="btn_open('hide_0-1','hide_0-2')"><br>
 				{% for f in form.tag %}
 				<label class="checkbox-inline"> {{ form.tag|index:forloop.counter0 }} </label>
 				{% endfor%}
@@ -131,8 +135,10 @@
 		</div>
 	</form>
 	<div class="col-md-12" >
-	<iframe width="100%" height="80%" src="{% url 'dotchain:network' %}" scrolling="no" style="border:none; overflow:hidden;" allowtransparency="true"></iframe>
-</div>
+		<h2>ネットワーク図</h2>
+		<iframe width="100%" height="80%" src="{% url 'dotchain:network' %}" scrolling="no" style="border:none; overflow:hidden;" allowtransparency="true"></iframe>
+		<p>&nbsp;</p>
+	</div>
 </div>
 
 {% endblock content %}

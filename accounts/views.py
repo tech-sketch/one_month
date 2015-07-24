@@ -1,16 +1,21 @@
-from django.shortcuts import render_to_response, redirect, render
+from django.shortcuts import redirect, render
 from django.contrib.auth import login as auth_login, authenticate
 from django.contrib import messages
-from .forms import User_form, UserProfile_form
+from .forms import UserForm, UserProfileForm
+from .models import UserProfile
 
-# Create your views here.
 def signup(request):
     if request.method == 'GET':
-        return render(request, 'account/signup.html', {'user_form': User_form(), 'userprofile_form': UserProfile_form()})
+        return render(request, 'account/signup.html', {'user_form': UserForm(), 'userprofile_form': UserProfileForm()})
     if request.method == 'POST':
-        user_form = User_form(request.POST)
-        userprofile_form = UserProfile_form(request.POST, request.FILES)
+        user_form = UserForm(request.POST)
+        userprofile_form = UserProfileForm(request.POST, request.FILES)
+        print(user_form.is_valid())
+        print(user_form.cleaned_data)
+        print(userprofile_form.is_valid())
+        print(userprofile_form.cleaned_data)
         if user_form.is_valid() and userprofile_form.is_valid():
+            print('Success')
             user = user_form.save()
             userprofile = userprofile_form.save(commit=False)
             userprofile.user = user
@@ -18,14 +23,16 @@ def signup(request):
             return redirect('/accounts/login/')
         return render(request, 'account/signup.html', {'user_form': user_form, 'userprofile_form': userprofile_form})
 
+
 def login(request):
     if request.method == 'POST':
+        print(request.POST)
         username = request.POST['username']
         password = request.POST['password']
         user = authenticate(username=username, password=password)
         if user is not None:
             if user.is_active:
-                auth_login(request,user)
+                auth_login(request, user)
                 return redirect('/dotchain')
             else:
                 messages.error(request, 'このユーザは使用できません。')

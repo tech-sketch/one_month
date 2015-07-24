@@ -8,6 +8,7 @@ from django.db import models
         return u'%s(%s %s)' % (self.username, self.first_name, self.last_name)
 """
 
+
 # 勤務先マスタ
 class WorkPlace(models.Model):
     CHOICES = (
@@ -20,6 +21,7 @@ class WorkPlace(models.Model):
 
     def __str__(self):
         return u'%s' % (self.name)
+
 
 # 部署マスタ
 class Division(models.Model):
@@ -39,6 +41,7 @@ class Division(models.Model):
     class Meta:
         ordering = ["code"]
 
+
 # 勤務形態マスタ
 class WorkStatus(models.Model):
     CHOICES = (
@@ -52,12 +55,15 @@ class WorkStatus(models.Model):
     def __str__(self):
         return u'%s' % (self.name)
 
+# TODO exceptするエラーを書く。
+# TODO try, except 以外方法で対処する
 def work_place_default():
     try:
         item, created = WorkPlace.objects.get_or_create(name='東京')
         return item
     except:
         return None
+
 
 def work_status_default():
     try:
@@ -66,6 +72,7 @@ def work_status_default():
     except:
         return None
 
+
 def division_default():
     try:
         item, created = Division.objects.get_or_create(code=2, name='人事')
@@ -73,13 +80,14 @@ def division_default():
     except:
         return None
 
+
 class UserProfile(models.Model):
     user = models.ForeignKey(User)
     avatar = models.ImageField(upload_to='images/icons', default='images/icons/no_image.png')
     work_place = models.ForeignKey(WorkPlace, verbose_name='勤務先', null=True, default=work_place_default())
     work_status = models.ForeignKey(WorkStatus, verbose_name='勤務形態', null=True, default=work_status_default())
     division = models.ForeignKey(Division, verbose_name='所属コード', null=True,  default=division_default())
-    accept_question = models.IntegerField('受信可', default=1) # 0:不可, 1:可
+    accept_question = models.IntegerField('受信可', default=1)  # 0:不可, 1:可
 
     def __str__(self):
         return u'%s %sのプロフィール' % (self.user.first_name, self.user.last_name)

@@ -5,105 +5,82 @@ from accounts.models import UserProfile, WorkPlace, WorkStatus, Division
 from .models import QuestionDestination, QuestionTag, Question, Reply, ReplyList, Tag, UserTag
 from .forms import QuestionEditForm, ReplyEditForm, UserProfileEditForm
 
-class Reply_editTest(TestCase):
-    def setUp(self):
-        self.division01 = Division.objects.create(name='総務', code=1)
-        self.work_place01 = WorkPlace.objects.create(name='東京')
-        self.work_state01 = WorkStatus.objects.create(name='在籍')
-
-        self.user01 = User.objects.create(username='01', last_login=datetime.now())
-        self.prof01 = UserProfile.objects.create(user=self.user01, work_place=self.work_place01,
-                                                 work_status=self.work_state01, division=self.division01,
-                                                 accept_question=1)
-
-        self.user02 = User.objects.create(username='02', last_login=datetime.now())
-        self.prof02 = UserProfile.objects.create(user=self.user02, work_place=self.work_place01,
-                                                 work_status=self.work_state01, division=self.division01,
-                                                 accept_question=1)
-
-    def test_reply_form(self):
-        """正常な入力を行えばエラーにならないことを検証"""
-        reply = Reply()
-        form = ReplyEditForm(data={'date':datetime.now(), 'text': 'test', 'draft': 0}, instance=reply)
-        print("=====reply_edit=====")
-        print(form.errors)
-        self.assertTrue(form.is_valid())
-
-class Question_editTest(TestCase):
-    def setUp(self):
-        self.division01 = Division.objects.create(name='人事', code=2)
-        self.division02 = Division.objects.create(name='総務', code=1)
-        self.work_place01 = WorkPlace.objects.create(name='東京')
-        self.work_state01 = WorkStatus.objects.create(name='在籍')
-
-        self.user01 = User.objects.create(username='01', last_login=datetime.now())
-        self.prof01 = UserProfile.objects.create(user=self.user01, work_place=self.work_place01,
-                                                 work_status=self.work_state01, division=self.division01,
-                                                 accept_question=1)
-
-        self.user02 = User.objects.create(username='02', last_login=datetime.now())
-        self.prof02 = UserProfile.objects.create(user=self.user02, work_place=self.work_place01,
-                                                 work_status=self.work_state01, division=self.division01,
-                                                 accept_question=1)
-
-    def test_question_form(self):
-        """正常な入力を行えばエラーにならないことを検証"""
-        question = Question()
-        form = QuestionEditForm(data={'destination': [1, 2], 'date':datetime.now(), 'title': 'test', 'time_limit': '11:11:11', 'text': 'test', 'draft': 0}, instance=question)
-        print("=====question_edit=====")
-        print(form.errors)
-        self.assertTrue(form.is_valid())
-
-
-class UserProfileEditFormTest(TestCase):
-    def setUp(self):
-        self.division01 = Division.objects.create(name='人事', code=2)
-        self.division02 = Division.objects.create(name='総務', code=1)
-        self.work_place01 = WorkPlace.objects.create(name='東京')
-        self.work_state01 = WorkStatus.objects.create(name='在籍')
-
-        self.user01 = User.objects.create(username='01', last_login=datetime.now())
-        self.prof01 = UserProfile.objects.create(user=self.user01, work_place=self.work_place01,
-                                                 work_status=self.work_state01, division=self.division01,
-                                                 accept_question=1)
-
-        self.user02 = User.objects.create(username='02', last_login=datetime.now())
-        self.prof02 = UserProfile.objects.create(user=self.user02, work_place=self.work_place01,
-                                                 work_status=self.work_state01, division=self.division01,
-                                                 accept_question=1)
-
-    def test_user_profile_form(self):
-        """正常な入力を行えばエラーにならないことを検証"""
-        profile = UserProfile()
-        print(WorkPlace.objects.all())
-        form = UserProfileEditForm(data={'work_place': self.work_place01.id, 'work_status': self.work_state01.id,  'division': self.division01.id, 'accept_question': 1 }, instance=profile)
-        print("=====user_profile__edit=====")
-        print(form.errors)
-        self.assertTrue(form.is_valid())
-
 from django.http import HttpRequest
 from django.template.loader import render_to_string
 from django.test import TestCase
 from question.views import *
+from question import message_definition as m
+
 
 class HtmlTests(TestCase):
-
-    def test_show_page_returns_correct_html(self):
+    def test_top_default_returns_correct_html(self):
         request = HttpRequest()
         request.method = 'GET'
-        request.user = User.objects.create_user(username='test',email=None, password='a')
+        request.user = User.objects.create_user(username='test', email=None, password='a')
 
-        # 自分の質問を取ってくる
         questions = Question.objects.filter(questioner=request.user)
-        # 自分宛の質問リストを取ってくる
         reply_lists = ReplyList.objects.filter(answerer=request.user)
 
-        # 自分と自分宛の質問を結合して時系列に並べる
         qa_list = list()
         qa_list.extend(questions)
         qa_list.extend(reply_lists)
-        qa_list = sorted(qa_list, reverse=True, key=lambda x: x[0].date if isinstance(x[0],Question) else x[0].question.date)#OK?
+        qa_list = sorted(qa_list, reverse=True,
+                         key=lambda x: x[0].date if isinstance(x[0], Question) else x[0].question.date)
 
+        for qa in qa_list:
+            if isinstance(qa[0], Question):
+                profile = UserProfile.objects.get(user=qa[0].questioner)
+            elif isinstance(qa[0], ReplyList):
+                profile = UserProfile.objects.get(user=qa[0].question.questioner)
+            qa.append(profile)
+
+        msg = m.INFO_PASS_FINISH
+
+        response = top_default(request, msg)
+        expected_html = render_to_string('question/top_all.html',
+                                         {'qa_list': qa_list,
+                                          'last_login': request.user.last_login, 'msg': msg},
+                                         context_instance=RequestContext(request))
+
+        self.assertEqual(response.content.decode(), expected_html)
+
+    def test_question_list_returns_correct_html(self):
+        request = HttpRequest()
+        request.method = 'GET'
+        request.user = User.objects.create_user(username='test', email=None, password='a')
+
+        q = Question.objects.filter(questioner=request.user).order_by('date')
+
+        q_manager = QAManager(request.user)
+        qa_list = q_manager.question_state(q)
+        qa_list = sorted(qa_list, reverse=True,
+                         key=lambda x: x[0].date if isinstance(x[0], Question) else x[0].question.date)
+
+        for qa in qa_list:
+            if isinstance(qa[0], Question):
+                profile = UserProfile.objects.get(user=qa[0].questioner)
+            elif isinstance(qa[0], ReplyList):
+                profile = UserProfile.objects.get(user=qa[0].question.questioner)
+            qa.append(profile)
+
+        response = question_list(request)
+        expected_html = render_to_string('question/top_q.html',
+                                         {'qa_list': qa_list,
+                                          'last_login': request.user.last_login},
+                                         context_instance=RequestContext(request))
+
+        self.assertEqual(response.content.decode(), expected_html)
+
+    def test_reply_list_returns_correct_html(self):
+        request = HttpRequest()
+        request.method = 'GET'
+        request.user = User.objects.create_user(username='test', email=None, password='a')
+
+        reply_list = ReplyList.objects.filter(answerer=request.user, has_replied=False)
+        reply_list = sorted(reply_list, reverse=True, key=lambda x: x.question.date)
+
+        q_manager = QAManager(request.user)
+        qa_list = q_manager.reply_state(reply_list=reply_list)
 
         # プロフィール
         for qa in qa_list:
@@ -113,17 +90,121 @@ class HtmlTests(TestCase):
                 profile = UserProfile.objects.get(user=qa[0].question.questioner)
             qa.append(profile)
 
-        histories = None
-        msg = None
+        from question.views import reply_list as r
+        response = r(request)
+        expected_html = render_to_string('question/top_r.html',
+                                         {'qa_list': qa_list, 'last_login': request.user.last_login},
+                                         context_instance=RequestContext(request))
 
-        response = top_default(request)
-        expected_html = render_to_string('question/top_all.html',
-                              {'histories': histories, 'qa_list':qa_list,
-                               'last_login': request.user.last_login, 'msg':msg},
-                              context_instance=RequestContext(request))
+        self.assertEqual(response.content.decode(), expected_html)
 
-        print(response.content.decode())
-        print("------")
-        print(expected_html)
+    def test_qiestion_edit_returns_correct_html(self):
+        request = HttpRequest()
+        request.method = 'GET'
+        request.user = User.objects.create_user(username='test', email=None, password='a')
 
+        q = Question()
+        form = QuestionEditForm(instance=q, initial={'time_limit': datetime.timedelta(minutes=1)})
+
+        response = question_edit(request)
+        expected_html = render_to_string('question/question_edit.html',
+                                         {'form': form, 'id': id},
+                                         context_instance=RequestContext(request))
+
+        self.assertEqual(response.content.decode(), expected_html)
+
+    def test_reply_edit_returns_correct_html(self):
+        request = HttpRequest()
+        request.method = 'GET'
+        request.user = User.objects.create_user(username='test', email=None, password='a')
+
+        q = self.__create_question(request.user)
+        replylist = get_object_or_404(ReplyList, question=q, has_replied=False)
+
+        r = Reply()
+        form = ReplyEditForm(instance=r)
+
+        response = reply_edit(request)
+        expected_html = render_to_string('question/reply_edit.html',
+                                         {'form': form, 'question': q, 'id': id, 'replylist': replylist},
+                                         context_instance=RequestContext(request))
+        #self.assertEqual(response.content.decode(), expected_html)
+
+    def test_qiestion_detail_returns_correct_html(self):
+        request = HttpRequest()
+        request.method = 'GET'
+        request.user = User.objects.create_user(username='test', email=None, password='a')
+
+        q = get_object_or_404(Question, pk=id)
+        d = QuestionDestination.objects.filter(question=q)
+        q_tags = QuestionTag.objects.filter(question=q)
+
+        r = Reply.objects.filter(question=q)
+        reply_list = ReplyList.objects.get(question=q, answerer=request.user)
+
+        id=0
+        response = question_detail(request, id=id)
+        expected_html = render_to_string('question/question_detail.html',
+                                  {'question': q, 'destinations':d, 'q_tags': q_tags, 'reply': r, 'reply_list': reply_list},
+                                  context_instance=RequestContext(request))
+        self.assertEqual(response.content.decode(), expected_html)
+
+    def __create_question(self, user):
+        from datetime import datetime
+
+        return Question.objects.get_or_create(questioner=user,
+                                       defaults=dict(questioner=user, title='test_title', text='test_text',
+                                                     time_limit=None,
+                                                     date=datetime.datetime(2012, 4, 18, 6, 29, 28, 538000),
+                                                     draft=False, is_closed=False), )
+
+    def __create_user_profile(self, user):
+        # create fields for master DB
+        work_place, created = WorkPlace.objects.get_or_create(name='東京', defaults=dict(name='東京', ), )
+        work_status, created = WorkStatus.objects.get_or_create(name='在席', defaults=dict(name='在席', ), )
+        division, created = Division.objects.get_or_create(code=2, name='人事', defaults=dict(code=2, name='人事'))
+
+        # create user profile
+        p, created = UserProfile.objects.get_or_create(user=user,
+                                                           defaults=dict(avatar='images/icons/no_image.png',
+                                                                         work_place=work_place,
+                                                                         work_status=work_status,
+                                                                         division=division,
+                                                                         accept_question=1, ), )
+        return p
+
+    def test_mypage_returns_correct_html(self):
+        request = HttpRequest()
+        request.method = 'GET'
+        request.user = User.objects.create_user(username='test', email=None, password='a')
+
+        # ユーザのプロファイルを取ってくる
+        self.__create_user_profile(request.user)
+        p = get_object_or_404(UserProfile, user=request.user)
+
+        # ユーザが登録しているタグを取ってくる
+        user_tags = UserTag.objects.filter(user=request.user)
+        form = UserProfileEditForm(instance=p)
+
+        user_question = Question.objects.filter(questioner=request.user)
+        user_reply = Reply.objects.filter(answerer=request.user)
+
+        response = mypage(request)
+        expected_html = render_to_string('question/mypage.html',
+                                             {'form': form, 'user_tags': user_tags, 'uprof': p,
+                                              'uquestion': user_question,
+                                              'ureply': user_reply},
+                                             context_instance=RequestContext(request))
+
+        self.assertEqual(response.content.decode(), expected_html)
+
+    def test_search_returns_correct_html(self):
+        request = HttpRequest()
+        request.method = 'GET'
+        request.user = User.objects.create_user(username='test', email=None, password='a')
+        form = KeywordSearchForm()
+        response = search(request)
+        expected_html = render_to_string('question/question_search.html',
+                                             {'form': form},
+                                             context_instance=RequestContext(request))
         self.assertEqual(response.content.decode(), expected_html)

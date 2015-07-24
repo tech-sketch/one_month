@@ -5,6 +5,8 @@ INFO_INVALID_ACCESS = '不正なアクセスです！'
 
 INFO_QUESTION_INVALID_ACCESS = '他の人の質問は閲覧できません。'
 
+INFO_QUESTION_SAVE_OK = '質問を保存しました。'
+
 INFO_QUESTION_SEND_OK = '質問を送信しました。'
 
 INFO_QUESTION_PASS = '質問をパスしました。'

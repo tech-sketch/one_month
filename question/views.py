@@ -159,16 +159,11 @@ def question_edit(request, id=None, msg=None):
         if form.is_valid():
             # 質問を保存
             q = form.save(commit=False)
-            q.questioner = request.user
-            q.draft = form.cleaned_data['draft']
-            q.save()
+            q.update(questioner=request.user, draft=form.cleaned_data['draft'])
 
             div_list = form.cleaned_data['destination']
             for div in div_list:
-                d = QuestionDestination()
-                d.question = q
-                d.tag = div
-                d.save()
+                QuestionDestination.objects.create(question=q, tag=div)
 
             # ランダムに質問者を選んでからReplyListを生成して保存
             qa_manager = QAManager()
@@ -186,24 +181,15 @@ def question_edit(request, id=None, msg=None):
             # 選択されたタグから、新規にQuestionTagを生成して保存
             q_tags = form.cleaned_data['tag']
             for q_tag in q_tags:
-                qt = QuestionTag()
-                qt.tag = q_tag
-                qt.question = q
-                qt.save()
+                QuestionTag.objects.create(tag=q_tag, question=q)
 
             # 追加されたタグ名から、新規にTagとQuestionTagを生成して保存
             tag_added_name = form.cleaned_data['tag_added']
             tags = Tag.objects.all()
             tag_name = [t.name for t in tags]
             if tag_added_name != "" and tag_added_name not in tag_name:  # 新規に追加されたタグだったら保存
-                t = Tag()
-                t.name = tag_added_name
-                t.save()
-                qt = QuestionTag()
-                qt.tag = t
-                qt.question = q
-                qt.save()
-
+                t = Tag.objects.create(name=tag_added_name)
+                QuestionTag.objects.create(tag=t, question=q)
             return top_default(request, msg=m.INFO_QUESTION_SEND_OK)
         pass
     # new
@@ -237,27 +223,21 @@ def reply_edit(request, id=None):
 
         # 完了がおされたら
         if form.is_valid():
-            # この質問の自分あての回答リストを取ってきて、回答済みにしておく
             if q.questioner != request.user:
+                # 回答した質問の制限時間をNoneにしておく
                 r_list = get_object_or_404(ReplyList, question=q, answerer=request.user)
                 if r_list.has_replied:
                     return top_default(request, msg=m.INFO_QUESTION_ALREADY_AUTO_PASS)
-                r_list.time_limit_date = None
-                r_list.save()
+                r_list.update(time_limit_date=None)
 
+                # 回答した人に、質問のタグを付加する
                 tag_list = QuestionTag.objects.filter(question=q)
                 for tag in tag_list:
                     if not UserTag.objects.filter(user=request.user, tag=tag.tag):
-                        user_tag = UserTag()
-                        user_tag.tag = tag.tag
-                        user_tag.user = request.user
-                        user_tag.save()
+                        UserTag.objects.create(tag=tag.tag, user=request.user)
 
             r = form.save(commit=False)
-            r.question = q
-            r.answerer = request.user
-            r.draft = form.cleaned_data['draft']
-            r.save()
+            r.update(question=q, answerer=request.user, draft=form.cleaned_data['draft'])
 
             return top_default(request, msg=m.INFO_REPLY_SEND_OK)
         pass
@@ -314,8 +294,9 @@ def question_pass(request, id=None):
         return top_default(request, msg=m.INFO_QUESTION_ALREADY_AUTO_PASS)
 
     qa_manager = QAManager()
-    if qa_manager.pass_question(reply_list.question, qa_manager.reply_list_update_random_except):
+    pass_success = qa_manager.pass_question(reply_list.question, qa_manager.reply_list_update_random_except)
 
+    if pass_success:
         # 宛先にロボットが含まれるかどうか調べる
         try:
             to_robot = QuestionDestination.objects.filter(question=reply_list.question)
@@ -325,28 +306,21 @@ def question_pass(request, id=None):
 
         # 何回目のパスでロボットが返信してくるか。現在は１に固定
         if len(to_robot) and reply_list.question.pass_counter() == 1 and not reply_list.question.has_reply():
-            reply = Reply()
-            reply.question = reply_list.question
+            text = ''
             reply_data = ReplyRobot().reply(reply_list.question)
             if len(reply_data['reply_list']) == 0:
-                reply.text = "難問です。答えられたらすごいです。"
+                text = "難問です。答えられたらすごいです。"
             else:
-                reply.text = "以下のページはどうでしょうか？\n\n" + "\n".join(reply_data['reply_list'])
+                text = "以下のページはどうでしょうか？\n\n" + "\n".join(reply_data['reply_list'])
             if len(reply_data['word_list']) != 0:
-                reply.text += "\n\n抽出結果：" + "、".join(reply_data['word_list'])
-            reply.text += "\n推定ジャンル：" + reply_data['genre']
+                text += "\n\n抽出結果：" + "、".join(reply_data['word_list'])
+            text += "\n推定ジャンル：" + reply_data['genre']
 
-            robot, created = User.objects.get_or_create(username='__robot__@dotChain')
-            if created:
-                robot.first_name = '太郎'
-                robot.last_name = 'ロボット'
-                robot.save()
-            reply.answerer = robot
-            reply.save()
+            robot, created = User.objects.get_or_create(username='__robot__@dotChain', defaults=dict(first_name='太郎', last_name = 'ロボット',),)
+            Reply.objects.create(question=reply_list.question, answerer=robot, text=text)
         return top_default(request, msg=m.INFO_QUESTION_PASS)
     else:
-        reply_list.question.is_closed = True
-        reply_list.question.save()
+        reply_list.question.update(is_closed=True)
         return top_default(request, msg='{0}\n{1}'.format(m.INFO_QUESTION_PASS, m.INFO_PASS_FINISH))
 
 
@@ -358,6 +332,9 @@ def question_detail(request, id=None):
 
     # 指定された質問を取ってくる
     q = get_object_or_404(Question, pk=id)
+
+    # 質問のあて先を取ってくる
+    d = QuestionDestination.objects.filter(question=q)
 
     # 質問のタグを取ってくる
     q_tags = QuestionTag.objects.filter(question=q)
@@ -380,7 +357,7 @@ def question_detail(request, id=None):
         return top_default(request, msg=m.INFO_QUESTION_INVALID_ACCESS)
 
     return render_to_response('question/question_detail.html',
-                              {'question': q, 'q_tags': q_tags, 'reply': r, 'reply_list': reply_list},
+                              {'question': q, 'destinations':d, 'q_tags': q_tags, 'reply': r, 'reply_list': reply_list},
                               context_instance=RequestContext(request))
 
 
@@ -418,15 +395,7 @@ def mypage(request):
     """
 
     # ユーザのプロファイルを取ってくる
-    work_place, created = WorkPlace.objects.get_or_create(name='東京', defaults=dict(name='東京', ), )
-    work_status, created = WorkStatus.objects.get_or_create(name='在席', defaults=dict(name='在席', ), )
-    division, created = Division.objects.get_or_create(code=2, name='人事', defaults=dict(code=2, name='人事'))
-    p, created = UserProfile.objects.get_or_create(user=request.user,
-                                                   defaults=dict(avatar='images/icons/pepper.png',
-                                                                 work_place=work_place,
-                                                                 work_status=work_status,
-                                                                 division=division,
-                                                                 accept_question=1, ), )
+    p = get_object_or_404(UserProfile, user=request.user)
 
     # ユーザが登録しているタグを取ってくる
     user_tags = UserTag.objects.filter(user=request.user)
@@ -446,23 +415,15 @@ def mypage(request):
             u_tag_names = [t.tag.name for t in user_tags]
             for q_tag in tags:
                 if q_tag.name not in u_tag_names:  # ユーザに新規に追加されたタグだったら保存
-                    qt = UserTag()
-                    qt.tag = q_tag
-                    qt.user = request.user
-                    qt.save()
+                    UserTag.objects.create(tag=q_tag, user=request.user)
 
             # 追加されたタグ名から、新規にTagとQuestionTagを生成して保存
             tag_added_name = form.cleaned_data['tag_added']
             tags = Tag.objects.all()
             tag_name = [t.name for t in tags]
             if tag_added_name != "" and tag_added_name not in tag_name:  # 新規に追加されたタグだったら保存
-                t = Tag()
-                t.name = tag_added_name
-                t.save()
-                qt = UserTag()
-                qt.tag = t
-                qt.user = request.user
-                qt.save()
+                t = Tag.objects.create(name=tag_added_name)
+                UserTag.objects.create(tag=t, user=request.user)
             return redirect('dotchain:mypage')
         pass
     # new

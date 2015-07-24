@@ -14,6 +14,11 @@ class Question(models.Model):
     draft = models.BooleanField('下書き', default=False)
     is_closed = models.BooleanField('募集終了', default=False)
 
+    def update(self, **kwargs):
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+        self.save()
+
     def pass_counter(self):
         return ReplyList.objects.filter(question=self, has_replied=True).count()
 
@@ -41,6 +46,11 @@ class Reply(models.Model):
     def __str__(self):
         return u'%sへ「%s」についての回答' % (self.question.questioner, self.question.title)
 
+    def update(self, **kwargs):
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+        self.save()
+
 class ReplyList(models.Model):
     question = models.ForeignKey(Question, verbose_name='質問')
     answerer = models.ForeignKey(User, verbose_name='返答ユーザ')
@@ -49,6 +59,11 @@ class ReplyList(models.Model):
 
     def __str__(self):
         return u'%sへ「%s」についてのリプライリスト' % (self.question.questioner, self.question.title)
+
+    def update(self, **kwargs):
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+        self.save()
 
 class Tag(models.Model):
     name = models.CharField('タグ名', max_length=512)

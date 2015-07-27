@@ -10,12 +10,7 @@ def signup(request):
     if request.method == 'POST':
         user_form = UserForm(request.POST)
         userprofile_form = UserProfileForm(request.POST, request.FILES)
-        print(user_form.is_valid())
-        print(user_form.cleaned_data)
-        print(userprofile_form.is_valid())
-        print(userprofile_form.cleaned_data)
         if user_form.is_valid() and userprofile_form.is_valid():
-            print('Success')
             user = user_form.save()
             userprofile = userprofile_form.save(commit=False)
             userprofile.user = user
@@ -26,14 +21,13 @@ def signup(request):
 
 def login(request):
     if request.method == 'POST':
-        print(request.POST)
         username = request.POST['username']
         password = request.POST['password']
         user = authenticate(username=username, password=password)
         if user is not None:
             if user.is_active:
                 auth_login(request, user)
-                return redirect('/dotchain')
+                return redirect('/dotchain/')
             else:
                 messages.error(request, 'このユーザは使用できません。')
         else:

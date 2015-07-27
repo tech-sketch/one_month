@@ -1,0 +1,43 @@
+.contents b, .contents h1 {
+    color: #e6e6e6;
+}
+
+.contents hr {
+    color: #e6e6e6;
+}
+
+input:-webkit-autofill {
+    box-shadow: 0 0 0 100px #fff inset;
+}
+
+.btn-signin, .btn-signin:hover {
+    color:  #e6e6e6;
+    background-color: #187a49;
+    border-color:   #187a49;
+    padding: 6pt 2pt;
+}
+
+.btn-signup, .btn-signup:hover {
+    color: #e6e6e6;
+    background-color: #3333ff;
+    border-color:   #3333ff;
+}
+
+.btn-google, .btn-google:hover {
+    color: #ddd;
+    background-color: #1f1f99;
+    border-color:   #1f1f99;
+}
+
+#message {
+    height: 25pt;
+    color: red;
+}
+
+.blue_frame{
+	background-color:rgba(25,25,122,0.8); 
+	color: white; text-align: center; 
+	border-radius: 10px; 
+	-webkit-border-radius: 10px; 
+	-moz-border-radius: 10px;
+}

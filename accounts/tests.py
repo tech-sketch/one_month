@@ -21,7 +21,7 @@ class SignupTestCase(TestCase):
 
     def test_signup_create_new_user(self):
         """正常な入力を行えばエラーにならないことを検証"""
-        print('Test Case 1')
+        print('Test Case 1-1')
         print()
         c = Client()
         response = c.post('/accounts/signup/', {'username': 'signup_user', 'password': 'signup_user',
@@ -33,7 +33,7 @@ class SignupTestCase(TestCase):
 
     def test_signup_exist_user(self):
         """サインインを行いすでに存在するユーザを作成し失敗することの確認"""
-        print('Test Case 2')
+        print('Test Case 1-2')
         print()
         c = Client()
         response = c.post('/accounts/signup/', {'username': '01', 'password': 'signup_user',
@@ -45,7 +45,7 @@ class SignupTestCase(TestCase):
 
     def test_signup_incorrect_input(self):
         """サインインを行いすでに正しくない入力を行い失敗することの確認"""
-        print('Test Case 3')
+        print('Test Case 1-3')
         print()
         c = Client()
         response = c.post('/accounts/signup/', {'username': '', 'password': 'signup_user',
@@ -72,7 +72,7 @@ class LoginTestCase(TestCase):
     def test_login_exist_user(self):
         """ 存在するユーザでログイン画面からログインできるかの確認 """
 
-        print('Test Case 4')
+        print('Test Case 2-1')
         print()
         c = Client()
         response = c.post('/accounts/login/', {'username': '01', 'password': '01'})
@@ -80,7 +80,7 @@ class LoginTestCase(TestCase):
 
     def test_login_unknown_user(self):
         """ 存在しないユーザでログイン画面からログインできないの確認 """
-        print('Test Case 5')
+        print('Test Case 2-2')
         print()
         c = Client()
         response = c.post('/accounts/login/', {'username': '00', 'password': '01'})

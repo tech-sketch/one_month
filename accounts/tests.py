@@ -102,7 +102,7 @@ class UserProfileFormTest(TestCase):
                                                  accept_question=1)
 
     def test_success_user_profile_form(self):
-        """正常な入力を行えばエラーにならないことを検証"""
+        """正常な入力を行いエラーにならないことを検証"""
         print('Test Case 3-1')
         print()
         profile = UserProfile()
@@ -110,7 +110,7 @@ class UserProfileFormTest(TestCase):
         self.assertTrue(form.is_valid())
 
     def test_failure_user_profile_form(self):
-        """正常ではない入力を行えばエラーになることを検証"""
+        """正常ではない入力を行いエラーになることを検証"""
         print('Test Case 3-2')
         print()
         profile = UserProfile()

@@ -116,3 +116,33 @@ class UserProfileFormTest(TestCase):
         profile = UserProfile()
         form = UserProfileForm(data={'work_place': '', 'work_status': self.work_state01.id,  'division': self.division01.id}, instance=profile)
         self.assertTrue(not(form.is_valid()))
+
+
+class UserFormTest(TestCase):
+    def setUp(self):
+        print('Set up 4')
+        print()
+        self.division01 = Division.objects.create(name='総務', code=1)
+        self.work_place01 = WorkPlace.objects.create(name='東京')
+        self.work_state01 = WorkStatus.objects.create(name='在籍')
+
+        self.user01 = User.objects.create_user('01', '01@01.com', '01')
+        self.prof01 = UserProfile.objects.create(user=self.user01, work_place=self.work_place01,
+                                                 work_status=self.work_state01, division=self.division01,
+                                                 accept_question=1)
+
+    def test_success_user_form(self):
+        """正常な入力を行いエラーにならないことを検証"""
+        print('Test Case 4-1')
+        print()
+        user = User()
+        form = UserForm(data={'username': 'user01', 'password': 'pass01'}, instance=user)
+        self.assertTrue(form.is_valid())
+
+    def test_failure_user_form(self):
+        """正常ではない入力を行いエラーになることを検証"""
+        print('Test Case 4-2')
+        print()
+        user = User()
+        form = UserForm(data={'username': '', 'password': 'pass01'}, instance=user)
+        self.assertTrue(not(form.is_valid()))

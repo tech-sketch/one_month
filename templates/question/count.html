@@ -80,13 +80,12 @@
 				var tl = new Date('{{reply_list.time_limit_date|date:'Y/m/d H:i:s'}}');
 				
 				//この上の部分で終了時間を設定するYO！
-				{% if reply_list|pass_check:question == ''　%}
-				var timer = new CountdownTimer('countdown', tl, '');
-				{% else %}
+				{% if reply_list|pass_check:question == '<h3>タイムリミットまで残り</h3><div id="countdown" style="z-index: 1000;"></div>'　%}
 				var timer = new CountdownTimer('countdown', tl, '終了しました');
+				timer.countDown();
 				{% endif %}
 				//この上の文は終了した後に表示する文字!
-				timer.countDown();
+				
 			}
 
 

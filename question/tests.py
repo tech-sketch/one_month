@@ -5,6 +5,7 @@ from accounts.models import UserProfile, WorkPlace, WorkStatus, Division
 from .models import QuestionDestination, QuestionTag, Question, Reply, ReplyList, Tag, UserTag
 from .forms import QuestionEditForm, ReplyEditForm, UserProfileEditForm
 
+
 class Reply_editTest(TestCase):
     def setUp(self):
         self.division01 = Division.objects.create(name='総務', code=1)

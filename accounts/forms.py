@@ -3,7 +3,10 @@ from django.contrib.auth.models import User
 from .models import UserProfile, WorkPlace, Division
 from django import forms
 
-class User_form(forms.ModelForm):
+class UserForm(forms.ModelForm):
+    """
+    サインインフォーム　ユーザモデル部分
+    """
     username = forms.CharField(widget=forms.TextInput(attrs={'required': 'true', 'class': 'form-control'}))
     password = forms.CharField(widget=forms.PasswordInput(attrs={'required': 'true', 'class': 'form-control'}))
 
@@ -13,13 +16,16 @@ class User_form(forms.ModelForm):
 
     def save(self, commit=True):
         # Save the provided password in hashed format
-        user = super(User_form, self).save(commit=False)
+        user = super(UserForm, self).save(commit=False)
         user.set_password(self.cleaned_data["password"])
         if commit:
             user.save()
         return user
 
-class UserProfile_form(forms.ModelForm):
+class UserProfileForm(forms.ModelForm):
+    """
+    サインインフォーム　ユーザプロフィールモデル部分
+    """
     default_work_place = WorkPlace.objects.get_or_create(name='東京')
     default_division = Division.objects.get_or_create(code=2, name='人事')
     work_place = forms.ModelChoiceField(widget=forms.Select(attrs={'class': 'form-control'}),

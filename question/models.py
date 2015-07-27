@@ -1,4 +1,4 @@
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # Create your models here.
 from django.db import models
 from datetime import datetime
@@ -53,19 +53,19 @@ class ReplyList(models.Model):
 class Tag(models.Model):
     name = models.CharField('タグ名', max_length=512)
 
-
     def __str__(self):
-        return u'%s' % (self.name)
+        return u'{}'.format(self.name)
 
 class UserTag(models.Model):
     user = models.ForeignKey(User, verbose_name='ユーザ')
     tag = models.ForeignKey(Tag, verbose_name='タグ')
+
     def __str__(self):
-        return u'%sに%sタグ追加' % (self.user, self.tag)
+        return u'{}に{}タグ追加'.format(self.user, self.tag)
 
 class QuestionTag(models.Model):
     question = models.ForeignKey(Question, verbose_name='質問')
     tag = models.ForeignKey(Tag, verbose_name='タグ')
 
     def __str__(self):
-        return u'%sに%sタグ追加' % (self.question, self.tag)
+        return u'{}に{}タグ追加'.format(self.question, self.tag)

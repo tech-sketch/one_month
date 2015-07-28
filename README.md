@@ -37,31 +37,40 @@
 
 1. 公式サイトにアクセスしてください。アカウントを新規作成するか、Googleアカウントでのログインが可能です。
 ![ログイン](https://github.com/koga-yatsushiro/one_month/wiki/images/login.png)
-2. ログイン後、プロフィールページの情報を更新してください
-![プロフィール](https://github.com/koga-yatsushiro/one_month/wiki/images/profile.png)
-3. 質問しましょう
-![質問作成](https://github.com/koga-yatsushiro/one_month/wiki/images/question_new.png)
-4. 自分宛の質問に答えてみよう
-![返信](https://github.com/koga-yatsushiro/one_month/wiki/images/reply_new.png)
 
-5. ネットワーク図を見てみよう
+2. トップページにははじめには何も質問がありませんが、自分で質問を投稿するか自分宛に来ると、以下のように一覧でされます。質問カードのの表示色の意味は「仕様詳細-質問カードの表示フロー」を参照してください。
+![トップページ](https://github.com/koga-yatsushiro/one_month/wiki/images/top.png)
+  
+3. ログイン後、プロフィールページの情報を更新してください
+![プロフィール](https://github.com/koga-yatsushiro/one_month/wiki/images/profile.png)
+  
+4. 質問しましょう
+![質問作成](https://github.com/koga-yatsushiro/one_month/wiki/images/question_new.png)
+  
+5. 自分宛の質問に答えてみよう
+![返信](https://github.com/koga-yatsushiro/one_month/wiki/images/reply_new.png)
+  
+6. ネットワーク図を見てみよう
     * プロフィールページ下部にアプリ利用者全体のネットワーク図が表示されます
     * 自分と同じ興味を持っている人やよく質問に答えている人がわかりますので、次はその人に直接聞いてみましょう！
-![ネットワーク図](https://github.com/koga-yatsushiro/one_month/wiki/images/.png)
+![ネットワーク図](https://github.com/koga-yatsushiro/one_month/wiki/images/network.png)
 
 ##仕様詳細
-* 動作フロー
+* 動作フロー  
 ![動作フロー](https://github.com/koga-yatsushiro/one_month/wiki/images/action_flow.png)
-
-* コンピュータによる受信者の選択基準
+  
+* 質問カードの表示フロー  
+[こちら](https://github.com/koga-yatsushiro/one_month/wiki/%E8%B3%AA%E5%95%8F%E3%82%AB%E3%83%BC%E3%83%89%E3%81%AE%E8%A1%A8%E7%A4%BA%E3%83%95%E3%83%AD%E3%83%BC)のwikiのページを参照してください
+  
+* コンピュータによる受信者の選択基準  
 [こちら](https://github.com/koga-yatsushiro/one_month/wiki/%E3%82%B3%E3%83%B3%E3%83%94%E3%83%A5%E3%83%BC%E3%82%BF%E3%81%AB%E3%82%88%E3%82%8B%E5%8F%97%E4%BF%A1%E8%80%85%E3%81%AE%E9%81%B8%E6%8A%9E%E5%9F%BA%E6%BA%96)のwikiのページを参照してください
-
-* コンピュータによる自動パス機能(非同期処理)
+  
+* コンピュータによる自動パス機能(非同期処理)  
 [こちら](https://github.com/koga-yatsushiro/one_month/wiki/%E9%9D%9E%E5%90%8C%E6%9C%9F%E5%87%A6%E7%90%86)のwikiのページを参照してください
-
+  
 * タグの役割
 [こちら](https://github.com/koga-yatsushiro/one_month/wiki/%E3%82%BF%E3%82%B0%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6)のwikiのページを参照してください
-
+  
 #デベロッパー向け
 ## アーキテクチャ図
 ![アーキテクチャ図](https://github.com/koga-yatsushiro/one_month/wiki/images/architecture.png)
@@ -78,7 +87,7 @@
 pip install -r requirements.txt
 ```
 
-* ローカルで起動
+* ローカルで起動  
 3つのターミナルを開き、以下のコマンドを入力し、起動してください。
 
 ```bash

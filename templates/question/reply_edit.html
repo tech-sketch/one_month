@@ -31,7 +31,7 @@
         	{% if q_tags %}タグ：{% for q_tag in q_tags %} {{ q_tag.tag.name }} {% endfor %}{% endif %}
     </h2>
     <h3 class="popover-title" style="background-color: #FFFFFF; color: black;">
-        	質問者: {{ question.questioner.last_name }}{{ question.questioner.first_name }}<br>
+        	質問者: {{ question.questioner }}<br>
 			作成日時: {{ question.date }} {% if question.draft %} <font color="#DD0000">下書き</font> {% else %}送信済み{% endif %}
     </h3>
     <div class="popover-content" style="background-color: #FFFFFF; font-size:large; color: black;">

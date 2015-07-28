@@ -30,19 +30,17 @@
 
 ##特長
 | 宛先の自動選別 | パス |
-|:-----------|:------------|
-|![宛先の自動選別](https://github.com/koga-yatsushiro/one_month/wiki/images/dotchain_auto_select.png)|![パス](https://github.com/koga-yatsushiro/one_month/wiki/images/dotchain_pass.png) |
-|aa | bb|
+|:-------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------:|
+|![宛先の自動選別](https://github.com/koga-yatsushiro/one_month/wiki/images/dotchain_auto_select.png)|![パス](https://github.com/koga-yatsushiro/one_month/wiki/images/dotchain_pass.png)   |
+| 質問相手を決めるのに頭を悩ませる必要はありません。コンピュータがユーザのプロフィール情報から| 質問を受け取った人は、質問者があらかじめて決めた一定時間内に返信するか、パスするかを選択    |
+| 自動的に決定してくれます。                                                                  | できます。たとえパスしても、あなたの名前が質問者に分かることはありませんので気軽にパスし    | 
+|                                                                                             | ましょう。また、質問者・受信者は、質問が現在どのような経路を通っているかを図で確認できます。|
 
-|ネットワーク図 | AIによる自動返信 |
-|:------------|:------------|
-|![ネットワーク図](https://github.com/koga-yatsushiro/one_month/wiki/images/dotchain_network.png)|![AIによる自動返信](https://github.com/koga-yatsushiro/one_month/wiki/images/dotchain_ai.png)|
-|cc | dd|
-
-* 宛先の自動選別 
-* パス
-* ネットワーク図
-* AIによる自動返信
+| AIによる自動返信 |ネットワーク図 | 
+|:-------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------:|
+|![AIによる自動返信](https://github.com/koga-yatsushiro/one_month/wiki/images/dotchain_ai.png)|![ネットワーク図](https://github.com/koga-yatsushiro/one_month/wiki/images/dotchain_network.png)|
+| 質問者は、返事が返ってこないという心配をする必要がありません。なぜならば、.Chain()はAI機能を| 質問・回答を行ってゆくと、ユーザ同士のつながりが作成されます。これにより、自分と他の人とのつ|
+| 搭載しているので、自動的に返信してくれます。このAIから、回答のヒントを探してください。      | ながりや、どのような興味でつながっているかが図で一目でわかります。                          |
 
 ##はじめてみましょう
 

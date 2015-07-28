@@ -22,89 +22,31 @@ def top_default(request, msg=None):
     トップページ
     """
 
-    form = KeywordSearchForm()
-    # 自分の質問を取ってくる
+    # 自分の質問
     questions = Question.objects.filter(questioner=request.user)
-    # 自分宛の質問リストを取ってくる
+    # 自分宛の質問リスト
     reply_lists = ReplyList.objects.filter(answerer=request.user)
 
     if request.method == 'POST':
         form = KeywordSearchForm(request.POST)
 
         """
-       以下の質問をキーワード検索で取ってくる
-       * 自分がした質問のタイトル・内容・タグいずれかがキーワードと部分一致
-       * 相手から自分へ来た質問のタイトル・内容・タグいずれかがキーワードと部分一致
-       * 自分の回答内容がキーワードと部分一致
-       * 自分の投稿に対する相手の回答内容がキーワードと部分一致
-       """
-        # 自分宛の質問リストを取ってくる（パス含む）
-        reply_lists = ReplyList.objects.filter(answerer=request.user)
+        以下の質問をキーワード検索で取ってくる
+        * 自分がした質問のタイトル・内容・タグいずれかがキーワードと部分一致
+        * 相手から自分へ来た質問のタイトル・内容・タグいずれかがキーワードと部分一致
+        * 自分の回答内容がキーワードと部分一致
+        * 自分の投稿に対する相手の回答内容がキーワードと部分一致
+        """
         if form.is_valid():
-            # すべての質問の中からキーワードに合致する質問のみ取り出す
-            questions = list(Question.objects.filter(Q(title__contains=form.clean()['keyword']) |
-                                                     Q(text__contains=form.clean()['keyword'])))
+            q_list_tmp = QAManager.search_question_by_keyword(keyword=form.clean()['keyword'], questioner=request.user)
+            q_list_tmp.extend(QAManager.search_question_by_tag_keyword(keyword=form.clean()['keyword'], questioner=request.user))
 
-            # 回答内容にキーワードが含まれるもののうち自分が答えた質問のみ取り出す
-            replies = list(Reply.objects.filter(Q(text__contains=form.clean()['keyword'])))
+            r_list_tmp = QAManager.search_replylist_by_keyword(keyword=form.clean()['keyword'], answerer=request.user)
+            r_list_tmp.extend(QAManager.search_replylist_by_keyword_extra(keyword=form.clean()['keyword'], questioner=request.user, answerer=request.user))
+            r_list_tmp.extend(QAManager.search_replylist_by_tag_keyword(keyword=form.clean()['keyword'], answerer=request.user))
 
-            # キーワードに合致するすべての質問のうち、自分が投稿した質問と、自分に来た質問を取り出す
-            q_list_tmp = []
-            r_list_tmp = []
-            for ql in questions:
-                if ql.questioner == request.user:
-                    q_list_tmp.append(ql)
-                rl = [rl for rl in reply_lists if ql.id == rl.question.id]
-                r_list_tmp.extend(rl)
-
-            # 自分の返信内容とキーワードが合致するものを取り出す
-            for r in replies:
-                if r.answerer == request.user:
-                    rl = [rl for rl in reply_lists if r.question.id == rl.question.id]
-                    r_list_tmp.extend(rl)
-                elif r.question.questioner == request.user:
-                    reply_lists = ReplyList.objects.filter(question=r.question)
-                    rl = [rl for rl in reply_lists if r.question.id == rl.question.id]
-                    r_list_tmp.extend(rl)
-
-            reply_lists = r_list_tmp
-
-            # -----------------------------------------------------------------------------------
-
-            # キーワードに合致するすべてのタグを取り出す
-            tags = list(Tag.objects.filter(Q(name__contains=form.clean()['keyword'])))  # キーワードが含まれるタグ（複数）
-
-            # 自分が投稿した質問のタグと一致するもののみ取り出す
-            for tag in tags:
-                q_tags = QuestionTag.objects.filter(tag=tag)  # タグ名が合致する質問タグ
-                q = [q_tag.question for q_tag in q_tags if q_tag.question.questioner == request.user]
-                q_list_tmp.extend(q)
-                q_list_tmp = list(set(q_list_tmp))
-            questions = q_list_tmp
-
-            # 自分が答えた質問のタグと一致するもののみ取り出す
-            replies = list(Reply.objects.filter(answerer=request.user))
-            for r in replies:
-                for tag in tags:
-                    q_tags = QuestionTag.objects.filter(tag=tag)  # タグ名が合致する質問タグ
-                    q = [q_tag.question for q_tag in q_tags if
-                         r.question.id == q_tag.question.id and r.answerer == request.user]
-                    q_list_tmp.extend(q)
-                    q_list_tmp = list(set(q_list_tmp))
-
-            a = []
-            b = []
-            r_list_tmp = ReplyList.objects.filter(answerer=request.user)
-            for tag in tags:
-                q_tags = QuestionTag.objects.filter(tag=tag)  # タグ名が合致する質問タグ
-                for rl in r_list_tmp:  # 自分に来た質問
-                    for q_tag in q_tags:
-                        if rl.question.id == q_tag.question.id:
-                            a.append(rl)
-                            b = list(set(a))
-                            reply_lists.extend(b)
-
-            reply_lists = list(set(reply_lists))
+            questions = list(set(q_list_tmp))
+            reply_lists = list(set(r_list_tmp))
 
     # 自分の質問と自分宛ての質問の状態を調べる
     qa_manager = QAManager(request.user)
@@ -115,16 +57,7 @@ def top_default(request, msg=None):
     qa_list = list()
     qa_list.extend(questions)
     qa_list.extend(reply_lists)
-    qa_list = sorted(qa_list, reverse=True,
-                     key=lambda x: x[0].date if isinstance(x[0], Question) else x[0].question.date)
-
-    # プロフィール
-    for qa in qa_list:
-        if isinstance(qa[0], Question):
-            profile = UserProfile.objects.get(user=qa[0].questioner)
-        elif isinstance(qa[0], ReplyList):
-            profile = UserProfile.objects.get(user=qa[0].question.questioner)
-        qa.append(profile)
+    qa_list = QAManager.sort_qa(qa_list=qa_list, reverse=True)
 
     return render_to_response('question/top_all.html',
                               {'qa_list': qa_list,
@@ -139,7 +72,7 @@ def question_edit(request, id=None, msg=None):
     """
 
     # edit
-    #質問の編集機能は今は使っていない
+    # 質問の編集機能は今は下書きの場合のみ使う
     if id:
         q = get_object_or_404(Question, pk=id)
         # user check
@@ -153,7 +86,6 @@ def question_edit(request, id=None, msg=None):
     if request.method == 'POST':
         form = QuestionEditForm(request.POST, instance=q)
 
-        # 完了がおされたら
         if form.is_valid():
             # 質問を保存
             q = form.save(commit=False)
@@ -161,11 +93,12 @@ def question_edit(request, id=None, msg=None):
             if q.draft:
                 return top_default(request, msg=m.INFO_QUESTION_SAVE_OK)
 
+            # 質問の宛先（複数）を生成
             div_list = form.cleaned_data['destination']
             for div in div_list:
                 QuestionDestination.objects.create(question=q, tag=div)
 
-            # ランダムに質問者を選んでからReplyListを生成して保存
+            # ランダムに質問者を選んでReplyListを生成
             qa_manager = QAManager()
             r_list = qa_manager.make_reply_list(q, qa_manager.reply_list_update_random_except)
 
@@ -178,18 +111,17 @@ def question_edit(request, id=None, msg=None):
             else:
                 r_list.save()
 
-            # 選択されたタグから、新規にQuestionTagを生成して保存
+            # 選択されたタグから、新規にQuestionTagを生成
             q_tags = form.cleaned_data['tag']
             for q_tag in q_tags:
                 QuestionTag.objects.create(tag=q_tag, question=q)
 
-            # 追加されたタグ名から、新規にTagとQuestionTagを生成して保存
+            # 追加されたタグ名が新規に追加されたタグだったら生成
+            tag_name = Tag.get_all_tags_name()
             tag_added_name = form.cleaned_data['tag_added']
-            tags = Tag.objects.all()
-            tag_name = [t.name for t in tags]
-            if tag_added_name != "" and tag_added_name not in tag_name:  # 新規に追加されたタグだったら保存
-                t = Tag.objects.create(name=tag_added_name)
-                QuestionTag.objects.create(tag=t, question=q)
+            if tag_added_name != "" and tag_added_name not in tag_name:
+                QuestionTag.objects.create(tag=Tag.objects.create(name=tag_added_name), question=q)
+
             return top_default(request, msg=m.INFO_QUESTION_SEND_OK)
         pass
     # new
@@ -221,7 +153,6 @@ def reply_edit(request, id=None):
     if request.method == 'POST':
         form = ReplyEditForm(request.POST, instance=r)
 
-        # 完了がおされたら
         if form.is_valid():
             if q.questioner != request.user:
                 # 回答した質問の制限時間をNoneにしておく
@@ -255,24 +186,13 @@ def question_list(request):
     """
     自分の質問を表示する
     """
+
     # 自分の質問を取ってきて時系列に並べる
-    q = Question.objects.filter(questioner=request.user).order_by('date')
+    q = Question.objects.filter(questioner=request.user).order_by('-date')
 
     # 各質問の状態を調べる
-    q_manager = QAManager(request.user)
-    qa_list = q_manager.question_state(q)
-
-    # 自分の質問を時系列に並べる
-    qa_list = sorted(qa_list, reverse=True,
-                     key=lambda x: x[0].date if isinstance(x[0], Question) else x[0].question.date)
-
-    # プロフィール
-    for qa in qa_list:
-        if isinstance(qa[0], Question):
-            profile = UserProfile.objects.get(user=qa[0].questioner)
-        elif isinstance(qa[0], ReplyList):
-            profile = UserProfile.objects.get(user=qa[0].question.questioner)
-        qa.append(profile)
+    qa_manager = QAManager(request.user)
+    qa_list = qa_manager.question_state(q)
 
     return render_to_response('question/top_q.html',
                               {'qa_list': qa_list,
@@ -289,6 +209,7 @@ def question_pass(request, id=None):
 
     v1.1新機能：ロボット(AI)による自動返信。ある回数だけパスされたら質問から抽出されたキーワードを使って検索URLを返信する。
     """
+
     reply_list = ReplyList.objects.get(id=id)
     if reply_list.has_replied:
         return top_default(request, msg=m.INFO_QUESTION_ALREADY_AUTO_PASS)
@@ -330,27 +251,21 @@ def question_detail(request, id=None):
     質問の詳細を表示する
     """
 
-    # 指定された質問を取ってくる
     q = get_object_or_404(Question, pk=id)
 
-    # 質問のあて先を取ってくる
-    d = QuestionDestination.objects.filter(question=q)
-
-    # 質問のタグを取ってくる
-    q_tags = QuestionTag.objects.filter(question=q)
-
-    # 質問に対する回答を取ってくる
-    # まだ回答が来てない場合のためにget_object_or_404は使わずにこちらを使う
     try:
-        r = Reply.objects.filter(question=q)  # 一つの質問につき返信が複数ある場合はfilterを使うこと
+        r = Reply.objects.filter(question=q)
     except Reply.DoesNotExist:
         r = None
 
-    # 回答リストを取ってくる
     try:
         reply_list = ReplyList.objects.get(question=q, answerer=request.user)
     except ReplyList.DoesNotExist:
         reply_list = None
+
+    d = QuestionDestination.objects.filter(question=q)
+    q_tags = QuestionTag.objects.filter(question=q)
+    r = Reply.objects.filter(question=q)
 
     # user check
     if q.questioner != request.user and reply_list == None:
@@ -369,19 +284,11 @@ def reply_list(request):
 
     # 自分宛の質問のうち、自分の回答待ちになっている質問を取ってきて時系列に並べる
     reply_list = ReplyList.objects.filter(answerer=request.user, has_replied=False)
-    reply_list = sorted(reply_list, reverse=True, key=lambda x: x.question.date)
+    reply_list = QAManager.sort_qa(qa_list=reply_list, reverse=True)
 
     # 各質問の状態を調べる
     q_manager = QAManager(request.user)
     qa_list = q_manager.reply_state(reply_list=reply_list)
-
-    # プロフィール
-    for qa in qa_list:
-        if isinstance(qa[0], Question):
-            profile = UserProfile.objects.get(user=qa[0].questioner)
-        elif isinstance(qa[0], ReplyList):
-            profile = UserProfile.objects.get(user=qa[0].question.questioner)
-        qa.append(profile)
 
     return render_to_response('question/top_r.html',
                               {'qa_list': qa_list, 'last_login': request.user.last_login},
@@ -394,10 +301,10 @@ def mypage(request):
     マイページ
     """
 
-    # ユーザのプロファイルを取ってくる
+    # ユーザのプロファイル
     p = get_object_or_404(UserProfile, user=request.user)
 
-    # ユーザが登録しているタグを取ってくる
+    # ユーザが登録しているタグ
     user_tags = UserTag.objects.filter(user=request.user)
 
     # edit
@@ -407,23 +314,21 @@ def mypage(request):
 
         # 完了がおされたら
         if form.is_valid():
-            r = form.save(commit=False)
-            r.save()
+            form.save(commit=True)
 
-            # 選択されたタグから、新規にQuestionTagを生成して保存
+            # 選択されたタグがそのユーザに付加されてないタグだったら新規にQuestionTagを生成
+            u_tag_names = UserTag.get_user_all_tags_name(user=request.user)
             tags = form.cleaned_data['tag']
-            u_tag_names = [t.tag.name for t in user_tags]
             for q_tag in tags:
-                if q_tag.name not in u_tag_names:  # ユーザに新規に追加されたタグだったら保存
+                if q_tag.name not in u_tag_names:
                     UserTag.objects.create(tag=q_tag, user=request.user)
 
-            # 追加されたタグ名から、新規にTagとQuestionTagを生成して保存
+            # 追加されたタグ名が新規に追加されたタグだったら新規にTagとUserTagを生成
+            tag_name = Tag.get_all_tags_name()
             tag_added_name = form.cleaned_data['tag_added']
-            tags = Tag.objects.all()
-            tag_name = [t.name for t in tags]
-            if tag_added_name != "" and tag_added_name not in tag_name:  # 新規に追加されたタグだったら保存
-                t = Tag.objects.create(name=tag_added_name)
-                UserTag.objects.create(tag=t, user=request.user)
+            if tag_added_name != "" and tag_added_name not in tag_name:
+                UserTag.objects.create(tag=Tag.objects.create(name=tag_added_name), user=request.user)
+
             return redirect('dotchain:mypage')
         pass
     # new

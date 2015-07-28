@@ -34,12 +34,16 @@ class QAManager:
             r = Reply.objects.filter(question=q)  # いまの仕様では返信は一つのはず
             if not q.is_closed and len(r):  # 返信が来たが未解決
                 qa_list.append([q, QuestionState.pending.name])  # 回答待ち
-            elif q.is_closed and len(r):  # 解決済み
-                qa_list.append([q, QuestionState.solved.name])
+            elif q.is_closed and len(r):
+                qa_list.append([q, QuestionState.solved.name])  # 解決済み
             elif q.is_closed and not len(r):
                 qa_list.append([q, QuestionState.unsolved.name])  # 未解決
             else:
                 qa_list.append([q, QuestionState.pending.name])  # 回答待ち
+
+        #  プロフィールを追加
+        self.__append_profile(qa_list)
+
         return qa_list
 
     # その質問のReplyStateを調べるメソッド
@@ -51,11 +55,14 @@ class QAManager:
             if not rl.has_replied:
                 qa_list.append([rl, ReplyState.pending.name])
             else:
-                r = Reply.objects.filter(question=rl.question, answerer=self.user) #最大一つしか出てこないはず
-                if len(r): #自分が回答した
-                    qa_list.append([rl, ReplyState.replied.name])
-                else: # パスした
-                    qa_list.append([rl, ReplyState.passed.name])
+                r = Reply.objects.filter(question=rl.question, answerer=self.user)
+                if len(r):
+                    qa_list.append([rl, ReplyState.replied.name]) #自分が回答した
+                else:
+                    qa_list.append([rl, ReplyState.passed.name]) # パスした
+
+        #  プロフィールを追加
+        self.__append_profile(qa_list)
 
         return qa_list
 
@@ -146,3 +153,100 @@ class QAManager:
         print(reply_user_list)
 
         return reply_list_update(reply_user_list, question)
+
+    @staticmethod
+    def sort_qa(qa_list, reverse=False):
+
+        if len(qa_list) == 0:
+            print('[Warning] QAManager:sort_qa() qa_list length is 0!')
+            return None
+        elif not isinstance(qa_list, list):
+            return sorted(qa_list, reverse=reverse,
+                     key=lambda x: x.date if isinstance(x, Question) else x.question.date)
+        else:
+            return sorted(qa_list, reverse=reverse,
+                     key=lambda x: x[0].date if isinstance(x[0], Question) else x[0].question.date)
+
+    @staticmethod
+    def search_question_by_keyword(keyword, questioner):
+        """
+        キーワードに合致するすべての質問のうち、ユーザが投稿した質問を取り出す
+        """
+        questions = Question.search_by_keyword(keyword=keyword)
+        q_list = []
+        for q in questions:
+            if q.questioner == questioner:
+                q_list.append(q)
+        return q_list
+
+    @staticmethod
+    def search_question_by_tag_keyword(keyword, questioner):
+        """
+        キーワードに合致するすべてのタグのうち、自分が投稿した質問のタグと一致するもののみ取り出す
+        """
+        tags = Tag.get_tags_by_name(tagname=keyword)
+        q_list = []
+        for tag in tags:
+            q_tags = QuestionTag.get_questions_by_tag(tag=tag)
+            q = [q_tag.question for q_tag in q_tags if q_tag.question.questioner == questioner]
+            q_list.extend(q)
+
+        return list(set(q_list))
+
+    @staticmethod
+    def search_replylist_by_keyword_extra(keyword, questioner, answerer):
+        """
+        キーワードに合致する回答のうち、自分の回答、または自分が投稿した質問の回答に関連づいた質問のReplyListのみ取り出す
+        """
+        replies = Reply.search_by_keyword(keyword=keyword)
+        r_list = []
+        for r in replies:
+            if r.answerer == answerer:
+                reply_lists = ReplyList.objects.filter(answerer=answerer)
+                rl = [rl for rl in reply_lists if r.question.id == rl.question.id]
+                r_list.extend(rl)
+            elif r.question.questioner == questioner:
+                reply_lists = ReplyList.objects.filter(question=r.question)
+                rl = [rl for rl in reply_lists if r.question.id == rl.question.id]
+                r_list.extend(rl)
+
+        return list(set(r_list))
+
+    @staticmethod
+    def search_replylist_by_keyword(keyword, answerer):
+        """
+        キーワードに合致するすべての質問のうち、宛先が自分になっているReplyListを取り出す
+        """
+        questions = Question.search_by_keyword(keyword=keyword)
+        reply_lists = ReplyList.objects.filter(answerer=answerer)
+        r_list = []
+        for q in questions:
+            rl = [rl for rl in reply_lists if q.id == rl.question.id]
+            r_list.extend(rl)
+        return r_list
+
+    @staticmethod
+    def search_replylist_by_tag_keyword(keyword, answerer):
+        """
+        自分に来た（回答したものも含む）質問のタグと一致するもののみ取り出す
+        """
+        tags = Tag.get_tags_by_name(tagname=keyword)
+        r_list = ReplyList.objects.filter(answerer=answerer)
+        r_list_tmp = []
+        for tag in tags:
+            q_tags = QuestionTag.get_questions_by_tag(tag=tag)
+            for rl in r_list:
+                for q_tag in q_tags:
+                    if rl.question.id == q_tag.question.id:
+                        r_list_tmp.append(rl)
+
+        return list(set(r_list_tmp))
+
+    def __append_profile(self, qa_list):
+
+        for qa in qa_list:
+            if isinstance(qa[0], Question):
+                profile = UserProfile.objects.get(user=qa[0].questioner)
+            elif isinstance(qa[0], ReplyList):
+                profile = UserProfile.objects.get(user=qa[0].question.questioner)
+            qa.append(profile)

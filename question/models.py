@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 # Create your models here.
 from django.db import models
-from datetime import datetime
+from django.db.models import Q
 from django.contrib.auth.models import User
 from accounts.models import Division
+
 import datetime as t
+from datetime import datetime
+
 class Question(models.Model):
     questioner = models.ForeignKey(User, verbose_name='質問者')
     title = models.CharField('タイトル', max_length=512)
@@ -24,6 +27,10 @@ class Question(models.Model):
 
     def get_tags_name(self):
         return [x.tag.name for x in QuestionTag.objects.filter(question=self)]
+
+    @staticmethod
+    def search_by_keyword(keyword):
+        return list(Question.objects.filter(Q(title__contains=keyword) | Q(text__contains=keyword)))
 
     def has_reply(self):
         return len(Reply.objects.filter(question=self)) != 0
@@ -51,6 +58,10 @@ class Reply(models.Model):
             setattr(self, k, v)
         self.save()
 
+    @staticmethod
+    def search_by_keyword(keyword):
+        return list(Reply.objects.filter(Q(text__contains=keyword)))
+
 class ReplyList(models.Model):
     question = models.ForeignKey(Question, verbose_name='質問')
     answerer = models.ForeignKey(User, verbose_name='返答ユーザ')
@@ -71,6 +82,15 @@ class Tag(models.Model):
     def __str__(self):
         return u'{}'.format(self.name)
 
+    @staticmethod
+    def get_all_tags_name():
+        tags = Tag.objects.all()
+        return [t.name for t in tags]
+
+    @staticmethod
+    def get_tags_by_name(tagname):
+        return Tag.objects.filter(Q(name__contains=tagname))
+
 class UserTag(models.Model):
     user = models.ForeignKey(User, verbose_name='ユーザ')
     tag = models.ForeignKey(Tag, verbose_name='タグ')
@@ -78,9 +98,23 @@ class UserTag(models.Model):
     def __str__(self):
         return u'{}に{}タグ追加'.format(self.user, self.tag)
 
+    @staticmethod
+    def get_user_all_tags_name(user):
+        utags = UserTag.objects.filter(user=user)
+        return [t.tag.name for t in utags]
+
 class QuestionTag(models.Model):
     question = models.ForeignKey(Question, verbose_name='質問')
     tag = models.ForeignKey(Tag, verbose_name='タグ')
 
     def __str__(self):
         return u'{}に{}タグ追加'.format(self.question, self.tag)
+
+    @staticmethod
+    def get_question_all_tags_name(question):
+        qtags = QuestionTag.objects.filter(question=question)
+        return [t.tag.name for t in qtags]
+
+    @staticmethod
+    def get_questions_by_tag(tag):
+        return QuestionTag.objects.filter(tag=tag)

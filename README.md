@@ -29,17 +29,17 @@
 ![アプリイメージ](https://github.com/koga-yatsushiro/one_month/wiki/images/app_image.png)
 
 ##特長
-* 宛先の自動選別
-![宛先の自動選別](https://github.com/koga-yatsushiro/one_month/wiki/images/dotchain_auto_select.png)
-  
-* パス
-![パス](https://github.com/koga-yatsushiro/one_month/wiki/images/dotchain_pass.png)
-  
-* ネットワーク図
-![ネットワーク図](https://github.com/koga-yatsushiro/one_month/wiki/images/dotchain_network.png)
+| 宛先の自動選別 | パス |ネットワーク図 | AIによる自動返信 |
+|:-----------|------------:|:------------:|:------------:|
+| ![宛先の自動選別](https://github.com/koga-yatsushiro/one_month/wiki/images/dotchain_auto_select.png)       |        
+![パス](https://github.com/koga-yatsushiro/one_month/wiki/images/dotchain_pass.png) |     ![ネットワーク図](https://github.com/koga-yatsushiro/one_month/wiki/images/dotchain_network.png)     |
+![AIによる自動返信](https://github.com/koga-yatsushiro/one_month/wiki/images/dotchain_ai.png)|
+| 宛先の自動選別    |  パス |   ネットワーク図    |AIによる自動返信|
 
+* 宛先の自動選別 
+* パス
+* ネットワーク図
 * AIによる自動返信
-![AIによる自動返信](https://github.com/koga-yatsushiro/one_month/wiki/images/dotchain_ai.png)
 
 ##はじめてみましょう
 

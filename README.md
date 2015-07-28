@@ -58,7 +58,7 @@
     * 自分宛の質問はトップページの「自分宛の質問」タブでみることができます
     * 返信した質問は、タイムリミットが無くなり、自分がパスを押すまで質問者といつまでもやり取りすることができます
     * パスした質問は、「すべての質問」タブでみることができます
-    * 自動パスについては、##仕様詳細を参考にしてください
+    * 自動パスについては、次項「仕様詳細」を参考にしてください
     * 返信した質問は、「コメント済み」と表示されます
 
 5. ネットワーク図を見てみよう
@@ -84,9 +84,8 @@
     * OS: Windows7
     * 言語: Python3.4
     * DB: PostgreSQL9.4 (windowsインストーラ使用を推奨)
-    * psycopg2はネット上のwindowsインストーラを使用して入れてください
     * 以下、Pythonモジュール。以下のコマンドでインストールしてください
-    ※requirements.txtの中のpsycopg2==2.6.1の行は削除しておいてください
+    ※もし、requirements.txt内のpsycopg2==2.6.1の行でエラーが出た場合は、psycopg2==2.6.1の行は削除して、[ここ](http://initd.org/psycopg/)のwindowsインストーラを使ってインストールしてください
 
 ```bash
 pip install -r requirements.txt
@@ -103,32 +102,6 @@ python manage.py celeryd
 その後、http://127.0.0.1:8000/dotchain
 にアクセスして、トップページが表示されることを確認してください。
 
-## デプロイ開発環境の構築
-* インストール
-    * OS: Ubuntu14.04 on AWS EC2
-    * 言語: Python3.4
-
-    * 以下、sudo apt-get installで入れる
-    * apache2
-    * apache2-dev
-    * libapache2-mod-wsgi-py3
-    * postgresql
-    * postgresql-server-dev-9.3
-    * supervisor
-    * python3-pip
-
-    * 以下、Pythonモジュール。以下のコマンドでインストールしてください。
-
-```bash
-pip3 install -r requirements.txt
-```
-
-* デプロイ環境下で起動（以下プロセスは自動起動です）
-
-```bash
-sudo service apache2 restart
-sudo service supervisor restart
-```
 
 ## 既知のバグ
 [こちら](https://github.com/koga-yatsushiro/one_month/issues)のwikiのページを参照してください
@@ -139,13 +112,12 @@ sudo service supervisor restart
 * 質問文からのタグの抽出
 * ネットワーク図に基づいた受信者選別
 * ネットワークの抽出方法の改良
-* 回答AIの導入
 
 
 #バージョン情報
 * 2015.07.08 v1.0 Release
+* 2015.07.30 v1.1 Release
 
 #ライセンス
 Apache License, Version 2.0
 http://www.apache.org/licenses/LICENSE-2.0
->>>>>>> 167834ecffc5a76220642050211acd9aba174310

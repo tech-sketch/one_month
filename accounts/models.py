@@ -2,13 +2,6 @@
 from django.contrib.auth.models import User
 from django.db import models
 
-"""
-    これをやると、objects.filterがうまくはたらかないみたい
-    def __str__(self):
-        return u'%s(%s %s)' % (self.username, self.first_name, self.last_name)
-"""
-
-
 # 勤務先マスタ
 class WorkPlace(models.Model):
     CHOICES = (
@@ -90,4 +83,4 @@ class UserProfile(models.Model):
     accept_question = models.IntegerField('受信可', default=1)  # 0:不可, 1:可
 
     def __str__(self):
-        return u'%s %sのプロフィール' % (self.user.first_name, self.user.last_name)
+        return u'%sのプロフィール' % (self.user.username)

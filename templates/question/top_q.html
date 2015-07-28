@@ -28,13 +28,11 @@
                                     &nbsp;タイムリミット：  {{qa.0.time_limit}}
                                 </span>
                         </div>
-                        <div class="well" style="background-color: #FFFFFF; margin-bottom: 0px; height: 200px;">
+                        <div class="well" style="background-color: #FFFFFF; margin-bottom: 0px; height: 200px; word-break: break-all;">
                             <span style="font-size: small;">
-                                {% if qa.0.text|count_line:26 > 3 %}
-                                    {{qa.0.text | truncatechars:"60" | linebreaksbr }}
-                                    <a href="{% url 'dotchain:q_detail' qa.0.id %}">...続きを読む</a>
-                                {% else %}
-                                    {{qa.0.text | truncatechars:"80" | linebreaksbr }}
+                                {{qa.0.text | truncatechars:"90"| urlize }}
+                                {% if qa.0.text|length > 90 %}
+                                    <a href="{% url 'dotchain:q_detail' qa.0.id %}">続きを読む</a>
                                 {% endif %}
                             </span>
                         </div>
@@ -43,7 +41,9 @@
                             <span class="glyphicon glyphicon-comment" aria-hidden="true">  {{qa.0|comment_counter}}</span>&nbsp;&nbsp;
                             <span class="glyphicon glyphicon-share-alt" aria-hidden="true">  {{qa.0|pass_counter}}</span>&nbsp;&nbsp;
                             {# 質問の状態を表示する #}
-                            {% if qa.1 == 'pending' %}
+                            {% if qa.0.draft %}
+                                <span style="font-size: 12pt;font-weight: bold;color: #071178; float:right;">下書き</span>
+                            {% elif qa.1 == 'pending' %}
                                 <span style="font-size: 12pt;font-weight: bold;color: red; float:right;">質問中</span>
                             {% elif qa.1 == 'unsolved' %}
                                 <span style="font-size: 12pt;font-weight: bold;color: red; float:right;">未解決</span>

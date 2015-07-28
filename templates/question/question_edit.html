@@ -22,7 +22,7 @@
 				<div id="hide_1-2">
 					<input type="button" value="宛て先を隠す" class="btn btn-info" onClick="btn_open('hide_1-1','hide_1-2')"><br>
 					{% for f in form.destination %}
-					{%if forloop.last%}</div><br><label class="checkbox-inline" > {{ form.destination|index:forloop.counter0 }}<b>を宛て先に含める</b> </label><br><br>
+					{%if forloop.last%}</div><br><label class="checkbox-inline" > {{ form.destination|index:forloop.counter0 }}<b>（自動返信）を宛て先に含める</b> </label><br><br>
 					{% else %}<label class="checkbox-inline" > {{ form.destination|index:forloop.counter0 }} </label>
 					{% endif %}
 					{% endfor%}

@@ -18,7 +18,7 @@ from django.conf.urls import include, url, patterns
 from django.contrib import admin
 
 from accounts import views
-from one_month import settings
+from one_month import settings, init_application
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
@@ -39,3 +39,6 @@ if settings.DEBUG:
     urlpatterns += patterns('django.views.static',
         (r'media/(?P<path>.*)', 'serve', {'document_root': settings.MEDIA_ROOT}),
     )
+
+
+init_application.startup()

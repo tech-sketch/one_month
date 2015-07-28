@@ -28,13 +28,11 @@
                         &nbsp;回答期限：  {{qa.0.time_limit_date}}
                     </span>
                 </div>
-                <div class="well" style="background-color: #FFFFFF; margin-bottom: 0px; height: 200px;">
+                <div class="well" style="background-color: #FFFFFF; margin-bottom: 0px; height: 200px; word-break: break-all;">
                     <span style="font-size: small;">
-                        {% if qa.0.question.text|count_line:26 > 3 %}
-                            {{qa.0.question.text | truncatechars:"60" | linebreaksbr }}
-                            <a href="{% url 'dotchain:q_detail' qa.0.question.id %}">...続きを読む</a>
-                        {% else %}
-                            {{qa.0.question.text | truncatechars:"80" | linebreaksbr }}
+                        {{qa.0.question.text | truncatechars:"90"| urlize }}
+                        {% if qa.0.question.text|length > 90 %}
+                            <a href="{% url 'dotchain:q_detail' qa.0.question.id %}">続きを読む</a>
                         {% endif %}
                     </span>
                 </div>

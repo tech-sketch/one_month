@@ -329,6 +329,10 @@ class FormTests(TestCase):
         return p
 
 class FormValidationTest(TestCase):
+    """
+    フォームのバリデーションテスト。
+    """
+
     def setUp(self):
         from datetime import time, datetime
         self.division01 = Division.objects.create(name='総務', code=1)

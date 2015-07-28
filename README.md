@@ -28,10 +28,18 @@
 ##アプリイメージ
 ![アプリイメージ](https://github.com/koga-yatsushiro/one_month/wiki/images/app_image.png)
 
-##特長（イラスト＋簡潔説明）
+##特長
 * 宛先の自動選別
+![宛先の自動選別](https://github.com/koga-yatsushiro/one_month/wiki/images/dotchain_auto_select.png)
+  
 * パス
+![パス](https://github.com/koga-yatsushiro/one_month/wiki/images/dotchain_pass.png)
+  
 * ネットワーク図
+![ネットワーク図](https://github.com/koga-yatsushiro/one_month/wiki/images/dotchain_network.png)
+
+* AIによる自動返信
+![AIによる自動返信](https://github.com/koga-yatsushiro/one_month/wiki/images/dotchain_ai.png)
 
 ##はじめてみましょう
 
@@ -68,7 +76,7 @@
 * コンピュータによる自動パス機能(非同期処理)  
 [こちら](https://github.com/koga-yatsushiro/one_month/wiki/%E9%9D%9E%E5%90%8C%E6%9C%9F%E5%87%A6%E7%90%86)のwikiのページを参照してください
   
-* タグの役割
+* タグの役割  
 [こちら](https://github.com/koga-yatsushiro/one_month/wiki/%E3%82%BF%E3%82%B0%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6)のwikiのページを参照してください
   
 #デベロッパー向け

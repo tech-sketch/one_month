@@ -72,7 +72,7 @@
                                         &nbsp;回答期限：  {{qa.0.time_limit_date}}
                                     </span>
                                 </div>
-                                <div class="well" style="background-color: #FFFFFF; margin-bottom: 0px; height: 200px; color: gray;">
+                                <div class="well" style="background-color: #FFFFFF; margin-bottom: 0px; height: 200px; color: gray; word-break: break-all;">
                                     <span style="font-size: small;">
                                         {{qa.0.question.text | truncatechars:"90" | urlize}}
                                         {% if qa.0.question.text|length > 90 %}

@@ -18,50 +18,62 @@
 * リモートワークで働いており、会社の同僚の顔が見えず質問がしにくい人
 * 大組織で働いているが、他の部署とのつながりがほとんどない人
 
-##利用シーン（イラスト）
+##利用シーン
 * 分かる人ならば誰でもいいから答えて欲しいという質問をしたいとき
-顔が見えないリモートワークにおいて、他の同僚の忙しさは気になりますよね。分かる人ならば誰でもいいから答えて欲しいという質問を会社の同僚にメールで送りつけるのは気がひけます。一方で、リモートワークでよく使われているチャットや社内SNSで質問しても誰からも反応なし、という経験はありませんか？.Chain()はあなたの質問の宛先をコンピュータが自動的に決めてくれます。
+顔が見えないリモートワークにおいて、他の同僚の忙しさは気になりますよね。分かる人ならば誰でもいいから答えて欲しいという質問を会社の同僚にメールで送りつけるのは気がひけます。一方で、リモートワークでよく使われているチャットや社内SNSで質問しても誰からも反応なし、という経験はありませんか？.Chain()はあなたの質問の宛先をコンピュータが自動的に決めてくれます。しかも、高確率で誰かから回答をもらえるしくみ搭載しています。
 * 他の部署を含めた人間関係や専門分野を知りたいとき
 組織が大きくなると、自分の部署の人のことはよくわかるのに他部署の人
 はわからないことが多いものです。.Chain()はユーザによる質問のやりとりと、質問に付加されるタグによって、各ユーザの興味や人間関係を可視化して見ることができます。この情報により新しい人間関係が生まれるかもしれません。
 
-##アプリイメージ
-![アプリイメージ](https://github.com/koga-yatsushiro/one_month/wiki/images/app_image.png)
+##特長
+| 宛先の自動選別 | パス（手動／自動） |
+|:--------------:|:------------------:|
+|![宛先の自動選別](https://github.com/koga-yatsushiro/one_month/wiki/images/dotchain_auto_select.png)|![パス](https://github.com/koga-yatsushiro/one_month/wiki/images/dotchain_pass.png)   |
+| 質問相手を決めるのに頭を悩ませる必要はありません。宛先の部署を指定すれば、コンピュータがユーザのプロフィール情報から自動的に宛先を決定してくれます。| 質問を受け取った人は、一定時間内に返信するかパスするかを選択できます。パスしても、あなたの名前が質問者に分かることはありません。質問者・受信者は、質問が現在どのような経路を通ったかをネットワーク図で確認できます。 |
 
-##特長（イラスト＋簡潔説明）
-* 宛先の自動選別
-* パス
-* ネットワーク図
+| AIによる自動返信 | ネットワーク図 | 
+|:----------------:|:-------------:|
+|![AIによる自動返信](https://github.com/koga-yatsushiro/one_month/wiki/images/dotchain_ai.png)|![ネットワーク図](https://github.com/koga-yatsushiro/one_month/wiki/images/dotchain_network.png)|
+| 質問者は、返事が返ってこないという心配をする必要がありません。なぜならば、.Chain()はAI機能を搭載しており、自動的に返信してくれるからです。このAIの回答から、質問解決のヒントを探してください。| 質問・回答を行ってゆくと、ユーザ同士のつながりが作成されます。これにより、自分と他の人とのつながりや、どのような興味・スキルでつながっているかが図で一目でわかります。 |
 
 ##はじめてみましょう
 
 1. 公式サイトにアクセスしてください。アカウントを新規作成するか、Googleアカウントでのログインが可能です。
 ![ログイン](https://github.com/koga-yatsushiro/one_month/wiki/images/login.png)
-2. ログイン後、プロフィールページの情報を更新してください
-![プロフィール](https://github.com/koga-yatsushiro/one_month/wiki/images/profile.png)
-3. 質問しましょう
-![質問作成](https://github.com/koga-yatsushiro/one_month/wiki/images/question_new.png)
-4. 自分宛の質問に答えてみよう
-![返信](https://github.com/koga-yatsushiro/one_month/wiki/images/reply_new.png)
 
-5. ネットワーク図を見てみよう
+2. トップページにははじめには何も質問がありませんが、自分で質問を投稿するか自分宛に来ると、以下のように一覧でされます。質問カードのの表示色の意味は「仕様詳細-質問カードの表示フロー」を参照してください。
+![トップページ](https://github.com/koga-yatsushiro/one_month/wiki/images/top.png)
+  
+3. ログイン後、プロフィールページの情報を更新してください
+![プロフィール](https://github.com/koga-yatsushiro/one_month/wiki/images/profile.png)
+  
+4. 質問しましょう
+![質問作成](https://github.com/koga-yatsushiro/one_month/wiki/images/question_new.png)
+  
+5. 自分宛の質問に答えてみよう
+![返信](https://github.com/koga-yatsushiro/one_month/wiki/images/reply_new.png)
+  
+6. ネットワーク図を見てみよう
     * プロフィールページ下部にアプリ利用者全体のネットワーク図が表示されます
     * 自分と同じ興味を持っている人やよく質問に答えている人がわかりますので、次はその人に直接聞いてみましょう！
-![ネットワーク図](https://github.com/koga-yatsushiro/one_month/wiki/images/.png)
+![ネットワーク図](https://github.com/koga-yatsushiro/one_month/wiki/images/network.png)
 
 ##仕様詳細
-* 動作フロー
+* 動作フロー  
 ![動作フロー](https://github.com/koga-yatsushiro/one_month/wiki/images/action_flow.png)
-
-* コンピュータによる受信者の選択基準
+  
+* 質問カードの表示フロー  
+[こちら](https://github.com/koga-yatsushiro/one_month/wiki/%E8%B3%AA%E5%95%8F%E3%82%AB%E3%83%BC%E3%83%89%E3%81%AE%E8%A1%A8%E7%A4%BA%E3%83%95%E3%83%AD%E3%83%BC)のwikiのページを参照してください
+  
+* コンピュータによる受信者の選択基準  
 [こちら](https://github.com/koga-yatsushiro/one_month/wiki/%E3%82%B3%E3%83%B3%E3%83%94%E3%83%A5%E3%83%BC%E3%82%BF%E3%81%AB%E3%82%88%E3%82%8B%E5%8F%97%E4%BF%A1%E8%80%85%E3%81%AE%E9%81%B8%E6%8A%9E%E5%9F%BA%E6%BA%96)のwikiのページを参照してください
-
-* コンピュータによる自動パス機能(非同期処理)
+  
+* コンピュータによる自動パス機能(非同期処理)  
 [こちら](https://github.com/koga-yatsushiro/one_month/wiki/%E9%9D%9E%E5%90%8C%E6%9C%9F%E5%87%A6%E7%90%86)のwikiのページを参照してください
-
-* タグの役割
+  
+* タグの役割  
 [こちら](https://github.com/koga-yatsushiro/one_month/wiki/%E3%82%BF%E3%82%B0%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6)のwikiのページを参照してください
-
+  
 #デベロッパー向け
 ## アーキテクチャ図
 ![アーキテクチャ図](https://github.com/koga-yatsushiro/one_month/wiki/images/architecture.png)
@@ -78,7 +90,7 @@
 pip install -r requirements.txt
 ```
 
-* ローカルで起動
+* ローカルで起動  
 3つのターミナルを開き、以下のコマンドを入力し、起動してください。
 
 ```bash

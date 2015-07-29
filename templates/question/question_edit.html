@@ -17,10 +17,10 @@
 		<div class="col-md-6">
 
 				<div id="hide_1-1" class="hide_div">
-					<input type="button" value="宛て先を表示する" class="btn btn-info" onClick="btn_open('hide_1-2','hide_1-1')"><br>
+					<input type="button" value="宛て先を表示する" class="btn btn-info btn-sm" onClick="btn_open('hide_1-2','hide_1-1')"><br>
 				</div>
 				<div id="hide_1-2">
-					<input type="button" value="宛て先を隠す" class="btn btn-info" onClick="btn_open('hide_1-1','hide_1-2')"><br>
+					<input type="button" value="宛て先を隠す" class="btn btn-info btn-sm" onClick="btn_open('hide_1-1','hide_1-2')"><br>
 					{% for f in form.destination %}
 					{%if forloop.last%}</div><br><label class="checkbox-inline" > {{ form.destination|index:forloop.counter0 }}<b>（自動返信）を宛て先に含める</b> </label><br><br>
 					{% else %}<label class="checkbox-inline" > {{ form.destination|index:forloop.counter0 }} </label>
@@ -30,25 +30,28 @@
 			{{ form.title | bootstrap}}
 			{{ form.date | bootstrap}}
 			{{ form.time_limit | bootstrap}}
-
 				<div id="hide_2-1">
-					<input type="button" value="タグを表示する" class="btn btn-info"
+					<input type="button" value="タグを表示する" class="btn btn-info btn-sm"
 					onClick="btn_open('hide_2-2','hide_2-1')">
 				</div>
 				<div id="hide_2-2" class="hide_div">
-					<input type="button" value="タグを隠す" class="btn btn-info"
+					<input type="button" value="タグを隠す" class="btn btn-info btn-sm"
 					onClick="btn_open('hide_2-1','hide_2-2')"><br>
 					{% for t in form.tag %}
 					<label class="checkbox-inline" > {{ form.tag|index:forloop.counter0 }} </label>
 					{% endfor%}
 				</div>
 				{{ form.tag_added | bootstrap}}
-				{{ form.draft | bootstrap}}
 		</div>
 
-		<div class="col-md-6" >{{ form.text | bootstrap}}</div>
+		<div class="col-md-6" >{{ form.text | bootstrap}}
+				{{ form.draft | bootstrap}}</div>
 		<div class="clear" />
-		<input type="submit" name="done" value="確定" class="clear btn btn-primary"><br><br>
+		<div style="float:right;">
+			<input type="submit" name="done" value="確定" class="btn btn-info">&nbsp;&nbsp;&nbsp;&nbsp;
+		</div>
+		<p>&nbsp;</p><p>&nbsp;</p>
+
 	</form>
 </div>
 

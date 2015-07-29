@@ -8,20 +8,20 @@
 {% endblock head %}
 
 {% block content %}
-{# 挨拶 #}
+
+{# 設定フォーム #}
 <div class="col-md-12 card_form">
-	{# 設定フォーム #}
 	<h2>{{user.username}}さんのプロフィール</h2>
 	<form enctype="multipart/form-data" action="" method="post" class="form", name="profile", id="p_id">
 		<div class="col-md-3" >
 			<img src="/media/{{uprof.avatar}}" align="left" width="100%"><br>
-			<div id="hide_5-1" >
-				<input type="button" value="プロフィール画像を変更する" class="btn btn-info" onClick="btn_open('hide_5-2','hide_5-1')">
+			<div id="hide_5-1" align="center">
+				<input type="button" value="プロフィール画像を変更する" class="btn btn-info btn-sm" onClick="btn_open('hide_5-2','hide_5-1')" align="center">
 			</div>
 			<div id="hide_5-2" style="display:none">
 				<input type="button" value="隠す" class="btn btn-info" onClick="btn_open('hide_5-1','hide_5-2')">
 				{{ form.avatar| bootstrap }}
-				<input type="submit" name="done" value="確定" class="btn btn-primary">
+				<input type="submit" name="done" value="確定" class="btn btn-info">
 			</div>
 			<p>&nbsp;</p>
 		</div>
@@ -79,31 +79,31 @@
 		<div class="col-md-3" >
 			<br><br>
 			<div id="hide_1-2" style="display:none">
-				<input type="button" value="勤務地を隠す" class="btn btn-info"  onClick="btn_open('hide_1-1','hide_1-2')">
+				<input type="button" value="勤務地を隠す" class="btn btn-info btn-sm"  onClick="btn_open('hide_1-1','hide_1-2')">
 				{{ form.work_place}}
-				<input type="submit" name="done" value="確定" class="btn btn-primary"><br><br>
+				<input type="submit" name="done" value="確定" class="btn btn-info"><br><br>
 			</div>
 			<!------------------------------>
 			<div id="hide_2-2" style="display:none">
-				<input type="button" value="勤務ステータスを隠す" class="btn btn-info"onClick="btn_open('hide_2-1','hide_2-2')">
+				<input type="button" value="勤務ステータスを隠す" class="btn btn-info btn-sm"onClick="btn_open('hide_2-1','hide_2-2')">
 				{{ form.work_status }}
-				<input type="submit" name="done" value="確定" class="btn btn-primary"><br><br>
+				<input type="submit" name="done" value="確定" class="btn btn-info"><br><br>
 			</div>
 			<!--------------------------------------->
 			<div id="hide_3-2" style="display:none">
-				<input type="button" value="所属を隠す" class="btn btn-info" onClick="btn_open('hide_3-1','hide_3-2')"><br>
+				<input type="button" value="所属を隠す" class="btn btn-info btn-sm" onClick="btn_open('hide_3-1','hide_3-2')"><br>
 				{% for f in form.division %}
 				{%if not forloop.last%}  <!-- 所属の表示からロボットを除く-->
 				<label class="checkbox-inline" style="float: none"> {{ form.division| index:forloop.counter0 }} </label> <br>
 				{% endif %}
 				{% endfor%}
-				<input type="submit" name="done" value="確定" class="btn btn-primary"><br><br>
+				<input type="submit" name="done" value="確定" class="btn btn-info"><br><br>
 			</div>
 			<!--------------------------------------->
 			<div id="hide_4-2" style="display:none">
-				<input type="button" value="受信ステータスを隠す" class="btn btn-info" onClick="btn_open('hide_4-1','hide_4-2')">
+				<input type="button" value="受信ステータスを隠す" class="btn btn-info btn-sm" onClick="btn_open('hide_4-1','hide_4-2')">
 				{{ form.accept_question }}
-				<input type="submit" name="done" value="確定" class="btn btn-primary">
+				<input type="submit" name="done" value="確定" class="btn btn-info">
 			</div>
 		</div>
 
@@ -120,16 +120,16 @@
 				{% empty %}
 					<p>なし</p>
 				{% endfor %}
-				<input type="button" value="タグを追加する" class="btn btn-info" onClick="btn_open('hide_0-2','hide_0-1')">
+				<input type="button" value="タグを追加する" class="btn btn-info btn-sm" onClick="btn_open('hide_0-2','hide_0-1')">
 			</div>
 
 			<div id="hide_0-2" style="display:none">
-				<input type="button" value="タグを隠す" class="btn btn-info" onClick="btn_open('hide_0-1','hide_0-2')"><br>
+				<input type="button" value="タグを隠す" class="btn btn-info btn-sm" onClick="btn_open('hide_0-1','hide_0-2')"><br>
 				{% for f in form.tag %}
 				<label class="checkbox-inline"> {{ form.tag|index:forloop.counter0 }} </label>
 				{% endfor%}
 				{{ form.tag_added| bootstrap }}
-				<input type="submit" name="done" value="確定" class="btn btn-primary">
+				<input type="submit" name="done" value="確定" class="btn btn-info">
 			</div>
 			<br>
 		</div>

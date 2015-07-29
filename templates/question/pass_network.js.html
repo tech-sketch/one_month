@@ -52,15 +52,15 @@ $('#cy').cytoscape({
     nodes: [
       {% for node in all_user %}
       {% if node.1 == all_pass.0.0 %}
-      	{ data: { id: '{{node.1}}', name: '質問者', weight: 15, faveColor: '#6FB1FC'} },
+      	{ data: { id: '{{node.1}}', name: '質問者', weight: 15, faveColor: '#071178'} },
       {% elif node.1 == you.1 %}
-      	{ data: { id: '{{node.1}}', name: 'あなた', weight: 15, faveColor: '#6FB1FC'} },
+      	{ data: { id: '{{node.1}}', name: 'あなた', weight: 15, faveColor: '#071178'} },
       {% else %}
-      	{ data: { id: '{{node.1}}', name: '', weight: 15, faveColor: '#6FB1FC'} },
+      	{ data: { id: '{{node.1}}', name: '', weight: 15, faveColor: '#071178'} },
       {% endif %}
       {% endfor %}
       {% for node in all_tag %}
-      { data: { id: '{{node.1}}', name: '{{node.0}}', weight: 15, faveColor: '#2FCDB4'} },
+      { data: { id: '{{node.1}}', name: '{{node.0}}', weight: 15, faveColor: '#A6341F'} },
       {% endfor %}
     ],
     edges: [
@@ -68,7 +68,7 @@ $('#cy').cytoscape({
       { data: { source: '{{edge.0}}', target: '{{edge.1}}', faveColor: '#F5A45D', strength: 1, faveEdge: 'none' } },
       {% endfor %}*/
       {% for edge in all_userTag %}
-      { data: { source: '{{edge.0}}', target: '{{edge.1}}', faveColor: '#F26964', strength: 1, faveEdge: 'none' } },
+      { data: { source: '{{edge.0}}', target: '{{edge.1}}', faveColor: '#A6341F', strength: 1, faveEdge: 'none' } },
       {% endfor %}
       {% for edge in all_pass %}
       { data: { source: '{{edge.0}}', target: '{{edge.1}}', faveColor: '#34495e', strength: 10, faveEdge: 'triangle' } },

@@ -102,7 +102,7 @@ class QAManager:
         指定された質問の返信リストを指定した返信リスト更新関数で更新する
         """
         if passed_question.is_closed:
-            return
+            return False
 
         try:
             reply_list = ReplyList.objects.get(question=passed_question, has_replied=False)
@@ -135,7 +135,7 @@ class QAManager:
 
         except MultipleObjectsReturned:
             print("ReplyListの値が不正です")
-            return
+            return False
 
     def make_reply_list(self, question, reply_list_update):
 

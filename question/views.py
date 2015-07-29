@@ -286,9 +286,11 @@ def reply_list(request):
     reply_list = ReplyList.objects.filter(answerer=request.user, has_replied=False)
     reply_list = QAManager.sort_qa(qa_list=reply_list, reverse=True)
 
-    # 各質問の状態を調べる
-    q_manager = QAManager(request.user)
-    qa_list = q_manager.reply_state(reply_list=reply_list)
+    if reply_list is not None:
+        q_manager = QAManager(request.user)
+        qa_list = q_manager.reply_state(reply_list=reply_list)
+    else:
+        qa_list = None
 
     return render_to_response('question/top_r.html',
                               {'qa_list': qa_list, 'last_login': request.user.last_login},

@@ -38,6 +38,9 @@ def top_default(request, msg=None):
         * 自分の投稿に対する相手の回答内容がキーワードと部分一致
         """
         if form.is_valid():
+            questions, reply_lists = QAManager.search_keyword(user=request.user, keyword=form.clean()['keyword'])
+
+            """
             q_list_tmp = QAManager.search_question_by_keyword(keyword=form.clean()['keyword'], questioner=request.user)
             q_list_tmp.extend(QAManager.search_question_by_tag_keyword(keyword=form.clean()['keyword'], questioner=request.user))
 
@@ -47,6 +50,7 @@ def top_default(request, msg=None):
 
             questions = list(set(q_list_tmp))
             reply_lists = list(set(r_list_tmp))
+            """
 
     # 自分の質問と自分宛ての質問の状態を調べる
     qa_manager = QAManager(request.user)
@@ -230,10 +234,16 @@ def question_pass(request, id=None):
             text = ''
             reply_data = ReplyRobot().reply(reply_list.question)
             if len(reply_data['reply_list']) == 0:
-                text = "難問です。答えられたらすごいです。"
+                text += "難問です。答えられたらすごいです。\n"
             else:
-                text = "以下のページはどうでしょうか？\n\n" + "\n".join(reply_data['reply_list'])
+                text = "[StackOverFlowより] 以下のページはどうでしょうか？\n\n" + "\n".join(reply_data['reply_list'])
             if len(reply_data['word_list']) != 0:
+                urls = []
+                for w in reply_data['word_list']:
+                    questions, reply_lists = QAManager.search_keyword(user=reply_list.question.questioner, keyword=str(w))
+                    if len(questions):
+                        urls.append('http://'+request.META['HTTP_HOST']+'/dotchain/q_detail/'+str(questions[0].id)+'\n')
+                text += "¥n[過去の質問より] 以下のページはどうでしょうか？\n\n" + "\n".join(list(set(urls))) if len(urls) else "\n過去の関連質問はありませんでした。"
                 text += "\n\n抽出結果：" + "、".join(reply_data['word_list'])
             text += "\n推定ジャンル：" + reply_data['genre']
 

@@ -15,19 +15,19 @@ class ReplyRobot:
 
     def request_keyword_extraction(self, message):
         url = "http://jlp.yahooapis.jp/KeyphraseService/V1/extract?appid=" + self.api_key
-        print(self.remove_source_code(message))
+        #print(self.remove_source_code(message))
         param = {
             "sentence": self.remove_source_code(message),
             "output": "json"
         }
         result = requests.post(url, data=param)
-        print("request:" + result.text)
+        #print("request:" + result.text)
         return result.json()
 
     def request_stack_over_flow(self):
         re_word_list = [re.sub(r'\.|#|&|\?|:|=', "", word) for word in self.word_list[:3]]
         keyword_join = " ".join(re_word_list)
-        print(keyword_join)
+        #print(keyword_join)
         url = "https://api.stackexchange.com/2.2/search/advanced?order=desc&sort=votes&body={0}&site=ja.stackoverflow".format(
         keyword_join)
         result_json = requests.get(url).json()

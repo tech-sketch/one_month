@@ -242,11 +242,37 @@ class QAManager:
 
         return list(set(r_list_tmp))
 
+    @staticmethod
+    def search_keyword(user, keyword):
+        """
+        キーワードと一致し、かつユーザに関連した質問とReplyListを返す
+        """
+        q_list_tmp = QAManager.search_question_by_keyword(keyword=keyword, questioner=user)
+        q_list_tmp.extend(QAManager.search_question_by_tag_keyword(keyword=keyword, questioner=user))
+
+        r_list_tmp = QAManager.search_replylist_by_keyword(keyword=keyword, answerer=user)
+        r_list_tmp.extend(QAManager.search_replylist_by_keyword_extra(keyword=keyword, questioner=user, answerer=user))
+        r_list_tmp.extend(QAManager.search_replylist_by_tag_keyword(keyword=keyword, answerer=user))
+
+        questions = list(set(q_list_tmp))
+        reply_lists = list(set(r_list_tmp))
+
+        return questions, reply_lists
+
     def __append_profile(self, qa_list):
+        from one_month import  init_application
 
         for qa in qa_list:
             if isinstance(qa[0], Question):
-                profile = UserProfile.objects.get(user=qa[0].questioner)
+                try:
+                    profile = UserProfile.objects.get(user=qa[0].questioner)
+                except UserProfile.DoesNotExist:
+                    init_application.startup()
+                    profile = UserProfile.objects.get(user=qa[0].questioner)
             elif isinstance(qa[0], ReplyList):
-                profile = UserProfile.objects.get(user=qa[0].question.questioner)
+                try:
+                    profile = UserProfile.objects.get(user=qa[0].question.questioner)
+                except UserProfile.DoesNotExist:
+                    init_application.startup()
+                    profile = UserProfile.objects.get(user=qa[0].question.questioner)
             qa.append(profile)

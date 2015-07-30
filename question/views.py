@@ -6,13 +6,13 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.contrib.auth.models import User
 
+from one_month import settings
 from accounts.models import UserProfile, WorkStatus, WorkPlace, Division
 from question.models import Question, Reply, ReplyList, Tag, UserTag, QuestionTag, QuestionDestination
 from question.forms import QuestionEditForm, ReplyEditForm, UserProfileEditForm, KeywordSearchForm
 from question.qa_manager import QAManager
 from question.robot_reply import ReplyRobot
 from question import message_definition as m
-
 
 
 # Create your views here.
@@ -38,19 +38,11 @@ def top_default(request, msg=None):
         * 自分の投稿に対する相手の回答内容がキーワードと部分一致
         """
         if form.is_valid():
-            questions, reply_lists = QAManager.search_keyword(user=request.user, keyword=form.clean()['keyword'])
-
-            """
-            q_list_tmp = QAManager.search_question_by_keyword(keyword=form.clean()['keyword'], questioner=request.user)
-            q_list_tmp.extend(QAManager.search_question_by_tag_keyword(keyword=form.clean()['keyword'], questioner=request.user))
-
-            r_list_tmp = QAManager.search_replylist_by_keyword(keyword=form.clean()['keyword'], answerer=request.user)
-            r_list_tmp.extend(QAManager.search_replylist_by_keyword_extra(keyword=form.clean()['keyword'], questioner=request.user, answerer=request.user))
-            r_list_tmp.extend(QAManager.search_replylist_by_tag_keyword(keyword=form.clean()['keyword'], answerer=request.user))
-
-            questions = list(set(q_list_tmp))
-            reply_lists = list(set(r_list_tmp))
-            """
+            keyword = form.clean()['keyword']
+            questions, reply_lists = QAManager.search_keyword(user=request.user, keyword=keyword,
+                                                              question=True, reply=True, tag=True)
+            result = len(questions) + len(reply_lists)
+            msg = '「'+keyword+'」の検索結果： '+str(result)+'件'
 
     # 自分の質問と自分宛ての質問の状態を調べる
     qa_manager = QAManager(request.user)
@@ -211,8 +203,14 @@ def question_pass(request, id=None):
     次に質問を回す人は、質問者と既にパスした人にはならないようにする。
     また、質問者以外のユーザを質問が回り終わったら、質問者にお知らせする。
 
-    v1.1新機能：ロボット(AI)による自動返信。ある回数だけパスされたら質問から抽出されたキーワードを使って検索URLを返信する。
+    v1.1新機能：ロボット(AI)による自動返信。
+                ある回数（現在は１回に固定）だけパスされたら質問から抽出されたキーワードを使って検索URLを返信する。
+                カテゴリがITの場合はStackOverFlowで検索＋過去の関連質問を返信する。
+                その他の場合は過去の関連質問を返信する。
     """
+
+    # ホスト名を更新（この定数はtasks.pyの自動パスでも使われる）
+    settings.HOST_NAME = request.META['HTTP_HOST']
 
     reply_list = ReplyList.objects.get(id=id)
     if reply_list.has_replied:
@@ -236,18 +234,23 @@ def question_pass(request, id=None):
             if len(reply_data['reply_list']) == 0:
                 text += "難問です。答えられたらすごいです。\n"
             else:
-                text = "[StackOverFlowより] 以下のページはどうでしょうか？\n\n" + "\n".join(reply_data['reply_list'])
+                text = "[StackOverFlowより] 以下のページはどうでしょうか？\n\n" + "\n".join(reply_data['reply_list']) + "\n"
             if len(reply_data['word_list']) != 0:
                 urls = []
                 for w in reply_data['word_list']:
-                    questions, reply_lists = QAManager.search_keyword(user=reply_list.question.questioner, keyword=str(w))
-                    if len(questions):
-                        urls.append('http://'+request.META['HTTP_HOST']+'/dotchain/q_detail/'+str(questions[0].id)+'\n')
-                text += "¥n[過去の質問より] 以下のページはどうでしょうか？\n\n" + "\n".join(list(set(urls))) if len(urls) else "\n過去の関連質問はありませんでした。"
+                    # すべてのユーザの過去の全質問（各質問の回答は含まない）の中から、抽出結果でキーワード検索をかける（最大３件）
+                    questions, reply_lists = QAManager.search_keyword_all_user(keyword=str(w), question=True, tag=True,
+                                                                               reply=False)
+                    for q in questions:
+                        if q.id != reply_list.question.id and len(urls) <= 2:
+                            urls.append(q.title + "\n" + 'http://' + settings.HOST_NAME + '/dotchain/q_detail/' + str(q.id) + '\n')
+                text += "[過去の質問より] 以下のページはどうでしょうか？\n\n" + "\n".join(list(set(urls))) if len(
+                    urls) else "\n過去の関連質問はありませんでした。"
                 text += "\n\n抽出結果：" + "、".join(reply_data['word_list'])
             text += "\n推定ジャンル：" + reply_data['genre']
 
-            robot, created = User.objects.get_or_create(username='__robot__@dotChain', defaults=dict(first_name='太郎', last_name = 'ロボット',),)
+            robot, created = User.objects.get_or_create(username='__robot__@dotChain',
+                                                        defaults=dict(first_name='太郎', last_name='ロボット', ), )
             Reply.objects.create(question=reply_list.question, answerer=robot, text=text)
         return top_default(request, msg=m.INFO_QUESTION_PASS)
     else:
@@ -282,7 +285,8 @@ def question_detail(request, id=None):
         return top_default(request, msg=m.INFO_QUESTION_INVALID_ACCESS)
 
     return render_to_response('question/question_detail.html',
-                              {'question': q, 'destinations':d, 'q_tags': q_tags, 'reply': r, 'reply_list': reply_list},
+                              {'question': q, 'destinations': d, 'q_tags': q_tags, 'reply': r,
+                               'reply_list': reply_list},
                               context_instance=RequestContext(request))
 
 
@@ -402,7 +406,6 @@ def pass_network(request, id=None):
     all_pass_temp = ['u{}'.format(r.answerer.id) for r in ReplyList.objects.filter(question=q).order_by('id')]
     all_pass_temp.insert(0, 'u{}'.format(q.questioner.id), )
     all_pass = [[all_pass_temp[n - 1], all_pass_temp[n]] for n in range(1, len(all_pass_temp))]
-    print(request.user)
 
     return render_to_response('question/pass_network.html',
                               {'user_reply_list': user_reply_list,

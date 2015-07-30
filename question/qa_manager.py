@@ -158,7 +158,7 @@ class QAManager:
     def sort_qa(qa_list, reverse=False):
 
         if len(qa_list) == 0:
-            print('[Warning] QAManager:sort_qa() qa_list length is 0!')
+            #print('[Warning] QAManager:sort_qa() qa_list length is 0!')
             return None
         elif not isinstance(qa_list, list):
             return sorted(qa_list, reverse=reverse,
@@ -243,16 +243,38 @@ class QAManager:
         return list(set(r_list_tmp))
 
     @staticmethod
-    def search_keyword(user, keyword):
+    def search_keyword_all_user(keyword, question=True, reply=True, tag=True):
         """
-        キーワードと一致し、かつユーザに関連した質問とReplyListを返す
+        キーワードと一致し、かつすべてのユーザに関連した質問とReplyListを返す
         """
-        q_list_tmp = QAManager.search_question_by_keyword(keyword=keyword, questioner=user)
-        q_list_tmp.extend(QAManager.search_question_by_tag_keyword(keyword=keyword, questioner=user))
+        users = User.objects.all()
+        questions = []
+        reply_lists = []
+        for user in users:
+            q, rl = QAManager.search_keyword(user=user, keyword=keyword, question=question, reply=reply, tag=tag)
+            questions.extend(q)
+            reply_lists.extend(rl)
 
-        r_list_tmp = QAManager.search_replylist_by_keyword(keyword=keyword, answerer=user)
-        r_list_tmp.extend(QAManager.search_replylist_by_keyword_extra(keyword=keyword, questioner=user, answerer=user))
-        r_list_tmp.extend(QAManager.search_replylist_by_tag_keyword(keyword=keyword, answerer=user))
+        return list(set(questions)), list(set(reply_lists))
+
+    @staticmethod
+    def search_keyword(user, keyword, question=True, reply=True, tag=True):
+        """
+        キーワードと一致し、かつ指定されたユーザに関連した質問とReplyListを返す
+        """
+        q_list_tmp = []
+        r_list_tmp = []
+
+        if question:
+            q_list_tmp = QAManager.search_question_by_keyword(keyword=keyword, questioner=user)
+
+        if tag:
+            q_list_tmp.extend(QAManager.search_question_by_tag_keyword(keyword=keyword, questioner=user))
+            r_list_tmp.extend(QAManager.search_replylist_by_tag_keyword(keyword=keyword, answerer=user))
+
+        if reply:
+            r_list_tmp.extend(QAManager.search_replylist_by_keyword(keyword=keyword, answerer=user))
+            r_list_tmp.extend(QAManager.search_replylist_by_keyword_extra(keyword=keyword, questioner=user, answerer=user))
 
         questions = list(set(q_list_tmp))
         reply_lists = list(set(r_list_tmp))

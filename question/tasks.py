@@ -17,6 +17,8 @@ def auto_rand_pass():
     reply_list_list = ReplyList.objects.filter(time_limit_date__lt=tz_tokyo.localize(time), has_replied=False).filter(~Q(time_limit_date=None))
     #r_list_list = ReplyList.objects.filter(time_limit_date__it=datetime.datetime.now())
 
+    from one_month import settings
+
     print("---------------")
     if not reply_list_list:
         print("@@@@skip@@@@")
@@ -43,18 +45,23 @@ def auto_rand_pass():
                 if len(reply_data['reply_list']) == 0:
                     text += "難問です。答えられたらすごいです。\n"
                 else:
-                    text = "[StackOverFlowより] 以下のページはどうでしょうか？\n\n" + "\n".join(reply_data['reply_list'])
+                    text = "[StackOverFlowより] 以下のページはどうでしょうか？\n\n" + "\n".join(reply_data['reply_list']) + "\n"
                 if len(reply_data['word_list']) != 0:
                     urls = []
                     for w in reply_data['word_list']:
-                        questions, reply_lists = QAManager.search_keyword(user=reply_list.question.questioner, keyword=str(w))
-                        if len(questions):
-                            urls.append('http://[ドメイン名]/dotchain/q_detail/'+str(questions[0].id)+'\n')
-                    text += "¥n[過去の質問より] 以下のページはどうでしょうか？\n\n" + "\n".join(list(set(urls))) if len(urls) else "\n過去の関連質問はありませんでした。"
+                        # すべてのユーザの過去の全質問（各質問の回答は含まない）の中から、抽出結果でキーワード検索をかける（最大３件）
+                        questions, reply_lists = QAManager.search_keyword_all_user(keyword=str(w), question=True, tag=True,
+                                                                                   reply=False)
+                        for q in questions:
+                            if q.id != reply_list.question.id and len(urls) <= 2:
+                                urls.append(q.title + "\n" + 'http://' + settings.HOST_NAME + '/dotchain/q_detail/' + str(q.id) + '\n')
+                    text += "[過去の質問より] 以下のページはどうでしょうか？\n\n" + "\n".join(list(set(urls))) if len(
+                        urls) else "\n過去の関連質問はありませんでした。"
                     text += "\n\n抽出結果：" + "、".join(reply_data['word_list'])
                 text += "\n推定ジャンル：" + reply_data['genre']
 
-                robot, created = User.objects.get_or_create(username='__robot__@dotChain', defaults=dict(first_name='太郎', last_name = 'ロボット',),)
+                robot, created = User.objects.get_or_create(username='__robot__@dotChain',
+                                                            defaults=dict(first_name='太郎', last_name='ロボット', ), )
                 Reply.objects.create(question=reply_list.question, answerer=robot, text=text)
         else:
             reply_list.question.update(is_closed=True)

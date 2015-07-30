@@ -55,7 +55,7 @@ def auto_rand_pass():
                         for q in questions:
                             if q.id != reply_list.question.id and len(urls) <= 2:
                                 urls.append(q.title + "\n" + 'http://' + settings.HOST_NAME + '/dotchain/q_detail/' + str(q.id) + '\n')
-                    text += "[過去の質問より] 以下のページはどうでしょうか？\n\n" + "\n".join(list(set(urls))) if len(
+                    text += "\n[過去の質問より] 以下のページはどうでしょうか？\n\n" + "\n".join(list(set(urls))) if len(
                         urls) else "\n過去の関連質問はありませんでした。"
                     text += "\n\n抽出結果：" + "、".join(reply_data['word_list'])
                 text += "\n推定ジャンル：" + reply_data['genre']

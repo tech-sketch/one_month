@@ -137,7 +137,7 @@ MEDIA_URL = '/media/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-HOST_NAME = '127.0.0.1'
+HOST_NAME = 'ec2-52-69-193-151.ap-northeast-1.compute.amazonaws.com'
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.debug',
